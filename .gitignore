@@ -1,4 +1,4 @@
-parser/grammar.tab.hh
-parser/grammar.tab.cc
-parser/lex.yy.c
+*.o
+parser/grammar.tab.*
+parser/lex.yy.*
 parser/lexer
