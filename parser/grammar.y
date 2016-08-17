@@ -136,10 +136,10 @@ char_constant:  CHAR_LIT;
 primary_expr:   IDENT
                 | constant
                 | STRING_LIT
-                | LPAREN expr RPAREN;
+                | LPAREN expression RPAREN;
 
 postfix_expr:   primary_expr
-                | postfix_expr LBRACKET expr RBRACKET
+                | postfix_expr LBRACKET expression RBRACKET
                 | postfix_expr LPAREN RPAREN
                 | postfix_expr LPAREN argument_expr_list RPAREN
                 | postfix_expr DOT IDENT
@@ -208,7 +208,7 @@ logical_or_expr:        logical_and_expr
                         | logical_or_expr OR logical_and_expr;
 
 cond_expr:      logical_or_expr
-                | logical_or_expr QMARK expr COLON cond_expr;
+                | logical_or_expr QMARK expression COLON cond_expr;
 
 assignment_expr:        cond_expr
                         | unary_expr assignment_op assignment_expr;
@@ -225,8 +225,8 @@ assignment_op:          EQ
                         | BXOREQ
                         | BOREQ;
 
-expr:   assignment_expr
-        | expr COMMA assignment_expr;
+expression:     assignment_expr
+                | expression COMMA assignment_expr;
 
 constant_expr:  cond_expr;
 
@@ -379,9 +379,9 @@ direct_abstract_declarator:     LPAREN abstract_declarator RPAREN
                                 | direct_abstract_declarator LBRACKET parameter_type_list RBRACKET
                                 | LBRACKET parameter_type_list RBRACKET;
 
-initializer:    assignment_expr
-                | LBRACE initializer_list RBRACE
-                | LBRACE initializer_list COMMA RBRACE;
+initializer:            assignment_expr
+                        | LBRACE initializer_list RBRACE
+                        | LBRACE initializer_list COMMA RBRACE;
 
 initializer_list:       initializer
                         | designation initializer
@@ -396,6 +396,53 @@ designator_list:        designator
 designator:             LBRACKET constant_expr RBRACKET
                         | DOT IDENT;
 
+statement:              labeled_statement
+                        | compound_statement
+                        | expression_statement
+                        | selection_statement
+                        | iteration_statement
+                        | jump_statement;
+
+labeled_statement:      IDENT COLON statement
+                        | CASE constant_expr COLON statement
+                        | DEFAULT COLON statement;
+
+compound_statement:     LBRACE block_item_list RBRACE
+                        | LBRACE RBRACE;
+
+block_item_list:        block_item
+                        | block_item_list block_item;
+
+block_item:             declaration
+                        | statement;
+
+expression_statement:   SEMICOLON
+                        | expression SEMICOLON
+
+selection_statement:    IF LPAREN expression RPAREN statement
+                        | IF LPAREN expression RPAREN statement ELSE statement
+                        | SWITCH LPAREN expression RPAREN statement;
+
+for_guard_expr:         expression SEMICOLON expression SEMICOLON expression
+                        | expression SEMICOLON expression SEMICOLON
+                        | expression SEMICOLON SEMICOLON expression
+                        | SEMICOLON expression SEMICOLON expression
+                        | expression SEMICOLON SEMICOLON
+                        | SEMICOLON expression SEMICOLON
+                        | SEMICOLON SEMICOLON expression
+                        | SEMICOLON SEMICOLON
+
+iteration_statement:    WHILE LPAREN expression RPAREN statement
+                        | DO statement WHILE LPAREN expression RPAREN
+                        | FOR LPAREN for_guard_expr RPAREN statement
+                        | FOR LPAREN declaration expression RPAREN statement
+                        | FOR LPAREN declaration RPAREN statement
+
+jump_statement:         GOTO IDENT SEMICOLON
+                        | CONTINUE SEMICOLON
+                        | BREAK SEMICOLON
+                        | RETURN SEMICOLON
+                        | RETURN expression SEMICOLON;
 
 %%
 
