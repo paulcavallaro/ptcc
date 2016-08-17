@@ -41,6 +41,7 @@ void yyerror(YYLTYPE * yylloc, const char* str) {
 %token          BOREQ "|="
 %token          END 0 "end of file"
 %token          COMMA ","
+%token          ELLIPSIS "..."
 %token          DOT "."
 %token          PERCENT "%"
 %token          NEQ "!="
@@ -68,6 +69,7 @@ void yyerror(YYLTYPE * yylloc, const char* str) {
 %token  <sval>  FLOAT_LIT
 %token  <sval>  HEX_FLOAT_LIT
 %token  <sval>  CHAR_LIT
+%token  <sval>  STRING_LIT
 %left           PLUS "+"
 %token          RBRACE "}"
 %token          RBRACKET "]"
@@ -115,9 +117,12 @@ void yyerror(YYLTYPE * yylloc, const char* str) {
 
 %%
 
-%start expr;
+%start declaration;
 
 identifier:     IDENT;
+
+identifier_opt: /* Nothing */
+                | identifier;
 
 constant:       int_constant
                 | float_constant
@@ -135,10 +140,9 @@ enum_constant:  IDENT;
 
 char_constant:  CHAR_LIT;
 
-
 primary_expr:   identifier
                 | constant
-                | string_literal
+                | STRING_LIT
                 | LPAREN expr RPAREN;
 
 postfix_expr:   primary_expr
@@ -235,11 +239,172 @@ expr:   assignment_expr
 
 constant_expr:  cond_expr;
 
-// TODO(ptc) Continue with these definitions, right now just placeholders
+declaration:    declaration_specifiers init_declarator_list_opt SEMICOLON;
 
-initializer_list:       IDENT;
-string_literal:       IDENT;
-type_name:      IDENT;
+declaration_specifiers_opt:     /* Nothing */
+                                | declaration_specifiers;
+
+declaration_specifiers:         storage_class_specifier declaration_specifiers_opt
+                                | type_specifier declaration_specifiers_opt
+                                | type_qualifier declaration_specifiers_opt
+                                | func_specifier declaration_specifiers_opt;
+
+init_declarator_list_opt:       /* Nothing */
+                                | init_declarator_list;
+
+init_declarator_list:           init_declarator
+                                | init_declarator_list COMMA init_declarator;
+
+init_declarator:                declarator
+                                | declarator EQ initializer;
+
+storage_class_specifier:        TYPEDEF
+                                | EXTERN
+                                | STATIC
+                                | AUTO
+                                | REGISTER;
+
+type_specifier:         VOID
+                        | CHAR
+                        | SHORT
+                        | INT
+                        | LONG
+                        | FLOAT
+                        | DOUBLE
+                        | SIGNED
+                        | UNSIGNED
+                        | _BOOL
+                        | _COMPLEX
+                        | struct_or_union_specifier
+                        | enum_specifier
+                        | typedef_name;
+
+struct_or_union_specifier:      struct_or_union identifier_opt LBRACE struct_declaration_list RBRACE
+                                | struct_or_union identifier;
+
+struct_or_union:                STRUCT
+                                | UNION;
+
+struct_declaration_list:        struct_declaration
+                                | struct_declaration_list struct_declaration;
+
+struct_declaration:             specifier_qualifier_list struct_declarator_list SEMICOLON;
+
+specifier_qualifier_list_opt:   /* Nothing */
+                                | specifier_qualifier_list;
+
+specifier_qualifier_list:       type_specifier specifier_qualifier_list_opt
+                                | type_qualifier specifier_qualifier_list_opt;
+
+struct_declarator_list:         struct_declarator
+                                | struct_declarator_list COMMA struct_declarator;
+
+declarator_opt:                 /* Nothing */
+                                | declarator;
+
+struct_declarator:              declarator
+                                | declarator_opt COLON constant_expr;
+
+enum_specifier:         ENUM identifier_opt LBRACE enumerator_list RBRACE
+                        | ENUM identifier_opt LBRACE enumerator_list COMMA RBRACE
+                        | ENUM identifier;
+
+enumerator_list:        enumerator
+                        | enumerator_list COMMA enumerator;
+
+enumerator:             enum_constant
+                        | enum_constant EQ constant_expr;
+
+type_qualifier:         CONST
+                        | RESTRICT
+                        | VOLATILE;
+
+func_specifier:         INLINE;
+
+declarator:             pointer_opt direct_declarator;
+
+declarator_opt:         /* Nothing */
+                        | declarator;
+
+assignment_expr_opt:    /* Nothing */
+                        | assignment_expr;
+
+direct_declarator:      identifier
+                        | LPAREN direct_declarator RPAREN
+                        | direct_declarator LBRACKET type_qualifier_list_opt assignment_expr_opt RBRACKET
+                        | direct_declarator LBRACKET STATIC type_qualifier_list_opt assignment_expr RBRACKET
+                        | direct_declarator LBRACKET type_qualifier_list STATIC assignment_expr RBRACKET
+                        | direct_declarator LBRACKET type_qualifier_list_opt MULT RBRACKET
+                        | direct_declarator LPAREN parameter_type_list RPAREN
+                        | direct_declarator LPAREN identifier_list_opt RPAREN;
+
+pointer_opt:            /* Nothing */
+                        | pointer;
+
+pointer:                MULT type_qualifier_list_opt
+                        | MULT type_qualifier_list_opt pointer;
+
+type_qualifier_list_opt:        /* Nothing */
+                                | type_qualifier_list;
+
+type_qualifier_list:    type_qualifier
+                        | type_qualifier_list type_qualifier;
+
+parameter_type_list:    parameter_list
+                        | parameter_list COMMA ELLIPSIS;
+
+parameter_type_list_opt:        /* Nothing */
+                                | parameter_type_list;
+
+parameter_list:         parameter_declaration
+                        | parameter_list COMMA parameter_declaration;
+
+parameter_declaration:  declaration_specifiers declarator
+                        | declaration_specifiers abstract_declarator_opt;
+
+abstract_declarator_opt:        /* Nothing */
+                                | abstract_declarator;
+
+identifier_list_opt:            /* Nothing */
+                                | identifier_list;
+
+identifier_list:                identifier
+                                | identifier_list COMMA identifier;
+
+type_name:                      specifier_qualifier_list abstract_declarator_opt;
+
+abstract_declarator:            pointer
+                                | pointer_opt direct_abstract_declarator;
+
+direct_abstract_declarator_opt:         /* Nothing */
+                                        | direct_abstract_declarator
+
+direct_abstract_declarator:     LPAREN abstract_declarator RPAREN
+                                | direct_abstract_declarator_opt LBRACKET type_qualifier_list_opt assignment_expr_opt RBRACKET
+                                | direct_abstract_declarator_opt LBRACKET STATIC type_qualifier_list_opt assignment_expr RBRACKET
+                                | direct_abstract_declarator_opt LBRACKET type_qualifier_list STATIC assignment_expr RBRACKET
+                                | direct_abstract_declarator_opt LBRACKET MULT RBRACKET
+                                | direct_abstract_declarator_opt LBRACKET parameter_type_list_opt RBRACKET;
+
+typedef_name:   identifier;
+
+initializer:    assignment_expr
+                | LBRACE initializer_list RBRACE
+                | LBRACE initializer_list COMMA RBRACE;
+
+initializer_list:       designation_opt initializer
+                        | initializer_list COMMA designation_opt initializer;
+
+designation_opt:        /* Nothing */
+                        | designation;
+
+designation:            designator_list EQ;
+
+designator_list:        designator
+                        | designator_list designator;
+
+designator:             LBRACKET constant_expr RBRACKET
+                        | DOT identifier;
 
 
 %%

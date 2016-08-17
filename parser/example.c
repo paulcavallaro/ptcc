@@ -1,1 +1,1 @@
-10 + foo / bar++
+struct Foo;

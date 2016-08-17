@@ -37,18 +37,37 @@ hex_fractional_float    {hex_prefix}{hex_fractional_const}{binary_exponent_part}
 hex_decimal_float       {hex_prefix}{hex_digit_sequence}{binary_exponent_part}{float_suffix}?
 hex_float               ({hex_fractional_float}|{hex_decimal_float})
 
+
 %%
 
+"..."           { return ELLIPSIS; }
+"<<="           { return LSHIFTEQ; }
+">>="           { return RSHIFTEQ; }
+"&="            { return BANDEQ; }
+"^="            { return BXOREQ; }
+"|="            { return BOREQ; }
+"<<"            { return LSHIFT; }
+">>"            { return RSHIFT; }
+"<="            { return LTE; }
+">="            { return GTE; }
 "++"            { return PLUSPLUS;  }
+"||"            { return OR; }
+"->"            { return ARROW; }
+"&&"            { return AND;  }
+"!="            { return NEQ; }
+"=="            { return EQEQ; }
+"="             { return EQ; }
+"*="            { return MULTEQ; }
+"/="            { return DIVEQ; }
+"%="            { return MODEQ; }
+"+="            { return PLUSEQ; }
+"-="            { return MINUSEQ; }
 "+"             { return PLUS;  }
 "%"             { return PERCENT;  }
-"&&"            { return AND;  }
 "&"             { return AMPERSAND; }
 "?"             { return QMARK; }
 "^"             { return CARET; }
 "|"             { return PIPE; }
-"||"            { return OR; }
-"->"            { return ARROW; }
 "-"             { return MINUS; }
 "*"             { return MULT;  }
 "~"             { return TILDE; }
@@ -64,25 +83,8 @@ hex_float               ({hex_fractional_float}|{hex_decimal_float})
 ":"             { return COLON; }
 ","             { return COMMA; }
 "."             { return DOT; }
-"!="            { return NEQ; }
-"=="            { return EQEQ; }
-"="             { return EQ; }
-"*="            { return MULTEQ; }
-"/="            { return DIVEQ; }
-"%="            { return MODEQ; }
-"+="            { return PLUSEQ; }
-"-="            { return MINUSEQ; }
-"<<="           { return LSHIFTEQ; }
-">>="           { return RSHIFTEQ; }
-"&="            { return BANDEQ; }
-"^="            { return BXOREQ; }
-"|="            { return BOREQ; }
-"<<"            { return LSHIFT; }
-">>"            { return RSHIFT; }
 "<"             { return LT; }
 ">"             { return GT; }
-"<="            { return LTE; }
-">="            { return GTE; }
 "auto"          { return AUTO; }
 "break"         { return BREAK; }
 "case"          { return CASE; }
@@ -120,6 +122,7 @@ hex_float               ({hex_fractional_float}|{hex_decimal_float})
 "_Bool"         { return _BOOL; }
 "_Complex"      { return _COMPLEX; }
 "_Imaginary"    { return _IMAGINARY; }
+
 {nonzerodigit}{digit}*{int_suffix}?     { yylval->sval = strdup(yytext);
                                           return INT_LIT; }
 0{octaldigit}*{int_suffix}?             { yylval->sval = strdup(yytext);
@@ -132,8 +135,10 @@ hex_float               ({hex_fractional_float}|{hex_decimal_float})
                                           return HEX_FLOAT_LIT; }
 {ident_start}{ident}*                   { yylval->sval = strdup(yytext);
                                           return IDENT; }
-L?'(\\.|[^'])+'                         { yylval->sval = strdup(yytext);
+L?'(\\.|[^\\'\n])+'                       { yylval->sval = strdup(yytext);
                                           return CHAR_LIT; }
+L?\"(\\.|[^\\"\n])*\"                     { yylval->sval = strdup(yytext);
+                                          return STRING_LIT; }
 
 {whitespace}    { }
 \n              { }
