@@ -8,8 +8,8 @@ lexer:		lex.yy.o grammar.tab.o
 	$(CC) $(CFLAGS) -o lexer -lfl -L/usr/local/lib grammar.tab.o lex.yy.o
 lex.yy.o:	lex.yy.c
 	$(CC) $(CFLAGS) -c lex.yy.c
-lex.yy.c:	grammar.tab.cc lexer.ll
-	flex lexer.ll
+lex.yy.c:	grammar.tab.cc lexer.l
+	flex lexer.l
 grammar.tab.cc:	grammar.y
 	bison -d grammar.y
 grammar.tab.o:	grammar.tab.c
