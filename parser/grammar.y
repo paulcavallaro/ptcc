@@ -8,7 +8,8 @@ YY_DECL;
 extern FILE *yyin;
 
 void yyerror(YYLTYPE * yylloc, const char* str) {
-    fprintf(stderr, "error: %s\n", str);
+    fprintf(stderr, "error: %s at line %d column %d\n", str,
+            yylloc->first_line, yylloc->first_column);
 }
 
 %}
@@ -119,14 +120,8 @@ void yyerror(YYLTYPE * yylloc, const char* str) {
 
 %start declaration;
 
-identifier:     IDENT;
-
-identifier_opt: /* Nothing */
-                | identifier;
-
 constant:       int_constant
                 | float_constant
-                | enum_constant
                 | char_constant;
 
 int_constant:   INT_LIT
@@ -136,27 +131,23 @@ int_constant:   INT_LIT
 float_constant: FLOAT_LIT
                 | HEX_FLOAT_LIT;
 
-enum_constant:  IDENT;
-
 char_constant:  CHAR_LIT;
 
-primary_expr:   identifier
+primary_expr:   IDENT
                 | constant
                 | STRING_LIT
                 | LPAREN expr RPAREN;
 
 postfix_expr:   primary_expr
                 | postfix_expr LBRACKET expr RBRACKET
-                | postfix_expr LPAREN argument_expr_list_opt RPAREN
-                | postfix_expr DOT identifier
-                | postfix_expr ARROW identifier
+                | postfix_expr LPAREN RPAREN
+                | postfix_expr LPAREN argument_expr_list RPAREN
+                | postfix_expr DOT IDENT
+                | postfix_expr ARROW IDENT
                 | postfix_expr PLUSPLUS
                 | postfix_expr MINUSMINUS
                 | LPAREN type_name RPAREN LBRACE initializer_list RBRACE
                 | LPAREN type_name RPAREN LBRACE initializer_list COMMA RBRACE;
-
-argument_expr_list_opt:         /* Nothing */
-                                | argument_expr_list;
 
 argument_expr_list:     assignment_expr
                         | argument_expr_list COMMA assignment_expr;
@@ -239,18 +230,17 @@ expr:   assignment_expr
 
 constant_expr:  cond_expr;
 
-declaration:    declaration_specifiers init_declarator_list_opt SEMICOLON;
+declaration:    declaration_specifiers init_declarator_list SEMICOLON
+                | declaration_specifiers SEMICOLON;
 
-declaration_specifiers_opt:     /* Nothing */
-                                | declaration_specifiers;
-
-declaration_specifiers:         storage_class_specifier declaration_specifiers_opt
-                                | type_specifier declaration_specifiers_opt
-                                | type_qualifier declaration_specifiers_opt
-                                | func_specifier declaration_specifiers_opt;
-
-init_declarator_list_opt:       /* Nothing */
-                                | init_declarator_list;
+declaration_specifiers:         storage_class_specifier
+                                | type_specifier
+                                | type_qualifier
+                                | func_specifier
+                                | storage_class_specifier declaration_specifiers
+                                | type_specifier declaration_specifiers
+                                | type_qualifier declaration_specifiers
+                                | func_specifier declaration_specifiers;
 
 init_declarator_list:           init_declarator
                                 | init_declarator_list COMMA init_declarator;
@@ -276,11 +266,13 @@ type_specifier:         VOID
                         | _BOOL
                         | _COMPLEX
                         | struct_or_union_specifier
-                        | enum_specifier
-                        | typedef_name;
+                        | enum_specifier;
+                        /* TODO add back | IDENT typedef_name */
 
-struct_or_union_specifier:      struct_or_union identifier_opt LBRACE struct_declaration_list RBRACE
-                                | struct_or_union identifier;
+
+struct_or_union_specifier:      struct_or_union IDENT LBRACE struct_declaration_list RBRACE
+                                | struct_or_union LBRACE struct_declaration_list RBRACE
+                                | struct_or_union IDENT;
 
 struct_or_union:                STRUCT
                                 | UNION;
@@ -290,30 +282,29 @@ struct_declaration_list:        struct_declaration
 
 struct_declaration:             specifier_qualifier_list struct_declarator_list SEMICOLON;
 
-specifier_qualifier_list_opt:   /* Nothing */
-                                | specifier_qualifier_list;
-
-specifier_qualifier_list:       type_specifier specifier_qualifier_list_opt
-                                | type_qualifier specifier_qualifier_list_opt;
+specifier_qualifier_list:       type_specifier
+                                | type_specifier specifier_qualifier_list
+                                | type_qualifier
+                                | type_qualifier specifier_qualifier_list;
 
 struct_declarator_list:         struct_declarator
                                 | struct_declarator_list COMMA struct_declarator;
 
-declarator_opt:                 /* Nothing */
-                                | declarator;
-
 struct_declarator:              declarator
-                                | declarator_opt COLON constant_expr;
+                                | COLON constant_expr;
+                                | declarator COLON constant_expr;
 
-enum_specifier:         ENUM identifier_opt LBRACE enumerator_list RBRACE
-                        | ENUM identifier_opt LBRACE enumerator_list COMMA RBRACE
-                        | ENUM identifier;
+enum_specifier:         ENUM IDENT LBRACE enumerator_list RBRACE
+                        | ENUM LBRACE enumerator_list RBRACE
+                        | ENUM IDENT LBRACE enumerator_list COMMA RBRACE
+                        | ENUM LBRACE enumerator_list COMMA RBRACE
+                        | ENUM IDENT;
 
 enumerator_list:        enumerator
                         | enumerator_list COMMA enumerator;
 
-enumerator:             enum_constant
-                        | enum_constant EQ constant_expr;
+enumerator:             IDENT
+                        | IDENT EQ constant_expr;
 
 type_qualifier:         CONST
                         | RESTRICT
@@ -321,31 +312,29 @@ type_qualifier:         CONST
 
 func_specifier:         INLINE;
 
-declarator:             pointer_opt direct_declarator;
+declarator:             direct_declarator
+                        | pointer direct_declarator;
 
-declarator_opt:         /* Nothing */
-                        | declarator;
-
-assignment_expr_opt:    /* Nothing */
-                        | assignment_expr;
-
-direct_declarator:      identifier
+direct_declarator:      IDENT
                         | LPAREN direct_declarator RPAREN
-                        | direct_declarator LBRACKET type_qualifier_list_opt assignment_expr_opt RBRACKET
-                        | direct_declarator LBRACKET STATIC type_qualifier_list_opt assignment_expr RBRACKET
+                        | direct_declarator LBRACKET type_qualifier_list assignment_expr RBRACKET
+                        | direct_declarator LBRACKET type_qualifier_list RBRACKET
+                        | direct_declarator LBRACKET assignment_expr RBRACKET
+                        | direct_declarator LBRACKET RBRACKET
+                        | direct_declarator LBRACKET STATIC type_qualifier_list assignment_expr RBRACKET
+                        | direct_declarator LBRACKET STATIC assignment_expr RBRACKET
                         | direct_declarator LBRACKET type_qualifier_list STATIC assignment_expr RBRACKET
-                        | direct_declarator LBRACKET type_qualifier_list_opt MULT RBRACKET
+                        | direct_declarator LBRACKET type_qualifier_list MULT RBRACKET
+                        | direct_declarator LBRACKET MULT RBRACKET
                         | direct_declarator LPAREN parameter_type_list RPAREN
-                        | direct_declarator LPAREN identifier_list_opt RPAREN;
+                        | direct_declarator LPAREN IDENT RPAREN;
+                        | direct_declarator LPAREN identifier_list RPAREN;
+                        | direct_declarator LPAREN RPAREN;
 
-pointer_opt:            /* Nothing */
-                        | pointer;
-
-pointer:                MULT type_qualifier_list_opt
-                        | MULT type_qualifier_list_opt pointer;
-
-type_qualifier_list_opt:        /* Nothing */
-                                | type_qualifier_list;
+pointer:                MULT
+                        MULT type_qualifier_list
+                        | MULT type_qualifier_list pointer;
+                        | MULT pointer;
 
 type_qualifier_list:    type_qualifier
                         | type_qualifier_list type_qualifier;
@@ -353,50 +342,51 @@ type_qualifier_list:    type_qualifier
 parameter_type_list:    parameter_list
                         | parameter_list COMMA ELLIPSIS;
 
-parameter_type_list_opt:        /* Nothing */
-                                | parameter_type_list;
-
 parameter_list:         parameter_declaration
                         | parameter_list COMMA parameter_declaration;
 
-parameter_declaration:  declaration_specifiers declarator
-                        | declaration_specifiers abstract_declarator_opt;
+parameter_declaration:  declaration_specifiers
+                        | declaration_specifiers declarator
+                        | declaration_specifiers abstract_declarator;
 
-abstract_declarator_opt:        /* Nothing */
-                                | abstract_declarator;
+identifier_list:                IDENT COMMA IDENT
+                                | identifier_list COMMA IDENT;
 
-identifier_list_opt:            /* Nothing */
-                                | identifier_list;
-
-identifier_list:                identifier
-                                | identifier_list COMMA identifier;
-
-type_name:                      specifier_qualifier_list abstract_declarator_opt;
+type_name:                      specifier_qualifier_list abstract_declarator;
+                                | specifier_qualifier_list;
 
 abstract_declarator:            pointer
-                                | pointer_opt direct_abstract_declarator;
-
-direct_abstract_declarator_opt:         /* Nothing */
-                                        | direct_abstract_declarator
+                                | direct_abstract_declarator
+                                | pointer direct_abstract_declarator;
 
 direct_abstract_declarator:     LPAREN abstract_declarator RPAREN
-                                | direct_abstract_declarator_opt LBRACKET type_qualifier_list_opt assignment_expr_opt RBRACKET
-                                | direct_abstract_declarator_opt LBRACKET STATIC type_qualifier_list_opt assignment_expr RBRACKET
-                                | direct_abstract_declarator_opt LBRACKET type_qualifier_list STATIC assignment_expr RBRACKET
-                                | direct_abstract_declarator_opt LBRACKET MULT RBRACKET
-                                | direct_abstract_declarator_opt LBRACKET parameter_type_list_opt RBRACKET;
-
-typedef_name:   identifier;
+                                | direct_abstract_declarator LBRACKET assignment_expr RBRACKET
+                                | LBRACKET assignment_expr RBRACKET
+                                | direct_abstract_declarator LBRACKET RBRACKET
+                                | LBRACKET RBRACKET
+                                | direct_abstract_declarator LBRACKET type_qualifier_list assignment_expr RBRACKET
+                                | LBRACKET type_qualifier_list assignment_expr RBRACKET
+                                | direct_abstract_declarator LBRACKET type_qualifier_list RBRACKET
+                                | LBRACKET type_qualifier_list RBRACKET
+                                | direct_abstract_declarator LBRACKET STATIC assignment_expr RBRACKET
+                                | LBRACKET STATIC assignment_expr RBRACKET
+                                | direct_abstract_declarator LBRACKET STATIC type_qualifier_list assignment_expr RBRACKET
+                                | LBRACKET STATIC type_qualifier_list assignment_expr RBRACKET
+                                | direct_abstract_declarator LBRACKET type_qualifier_list STATIC assignment_expr RBRACKET
+                                | LBRACKET type_qualifier_list STATIC assignment_expr RBRACKET
+                                | direct_abstract_declarator LBRACKET MULT RBRACKET
+                                | LBRACKET MULT RBRACKET
+                                | direct_abstract_declarator LBRACKET parameter_type_list RBRACKET
+                                | LBRACKET parameter_type_list RBRACKET;
 
 initializer:    assignment_expr
                 | LBRACE initializer_list RBRACE
                 | LBRACE initializer_list COMMA RBRACE;
 
-initializer_list:       designation_opt initializer
-                        | initializer_list COMMA designation_opt initializer;
-
-designation_opt:        /* Nothing */
-                        | designation;
+initializer_list:       initializer
+                        | designation initializer
+                        | initializer_list COMMA initializer
+                        | initializer_list COMMA designation initializer;
 
 designation:            designator_list EQ;
 
@@ -404,7 +394,7 @@ designator_list:        designator
                         | designator_list designator;
 
 designator:             LBRACKET constant_expr RBRACKET
-                        | DOT identifier;
+                        | DOT IDENT;
 
 
 %%

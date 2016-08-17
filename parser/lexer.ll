@@ -1,10 +1,12 @@
 %option noyywrap
 %option nounput
 %option debug
+%option yylineno
 %option bison-bridge bison-locations
 
 %{
 #include "grammar.tab.h"
+#define YY_USER_ACTION yylloc->first_line = yylloc->last_line = yylineno;
 %}
 
 digit           [0-9]
