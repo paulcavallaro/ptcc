@@ -5,10 +5,14 @@
 #include "grammar.tab.hpp"
 
 #define YYSTYPE ptcc::parser::ScannerToken
-int yylex (YYSTYPE * yylval_param, YYLTYPE * yylloc_param );
+
+int yylex (YYSTYPE * yylval_param, YYLTYPE * yylloc_param);
+int yylex (YYSTYPE * yylval_param, YYLTYPE * yylloc_param, ptcc::parser::Parser * _p) {
+    return yylex(yylval_param, yylloc_param);
+}
 extern "C" FILE *yyin;
 
-void yyerror(YYLTYPE * yylloc, const char* str) {
+void yyerror(YYLTYPE * yylloc, ptcc::parser::Parser *_p, const char* str) {
     fprintf(stderr, "error: %s at line %d column %d\n", str,
             yylloc->first_line, yylloc->first_column);
 }
@@ -17,6 +21,9 @@ void yyerror(YYLTYPE * yylloc, const char* str) {
 
 %define api.pure full
 %locations
+%lex-param {ptcc::parser::Parser *_p}
+%parse-param {ptcc::parser::Parser *_p}
+
 
 %token	IDENTIFIER I_CONSTANT F_CONSTANT STRING_LITERAL FUNC_NAME SIZEOF
 %token	PTR_OP INC_OP DEC_OP LEFT_OP RIGHT_OP LE_OP GE_OP EQ_OP NE_OP
@@ -560,5 +567,6 @@ int main(int argc, char** argv) {
          }
          yyin = fin;
     }
-    return yyparse();
+    ptcc::parser::Parser p;
+    return yyparse(&p);
 }
