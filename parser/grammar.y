@@ -1,8 +1,8 @@
 %{
 
 #include <stdio.h>
-#include "grammar.tab.hpp"
 #include "scanner.h"
+#include "grammar.tab.hpp"
 
 #define YYSTYPE ptcc::parser::ScannerToken
 int yylex (YYSTYPE * yylval_param, YYLTYPE * yylloc_param );
