@@ -1,16 +1,16 @@
-CXXFLAGS = -std=c++11
+CXXFLAGS = -std=c++14
 
 all:		lexer
 clean:
-	rm -f lex.yy.c grammar.tab.cc grammar.tab.hh grammar.tab.c grammar.tab.h lexer *.o
+	rm -f lex.yy.c grammar.tab.c grammar.tab.cpp grammar.tab.hpp lexer *.o
 
 lexer:		lex.yy.o grammar.tab.o
-	$(CC) $(CFLAGS) -o lexer -lfl -L/usr/local/lib grammar.tab.o lex.yy.o
-lex.yy.o:	lex.yy.c
-	$(CC) $(CFLAGS) -c lex.yy.c
-lex.yy.c:	grammar.tab.cc lexer.l
-	flex lexer.l
-grammar.tab.cc:	grammar.y
-	bison -d grammar.y
-grammar.tab.o:	grammar.tab.c
-	$(CC) $(CFLAGS) -c grammar.tab.c
+	$(CXX) $(CXXFLAGS) -o lexer -lfl -L/usr/local/lib grammar.tab.o lex.yy.o
+lex.yy.o:	lex.yy.cpp
+	$(CXX) $(CXXFLAGS) -c lex.yy.cpp
+lex.yy.cpp:	grammar.tab.cpp lexer.l
+	flex -f -8 -o lex.yy.cpp lexer.l
+grammar.tab.cpp:	grammar.y
+	bison -d grammar.y -o grammar.tab.cpp
+grammar.tab.o:	grammar.tab.cpp
+	$(CXX) $(CXXFLAGS) -c grammar.tab.cpp

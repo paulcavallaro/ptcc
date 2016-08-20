@@ -1,11 +1,12 @@
 %{
 
 #include <stdio.h>
-#include "grammar.tab.h"
+#include "grammar.tab.hpp"
+#include "scanner.h"
 
-#define YY_DECL int yylex(YYSTYPE * yylval_param, YYLTYPE * yylloc_param)
-YY_DECL;
-extern FILE *yyin;
+#define YYSTYPE ptcc::parser::ScannerToken
+int yylex (YYSTYPE * yylval_param, YYLTYPE * yylloc_param );
+extern "C" FILE *yyin;
 
 void yyerror(YYLTYPE * yylloc, const char* str) {
     fprintf(stderr, "error: %s at line %d column %d\n", str,

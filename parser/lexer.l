@@ -28,23 +28,30 @@ ES  (\\(['"\?\\abfnrtv]|[0-7]{1,3}|x[a-fA-F0-9]+))
 WS  [ \t\v\n\f]
 
 %{
-#include <stdio.h>
-#include "grammar.tab.h"
 
+#define YYSTYPE ptcc::parser::ScannerToken
 #define YY_USER_ACTION yylloc->first_line = yylloc->last_line = yylineno;
+
+#include <stdio.h>
+#include "scanner.h"
+#include "grammar.tab.hpp"
+
 extern void yyerror(YYLTYPE * yylloc, const char *);  /* prints grammar violation message */
 
 extern int sym_type(const char *);  /* returns type from symbol table */
 
 #define sym_type(identifier) IDENTIFIER /* with no symbol table, fake it */
 
-static void comment(YYLTYPE * yylloc_param);
 static int check_type(void);
 %}
 
+%x IN_COMMENT
+
 %%
-"/*"                                    { comment(yylloc); }
-"//".*                                    { /* consume //-comment */ }
+<INITIAL>"/*"                           { BEGIN(IN_COMMENT); }
+<IN_COMMENT>"*/"                        { BEGIN(INITIAL); }
+<IN_COMMENT>.                           { /* consume comment */ }
+"//".*                                  { /* consume //-comment */ }
 
 "auto"					{ return(AUTO); }
 "break"					{ return(BREAK); }
@@ -159,25 +166,6 @@ static int check_type(void);
 .					{ /* discard bad characters */ }
 
 %%
-
-static void comment(YYLTYPE * yylloc)
-{
-    int c;
-
-    while ((c = input()) != 0)
-        if (c == '*')
-        {
-            while ((c = input()) == '*')
-                ;
-
-            if (c == '/')
-                return;
-
-            if (c == 0)
-                break;
-        }
-    yyerror(yylloc, "unterminated comment");
-}
 
 static int check_type(void)
 {

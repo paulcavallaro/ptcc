@@ -4,6 +4,14 @@ struct Foo {
 };
 
 
+// Simple comment
+
+/*
+
+Multi line comment
+
+ */
+
 int main(int argc, char** argv) {
     struct Foo foo;
     foo.bar = 1;
