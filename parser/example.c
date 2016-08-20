@@ -1,6 +1,7 @@
 struct Foo {
     int bar, baz;
     char quux;
+    char* str;
 };
 
 
@@ -17,5 +18,6 @@ int main(int argc, char** argv) {
     foo.bar = 1;
     foo.baz = 2;
     foo.quux = 'c';
+    foo.str = "a string on the stack";
     return 1;
 }
