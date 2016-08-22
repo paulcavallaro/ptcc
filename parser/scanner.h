@@ -8,6 +8,7 @@ struct ScannerToken {
 };
 
 struct Parser {
+    void check_type(const char* text) {}
 };
 
 } }     // ptc::scanner

@@ -4,6 +4,7 @@
 %option yylineno
 %option reentrant
 %option header-file="flex.h"
+%option extra-type="ptcc::parser::Parser *"
 %option bison-bridge bison-locations
 
 %e  1019
@@ -44,7 +45,6 @@ extern int sym_type(const char *);  /* returns type from symbol table */
 
 #define sym_type(identifier) IDENTIFIER /* with no symbol table, fake it */
 
-static int check_type(void);
 %}
 
 %x IN_COMMENT
@@ -101,7 +101,7 @@ static int check_type(void);
 "_Thread_local"                         { return THREAD_LOCAL; }
 "__func__"                              { return FUNC_NAME; }
 
-{L}{A}*					{ return check_type(); }
+{L}{A}*					{ yyget_extra(yyscanner)->check_type(yytext); return IDENTIFIER; }
 
 {HP}{H}+{IS}?				{ return I_CONSTANT; }
 {NZ}{D}*{IS}?				{ return I_CONSTANT; }

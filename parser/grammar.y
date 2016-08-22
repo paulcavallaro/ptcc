@@ -571,6 +571,7 @@ int main(int argc, char** argv) {
     ptcc::parser::Parser p;
     yyscan_t scanner;
     yylex_init(&scanner);
+    yylex_init_extra(&p, &scanner);
 
     FILE* fin = nullptr;
     if (argc == 2) {
