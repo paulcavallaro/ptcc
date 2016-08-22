@@ -1,18 +1,26 @@
+%code requires{
+// This seems to be required to be put into the bison header file otherwise
+// yyscan_t isn't defined in the definition of yyparse in the header file.
+#ifndef YY_TYPEDEF_YY_SCANNER_T
+#define YY_TYPEDEF_YY_SCANNER_T
+typedef void *yyscan_t;
+#endif
+}
+
 %{
 
 #include <stdio.h>
 #include "scanner.h"
 #include "grammar.tab.hpp"
+#include "flex.h"
 
 #define YYSTYPE ptcc::parser::ScannerToken
 
-int yylex (YYSTYPE * yylval_param, YYLTYPE * yylloc_param);
-int yylex (YYSTYPE * yylval_param, YYLTYPE * yylloc_param, ptcc::parser::Parser * _p) {
-    return yylex(yylval_param, yylloc_param);
+extern int yylex (YYSTYPE * yylval_param, YYLTYPE * yylloc_param, yyscan_t scanner);
+int yylex (YYSTYPE * yylval_param, YYLTYPE * yylloc_param, ptcc::parser::Parser * _p, yyscan_t scanner) {
+    return yylex(yylval_param, yylloc_param, scanner);
 }
-extern "C" FILE *yyin;
-
-void yyerror(YYLTYPE * yylloc, ptcc::parser::Parser *_p, const char* str) {
+void yyerror(YYLTYPE * yylloc, ptcc::parser::Parser *_p, yyscan_t scanner, const char* str) {
     fprintf(stderr, "error: %s at line %d column %d\n", str,
             yylloc->first_line, yylloc->first_column);
 }
@@ -23,6 +31,8 @@ void yyerror(YYLTYPE * yylloc, ptcc::parser::Parser *_p, const char* str) {
 %locations
 %lex-param {ptcc::parser::Parser *_p}
 %parse-param {ptcc::parser::Parser *_p}
+%lex-param {yyscan_t scanner}
+%parse-param {yyscan_t scanner}
 
 
 %token	IDENTIFIER I_CONSTANT F_CONSTANT STRING_LITERAL FUNC_NAME SIZEOF
@@ -553,20 +563,33 @@ declaration_list
 
 %%
 
-
 int main(int argc, char** argv) {
     if (argc != 1 && argc != 2) {
         fprintf(stderr, "Usage: lexer [FILE]");
         return 1;
     }
-    if (argc == 2) {
-         FILE* fin = fopen(argv[1], "r");
-         if (!fin) {
-             fprintf(stderr, "Error: Cannot open file %s\n", argv[1]);
-             return 1;
-         }
-         yyin = fin;
-    }
     ptcc::parser::Parser p;
-    return yyparse(&p);
+    yyscan_t scanner;
+    yylex_init(&scanner);
+
+    FILE* fin = nullptr;
+    if (argc == 2) {
+        fin = fopen(argv[1], "r");
+        if (!fin) {
+            fprintf(stderr, "Error: Cannot open file %s\n", argv[1]);
+            return 1;
+        }
+        yyset_in(fin, scanner);
+    }
+
+    // Set debugging to true for the scanner;
+    yyset_debug(true, scanner);
+
+    auto res = yyparse(&p, scanner);
+    yylex_destroy(scanner);
+
+    if (fin) {
+        fclose(fin);
+    }
+    return res;
 }

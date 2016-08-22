@@ -2,6 +2,8 @@
 %option nounput
 %option debug
 %option yylineno
+%option reentrant
+%option header-file="flex.h"
 %option bison-bridge bison-locations
 
 %e  1019

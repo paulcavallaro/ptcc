@@ -1,4 +1,5 @@
 *.o
 parser/grammar.tab.*
 parser/lex.yy.*
+parser/flex.h
 parser/lexer
