@@ -11,6 +11,7 @@ typedef void *yyscan_t;
 
 #include <stdio.h>
 #include "scanner.h"
+#include "parser.h"
 #include "grammar.tab.hpp"
 #include "flex.h"
 

@@ -37,6 +37,7 @@ WS  [ \t\v\n\f]
 
 #include <stdio.h>
 #include "scanner.h"
+#include "parser.h"
 #include "grammar.tab.hpp"
 
 extern void yyerror(YYLTYPE * yylloc, const char *);  /* prints grammar violation message */
