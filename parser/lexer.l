@@ -102,7 +102,7 @@ extern int sym_type(const char *);  /* returns type from symbol table */
 "_Thread_local"                         { return THREAD_LOCAL; }
 "__func__"                              { return FUNC_NAME; }
 
-{L}{A}*					{ yyget_extra(yyscanner)->check_type(yytext); return IDENTIFIER; }
+{L}{A}*					{ return yyget_extra(yyscanner)->check_type(yytext); }
 
 {HP}{H}+{IS}?				{ return I_CONSTANT; }
 {NZ}{D}*{IS}?				{ return I_CONSTANT; }
