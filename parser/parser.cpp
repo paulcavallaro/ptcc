@@ -1,6 +1,5 @@
 #include "parser.h"
 #include "grammar.tab.hpp"
-#include <stdio.h>
 
 namespace ptcc { namespace parser {
 
