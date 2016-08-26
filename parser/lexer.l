@@ -42,10 +42,6 @@ WS  [ \t\v\n\f]
 
 extern void yyerror(YYLTYPE * yylloc, const char *);  /* prints grammar violation message */
 
-extern int sym_type(const char *);  /* returns type from symbol table */
-
-#define sym_type(identifier) IDENTIFIER /* with no symbol table, fake it */
-
 %}
 
 %x IN_COMMENT
@@ -102,7 +98,10 @@ extern int sym_type(const char *);  /* returns type from symbol table */
 "_Thread_local"                         { return THREAD_LOCAL; }
 "__func__"                              { return FUNC_NAME; }
 
-{L}{A}*					{ return yyget_extra(yyscanner)->check_type(yytext); }
+{L}{A}*					{
+                                                yylval->m_text = std::string(yytext);
+                                                return yyget_extra(yyscanner)->check_type(yytext);
+                                        }
 
 {HP}{H}+{IS}?				{ return I_CONSTANT; }
 {NZ}{D}*{IS}?				{ return I_CONSTANT; }
@@ -169,16 +168,3 @@ extern int sym_type(const char *);  /* returns type from symbol table */
 .					{ /* discard bad characters */ }
 
 %%
-
-static int check_type(void)
-{
-    switch (sym_type(yytext))
-    {
-    case TYPEDEF_NAME:                /* previously defined */
-        return TYPEDEF_NAME;
-    case ENUMERATION_CONSTANT:        /* previously defined */
-        return ENUMERATION_CONSTANT;
-    default:                          /* includes undefined */
-        return IDENTIFIER;
-    }
-}

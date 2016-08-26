@@ -18,6 +18,7 @@ struct Parser {
     int check_type(const char* text);
     ssize_t find(const char* symbol);
     ssize_t insert(const char* symbol);
+    const SymTableEntry& get(ssize_t);
 
  private:
     std::unordered_map<std::string, size_t> m_symtable;

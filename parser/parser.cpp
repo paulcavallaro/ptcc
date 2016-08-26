@@ -20,6 +20,10 @@ ssize_t Parser::find(const char* symbol) {
     }
 }
 
+const SymTableEntry& Parser::get(ssize_t idx) {
+    return m_symbols[idx];
+}
+
 ssize_t Parser::insert(const char* symbol) {
     auto res = m_symtable.find(symbol);
     if (res != m_symtable.end()) {

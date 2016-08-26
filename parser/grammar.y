@@ -8,6 +8,8 @@ typedef void *yyscan_t;
 }
 
 %{
+// Enable bison debugging capabilities
+#define YYDEBUG 1
 
 #include <stdio.h>
 #include "scanner.h"
@@ -233,7 +235,10 @@ declaration
 	;
 
 declaration_specifiers
-	: storage_class_specifier declaration_specifiers
+        : storage_class_specifier declaration_specifiers        {
+            fprintf(stderr, "Found a storage_class_specifier %s with declaration_specifiers %s\n",
+                    $1.m_text.c_str(), $2.m_text.c_str());
+        }
 	| storage_class_specifier
 	| type_specifier declaration_specifiers
 	| type_specifier
@@ -368,7 +373,9 @@ declarator
 	;
 
 direct_declarator
-	: IDENTIFIER
+	: IDENTIFIER                            {
+            fprintf(stderr, "direct_declarator IDENTIFIER: %s\n", $1.m_text.c_str());
+        }
 	| '(' declarator ')'
 	| direct_declarator '[' ']'
 	| direct_declarator '[' '*' ']'
@@ -569,6 +576,8 @@ int main(int argc, char** argv) {
         fprintf(stderr, "Usage: lexer [FILE]");
         return 1;
     }
+    // Turn on bison debugging for this parse
+    yydebug = 1;
     ptcc::parser::Parser p;
     yyscan_t scanner;
     yylex_init(&scanner);
