@@ -1,5 +1,6 @@
 #include "parser.h"
 #include "grammar.tab.hpp"
+#include <stdio.h>
 
 namespace ptcc { namespace parser {
 
@@ -27,6 +28,7 @@ ssize_t Parser::insert(const char* symbol) {
     } else {
         auto idx = m_symbols.size();
         m_symbols.emplace_back(symbol, 0);
+        m_symtable.emplace(symbol, idx);
         return idx;
     }
 }
