@@ -103,8 +103,13 @@ extern void yyerror(YYLTYPE * yylloc, const char *);  /* prints grammar violatio
                                                 return yyget_extra(yyscanner)->check_type(yytext);
                                         }
 
-{HP}{H}+{IS}?				{ return I_CONSTANT; }
-{NZ}{D}*{IS}?				{ return I_CONSTANT; }
+{HP}{H}+{IS}?				{
+                                                return I_CONSTANT;
+                                        }
+{NZ}{D}*{IS}?				{
+                                                yylval->m_num = atoi(yytext);
+                                                return I_CONSTANT;
+                                        }
 "0"{O}*{IS}?				{ return I_CONSTANT; }
 {CP}?"'"([^'\\\n]|{ES})+"'"		{ return I_CONSTANT; }
 

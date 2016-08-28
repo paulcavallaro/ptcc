@@ -67,7 +67,7 @@ primary_expression
 	;
 
 constant
-	: I_CONSTANT		/* includes character_constant */
+        : I_CONSTANT            { fprintf(stderr, "I_CONSTANT: %d\n", $1.m_num); }/* includes character_constant */
 	| F_CONSTANT
 	| ENUMERATION_CONSTANT	/* after it has been defined as such */
 	;
