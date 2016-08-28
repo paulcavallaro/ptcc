@@ -106,7 +106,7 @@ extern void yyerror(YYLTYPE * yylloc, const char *);  /* prints grammar violatio
 {HP}{H}+{IS}?				{
                                                 return I_CONSTANT;
                                         }
-{NZ}{D}*{IS}?				{
+{NZ}{D}*{IS}?                           {
                                                 yylval->m_num = atoi(yytext);
                                                 return I_CONSTANT;
                                         }
