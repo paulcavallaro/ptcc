@@ -32,7 +32,7 @@ WS  [ \t\v\n\f]
 
 %{
 
-#define YYSTYPE ptcc::parser::ScannerToken
+#define YYSTYPE ptcc::parser::Token
 #define YY_USER_ACTION yylloc->first_line = yylloc->last_line = yylineno;
 
 #include <stdio.h>
@@ -107,7 +107,7 @@ extern void yyerror(YYLTYPE * yylloc, const char *);  /* prints grammar violatio
                                                 return I_CONSTANT;
                                         }
 {NZ}{D}*{IS}?                           {
-                                                yylval->m_num = atoi(yytext);
+                                                yylval->m_text = yytext;
                                                 return I_CONSTANT;
                                         }
 "0"{O}*{IS}?				{ return I_CONSTANT; }

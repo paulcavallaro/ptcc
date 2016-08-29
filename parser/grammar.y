@@ -17,7 +17,7 @@ typedef void *yyscan_t;
 #include "grammar.tab.hpp"
 #include "flex.h"
 
-#define YYSTYPE ptcc::parser::ScannerToken
+#define YYSTYPE ptcc::parser::Token
 
 extern int yylex (YYSTYPE * yylval_param, YYLTYPE * yylloc_param, yyscan_t scanner);
 int yylex (YYSTYPE * yylval_param, YYLTYPE * yylloc_param, ptcc::parser::Parser * _p, yyscan_t scanner) {
@@ -59,15 +59,27 @@ void yyerror(YYLTYPE * yylloc, ptcc::parser::Parser *_p, yyscan_t scanner, const
 %%
 
 primary_expression
-        : IDENTIFIER
-        | constant
+        : IDENTIFIER            {
+                                        fprintf(stderr, "IDENTIFIER: %s\n", $1.m_text.c_str());
+                                        $$.m_num = IDENTIFIER;
+                                        $$.m_text = $1.m_text;
+                                }
+        | constant              {
+                                        fprintf(stderr, "IDENTIFIER: %s\n", $1.m_text.c_str());
+                                        $$.m_num = $1.m_num;
+                                        $$.m_text = $1.m_text;
+                                }
         | string
         | '(' expression ')'
         | generic_selection
         ;
 
 constant
-        : I_CONSTANT            { fprintf(stderr, "I_CONSTANT: %d\n", $1.m_num); }/* includes character_constant */
+        : I_CONSTANT            {
+                                        fprintf(stderr, "I_CONSTANT: %s\n", $1.m_text.c_str());
+                                        $$.m_num = I_CONSTANT;
+                                        $$.m_text = $1.m_text;
+                                 } /* includes character_constant */
         | F_CONSTANT
         | ENUMERATION_CONSTANT  /* after it has been defined as such */
         ;
@@ -96,11 +108,16 @@ generic_association
         ;
 
 postfix_expression
-        : primary_expression
+        : primary_expression            {
+                                                fprintf(stderr, "Primary Expression: %s\n", $1.m_text.c_str());
+                                                $$ = $1;
+                                        }
         | postfix_expression '[' expression ']'
         | postfix_expression '(' ')'
         | postfix_expression '(' argument_expression_list ')'
-        | postfix_expression '.' IDENTIFIER
+        | postfix_expression '.' IDENTIFIER     {
+            fprintf(stderr, "Accessing Identifier %s.%s\n", $1.m_text.c_str(), $3.m_text.c_str());
+        }
         | postfix_expression PTR_OP IDENTIFIER
         | postfix_expression INC_OP
         | postfix_expression DEC_OP
@@ -114,7 +131,7 @@ argument_expression_list
         ;
 
 unary_expression
-        : postfix_expression
+        : postfix_expression            { $$ = $1; }
         | INC_OP unary_expression
         | DEC_OP unary_expression
         | unary_operator cast_expression
@@ -133,20 +150,23 @@ unary_operator
         ;
 
 cast_expression
-        : unary_expression
+        : unary_expression              { $$ = $1; }
         | '(' type_name ')' cast_expression
         ;
 
 multiplicative_expression
-        : cast_expression
+        : cast_expression               { $$ = $1; }
         | multiplicative_expression '*' cast_expression
         | multiplicative_expression '/' cast_expression
         | multiplicative_expression '%' cast_expression
         ;
 
 additive_expression
-        : multiplicative_expression
-        | additive_expression '+' multiplicative_expression
+        : multiplicative_expression     { $$ = $1; }
+        | additive_expression '+' multiplicative_expression     {
+                fprintf(stderr, "Additive Expression: %s + %s\n", $1.m_text.c_str(), $3.m_text.c_str());
+                $$ = $1;
+        }
         | additive_expression '-' multiplicative_expression
         ;
 

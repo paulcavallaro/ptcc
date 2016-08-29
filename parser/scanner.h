@@ -4,7 +4,7 @@
 
 namespace ptcc { namespace parser {
 
-struct ScannerToken {
+struct Token {
     int m_num{0};
     std::string m_text;
 };
