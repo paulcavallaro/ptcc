@@ -11,6 +11,8 @@ typedef void *yyscan_t;
 // Enable bison debugging capabilities
 #define YYDEBUG 1
 
+#include <cstdlib>
+#include <memory>
 #include <stdio.h>
 #include "scanner.h"
 #include "parser.h"
@@ -27,6 +29,8 @@ void yyerror(YYLTYPE * yylloc, ptcc::parser::Parser *_p, yyscan_t scanner, const
     fprintf(stderr, "error: %s at line %d column %d\n", str,
             yylloc->first_line, yylloc->first_column);
 }
+
+using namespace ptcc::parser;
 
 %}
 
@@ -56,17 +60,18 @@ void yyerror(YYLTYPE * yylloc, ptcc::parser::Parser *_p, yyscan_t scanner, const
 %token	ALIGNAS ALIGNOF ATOMIC GENERIC NORETURN STATIC_ASSERT THREAD_LOCAL
 
 %start translation_unit
+
 %%
 
 primary_expression
         : IDENTIFIER            {
                                         fprintf(stderr, "IDENTIFIER: %s\n", $1.m_text.c_str());
-                                        $$.m_num = IDENTIFIER;
+                                        $$.m_token = IDENTIFIER;
                                         $$.m_text = $1.m_text;
                                 }
         | constant              {
-                                        fprintf(stderr, "IDENTIFIER: %s\n", $1.m_text.c_str());
-                                        $$.m_num = $1.m_num;
+                                        fprintf(stderr, "CONSTANT: %s\n", $1.m_text.c_str());
+                                        $$.m_token = $1.m_token;
                                         $$.m_text = $1.m_text;
                                 }
         | string
@@ -77,10 +82,20 @@ primary_expression
 constant
         : I_CONSTANT            {
                                         fprintf(stderr, "I_CONSTANT: %s\n", $1.m_text.c_str());
-                                        $$.m_num = I_CONSTANT;
                                         $$.m_text = $1.m_text;
+                                        $$.m_constant = std::make_shared<Constant>();
+                                        $$.m_constant->m_type = ConstantType::Int64;
+                                        $$.m_constant->m_text = $1.m_text;
+                                        $$.m_constant->m_ivalue = atoi($1.m_text.c_str());
                                  } /* includes character_constant */
-        | F_CONSTANT
+        | F_CONSTANT            {
+                                        fprintf(stderr, "F_CONSTANT: %s\n", $1.m_text.c_str());
+                                        $$.m_text = $1.m_text;
+                                        $$.m_constant = std::make_shared<Constant>();
+                                        $$.m_constant->m_type = ConstantType::Double;
+                                        $$.m_constant->m_text = $1.m_text;
+                                        $$.m_constant->m_dvalue = atof($1.m_text.c_str());
+                                }
         | ENUMERATION_CONSTANT  /* after it has been defined as such */
         ;
 
@@ -89,7 +104,10 @@ enumeration_constant            /* before it has been defined as such */
         ;
 
 string
-        : STRING_LITERAL
+        : STRING_LITERAL        {
+            fprintf(stderr, "String of STRING_LITERAL: %s\n", $1.m_text.c_str());
+            $$ = $1;
+        }
         | FUNC_NAME
         ;
 
@@ -109,14 +127,15 @@ generic_association
 
 postfix_expression
         : primary_expression            {
-                                                fprintf(stderr, "Primary Expression: %s\n", $1.m_text.c_str());
+                                                fprintf(stderr, "Postfix Expression of Primary Expression: %s\n", $1.m_text.c_str());
                                                 $$ = $1;
                                         }
         | postfix_expression '[' expression ']'
         | postfix_expression '(' ')'
         | postfix_expression '(' argument_expression_list ')'
         | postfix_expression '.' IDENTIFIER     {
-            fprintf(stderr, "Accessing Identifier %s.%s\n", $1.m_text.c_str(), $3.m_text.c_str());
+            fprintf(stderr, "Postfix Expression of Accessing Identifier %s.%s\n", $1.m_text.c_str(), $3.m_text.c_str());
+            $$.m_text = $1.m_text + "." + $3.m_text;
         }
         | postfix_expression PTR_OP IDENTIFIER
         | postfix_expression INC_OP
@@ -165,19 +184,30 @@ additive_expression
         : multiplicative_expression     { $$ = $1; }
         | additive_expression '+' multiplicative_expression     {
                 fprintf(stderr, "Additive Expression: %s + %s\n", $1.m_text.c_str(), $3.m_text.c_str());
-                $$ = $1;
+                $$.m_text = $1.m_text + " + " + $3.m_text;
+                auto expr = std::make_shared<BinaryExpression>();
+                expr->m_exp1 = $1.m_expr;
+                expr->m_exp2 = $3.m_expr;
+                expr->m_op = BinOp::Plus;
+                $$.m_expr = expr;
         }
         | additive_expression '-' multiplicative_expression
         ;
 
 shift_expression
-        : additive_expression
+        : additive_expression   {
+            fprintf(stderr, "Shift Expression of Additive Expression: %s\n", $1.m_text.c_str());
+            $$ = $1;
+        }
         | shift_expression LEFT_OP additive_expression
         | shift_expression RIGHT_OP additive_expression
         ;
 
 relational_expression
-        : shift_expression
+        : shift_expression      {
+            fprintf(stderr, "Relational Expression of Shift Expression: %s\n", $1.m_text.c_str());
+            $$ = $1;
+        }
         | relational_expression '<' shift_expression
         | relational_expression '>' shift_expression
         | relational_expression LE_OP shift_expression
@@ -185,49 +215,82 @@ relational_expression
         ;
 
 equality_expression
-        : relational_expression
+        : relational_expression {
+            fprintf(stderr, "Equality Expression of Relational Expression: %s\n", $1.m_text.c_str());
+            $$ = $1;
+        }
         | equality_expression EQ_OP relational_expression
         | equality_expression NE_OP relational_expression
         ;
 
 and_expression
-        : equality_expression
+        : equality_expression   {
+            fprintf(stderr, "And Expression of Equality Expression: %s\n", $1.m_text.c_str());
+            $$ = $1;
+        }
         | and_expression '&' equality_expression
         ;
 
 exclusive_or_expression
-        : and_expression
+        : and_expression        {
+            fprintf(stderr, "Exclusive Or Expression of And Expression: %s\n", $1.m_text.c_str());
+            $$ = $1;
+        }
         | exclusive_or_expression '^' and_expression
         ;
 
 inclusive_or_expression
-        : exclusive_or_expression
+        : exclusive_or_expression       {
+            fprintf(stderr, "Inclusive Or Expression of Exclusive Or Expression: %s\n", $1.m_text.c_str());
+            $$ = $1;
+        }
         | inclusive_or_expression '|' exclusive_or_expression
         ;
 
 logical_and_expression
-        : inclusive_or_expression
+        : inclusive_or_expression       {
+            fprintf(stderr, "Logical And Expression of Inclusive Or Expression: %s\n", $1.m_text.c_str());
+            $$ = $1;
+        }
         | logical_and_expression AND_OP inclusive_or_expression
         ;
 
 logical_or_expression
-        : logical_and_expression
+        : logical_and_expression        {
+            fprintf(stderr, "Logical Or Expression or Logical And Expression: %s\n", $1.m_text.c_str());
+            $$ = $1;
+        }
         | logical_or_expression OR_OP logical_and_expression
         ;
 
 conditional_expression
-        : logical_or_expression
+        : logical_or_expression         {
+            fprintf(stderr, "Conditional Expression of Logical Or Expression: %s\n", $1.m_text.c_str());
+            $$ = $1;
+        }
         | logical_or_expression '?' expression ':' conditional_expression
         ;
 
 assignment_expression
-        : conditional_expression
-        | unary_expression assignment_operator assignment_expression
+        : conditional_expression        {
+            fprintf(stderr, "Assignment Expression of Conditional Expression: %s\n", $1.m_text.c_str());
+            $$ = $1;
+        }
+        | unary_expression assignment_operator assignment_expression    {
+            fprintf(stderr, "Assignment Expression of [Unary Expression: %s] [Assignment Op: %s] [Assignment Expression: %s]\n", $1.m_text.c_str(), $2.m_text.c_str(), $3.m_text.c_str());
+            $$.m_text = $1.m_text + " " + $2.m_text + " " + $3.m_text;
+        }
         ;
 
 assignment_operator
-        : '='
-	| MUL_ASSIGN
+        : '='           {
+                $$.m_text = "=";
+                $$.m_token = '=';
+        }
+	| MUL_ASSIGN    {
+                $$.m_text = "*=";
+                $$.m_token = MUL_ASSIGN;
+        }
 	| DIV_ASSIGN
 	| MOD_ASSIGN
 	| ADD_ASSIGN
@@ -240,7 +303,10 @@ assignment_operator
 	;
 
 expression
-	: assignment_expression
+	: assignment_expression         {
+            fprintf(stderr, "Expression of Assignment Expression: %s\n", $1.m_text.c_str());
+            $$ = $1;
+        }
 	| expression ',' assignment_expression
 	;
 
@@ -543,7 +609,10 @@ block_item
 
 expression_statement
 	: ';'
-	| expression ';'
+	| expression ';'        {
+                                        fprintf(stderr, "Expression Statement of Expression: %s\n", $1.m_text.c_str());
+                                        $$ = $1;
+                                }
 	;
 
 selection_statement
@@ -566,7 +635,10 @@ jump_statement
 	| CONTINUE ';'
 	| BREAK ';'
 	| RETURN ';'
-	| RETURN expression ';'
+	| RETURN expression ';'         {
+            fprintf(stderr, "Jump Statement of Return: RETURN %s;\n", $2.m_text.c_str());
+            $$.m_text = "RETURN " + $2.m_text + ";";
+        }
 	;
 
 translation_unit
@@ -597,7 +669,7 @@ int main(int argc, char** argv) {
         return 1;
     }
     // Turn on bison debugging for this parse
-    yydebug = 1;
+    // yydebug = 1;
     ptcc::parser::Parser p;
     yyscan_t scanner;
     yylex_init(&scanner);
@@ -614,7 +686,7 @@ int main(int argc, char** argv) {
     }
 
     // Set debugging to true for the scanner;
-    yyset_debug(true, scanner);
+    // yyset_debug(true, scanner);
 
     auto res = yyparse(&p, scanner);
     yylex_destroy(scanner);
