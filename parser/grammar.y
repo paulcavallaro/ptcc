@@ -65,12 +65,12 @@ using namespace ptcc::parser;
 
 primary_expression
         : IDENTIFIER            {
-                                        fprintf(stderr, "IDENTIFIER: %s\n", $1.m_text.c_str());
+                                        fprintf(stderr, "Primary Expression of IDENTIFIER: %s\n", $1.m_text.c_str());
                                         $$.m_token = IDENTIFIER;
                                         $$.m_text = $1.m_text;
                                 }
         | constant              {
-                                        fprintf(stderr, "CONSTANT: %s\n", $1.m_text.c_str());
+                                        fprintf(stderr, "Primary Expression of Constant: %s\n", $1.m_text.c_str());
                                         $$.m_token = $1.m_token;
                                         $$.m_text = $1.m_text;
                                 }
@@ -81,7 +81,7 @@ primary_expression
 
 constant
         : I_CONSTANT            {
-                                        fprintf(stderr, "I_CONSTANT: %s\n", $1.m_text.c_str());
+                                        fprintf(stderr, "Constant of I_CONSTANT: %s\n", $1.m_text.c_str());
                                         $$.m_text = $1.m_text;
                                         $$.m_constant = std::make_shared<Constant>();
                                         $$.m_constant->m_type = ConstantType::Int64;
@@ -89,7 +89,7 @@ constant
                                         $$.m_constant->m_ivalue = atoi($1.m_text.c_str());
                                  } /* includes character_constant */
         | F_CONSTANT            {
-                                        fprintf(stderr, "F_CONSTANT: %s\n", $1.m_text.c_str());
+                                        fprintf(stderr, "Constant of F_CONSTANT: %s\n", $1.m_text.c_str());
                                         $$.m_text = $1.m_text;
                                         $$.m_constant = std::make_shared<Constant>();
                                         $$.m_constant->m_type = ConstantType::Double;
@@ -460,7 +460,7 @@ declarator
 
 direct_declarator
 	: IDENTIFIER                            {
-            fprintf(stderr, "direct_declarator IDENTIFIER: %s\n", $1.m_text.c_str());
+            fprintf(stderr, "Direct Declarator of IDENTIFIER: %s\n", $1.m_text.c_str());
         }
 	| '(' declarator ')'
 	| direct_declarator '[' ']'
