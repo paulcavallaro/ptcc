@@ -356,19 +356,54 @@ storage_class_specifier
 	;
 
 type_specifier
-	: VOID
-	| CHAR
-	| SHORT
-	| INT
-	| LONG
-	| FLOAT
-	| DOUBLE
-	| SIGNED
-	| UNSIGNED
-	| BOOL
-	| COMPLEX
+	: VOID          {
+                $$.m_token = VOID;
+                $$.m_text = "void";
+        }
+	| CHAR          {
+                $$.m_token = CHAR;
+                $$.m_text = "char";
+        }
+	| SHORT         {
+                $$.m_token = SHORT;
+                $$.m_text = "short";
+        }
+	| INT           {
+                $$.m_token = INT;
+                $$.m_text = "int";
+        }
+	| LONG          {
+                $$.m_token = LONG;
+                $$.m_text = "long";
+        }
+	| FLOAT         {
+                $$.m_token = FLOAT;
+                $$.m_text = "float";
+        }
+	| DOUBLE        {
+                $$.m_token = DOUBLE;
+                $$.m_text = "double";
+        }
+	| SIGNED        {
+                $$.m_token = SIGNED;
+                $$.m_text = "signed";
+        }
+	| UNSIGNED      {
+                $$.m_token = UNSIGNED;
+                $$.m_text = "unsigned";
+        }
+	| BOOL          {
+                $$.m_token = BOOL;
+                $$.m_text = "bool";
+        }
+	| COMPLEX       {
+                $$.m_token = COMPLEX;
+                $$.m_text = "complex";
+        }
 	| IMAGINARY	  	/* non-mandated extension */
-	| atomic_type_specifier
+	| atomic_type_specifier         {
+                $$ = $1;
+        }
 	| struct_or_union_specifier
 	| enum_specifier
 	| TYPEDEF_NAME		/* after it has been defined as such */
@@ -376,36 +411,65 @@ type_specifier
 
 struct_or_union_specifier
 	: struct_or_union '{' struct_declaration_list '}'
-	| struct_or_union IDENTIFIER '{' struct_declaration_list '}'
+	| struct_or_union IDENTIFIER '{' struct_declaration_list '}'    {
+            fprintf(stderr, "Struct or Union Specifier of Identifier + Struct Declaration List: %s %s %s\n", $1.m_token == STRUCT ? "struct" : "union", $2.m_text.c_str(), $3.m_text.c_str());
+        }
 	| struct_or_union IDENTIFIER
 	;
 
 struct_or_union
-	: STRUCT
-	| UNION
+	: STRUCT        {
+                $$.m_token = STRUCT;
+        }
+	| UNION         {
+                $$.m_token = UNION;
+        }
 	;
 
 struct_declaration_list
-	: struct_declaration
+	: struct_declaration    {
+            fprintf(stderr, "Struct Declaration List Item: %s\n", $1.m_text.c_str());
+            $$ = $1;
+        }
 	| struct_declaration_list struct_declaration
 	;
 
 struct_declaration
 	: specifier_qualifier_list ';'	/* for anonymous struct/union */
-	| specifier_qualifier_list struct_declarator_list ';'
+	| specifier_qualifier_list struct_declarator_list ';'   {
+            fprintf(stderr, "Struction Declaration of Specifier Qualifier List + Struct Declarator List: %s %s\n", $1.m_text.c_str(), $2.m_text.c_str());
+        }
 	| static_assert_declaration
 	;
 
 specifier_qualifier_list
-	: type_specifier specifier_qualifier_list
-	| type_specifier
-	| type_qualifier specifier_qualifier_list
-	| type_qualifier
+	: type_specifier specifier_qualifier_list       {
+            fprintf(stderr, "Specifier Qualifier List Item Addition of Type Specifier: %s %s\n", $1.m_text.c_str(), $2.m_text.c_str());
+            $$.m_text = $1.m_text + " " + $2.m_text;
+        }
+	| type_specifier       {
+            fprintf(stderr, "Specifier Qualifier List Base Item of Type Specifier: %s\n", $1.m_text.c_str());
+            $$ = $1;
+        }
+	| type_qualifier specifier_qualifier_list       {
+            fprintf(stderr, "Specifier Qualifier List Item Addition of Type Qualifier: %s %s\n", $1.m_text.c_str(), $2.m_text.c_str());
+            $$.m_text = $1.m_text + " " + $2.m_text;
+        }
+	| type_qualifier       {
+            fprintf(stderr, "Specifier Qualifier List Base Item of Type Qualifier: %s\n", $1.m_text.c_str());
+            $$ = $1;
+        }
 	;
 
 struct_declarator_list
-	: struct_declarator
-	| struct_declarator_list ',' struct_declarator
+	: struct_declarator     {
+            fprintf(stderr, "Struct Declarator List Base Item: %s\n", $1.m_text.c_str());
+            $$.m_text = $1.m_text;
+        }
+	| struct_declarator_list ',' struct_declarator  {
+            fprintf(stderr, "Struct Declarator List Item Addition: %s %s\n", $1.m_text.c_str(), $2.m_text.c_str());
+            $$.m_text = $1.m_text + ", " + $3.m_text;
+        }
 	;
 
 struct_declarator
