@@ -359,30 +359,44 @@ type_specifier
 	: VOID          {
                 $$.m_token = VOID;
                 $$.m_text = "void";
+                $$.m_type = std::make_shared<TypeSpec>();
+                $$.m_type->m_kind = TypeKind::Void;
         }
 	| CHAR          {
                 $$.m_token = CHAR;
                 $$.m_text = "char";
+                $$.m_type = std::make_shared<TypeSpec>();
+                $$.m_type->m_kind = TypeKind::Char;
         }
 	| SHORT         {
                 $$.m_token = SHORT;
                 $$.m_text = "short";
+                $$.m_type = std::make_shared<TypeSpec>();
+                $$.m_type->m_kind = TypeKind::Short;
         }
 	| INT           {
                 $$.m_token = INT;
                 $$.m_text = "int";
+                $$.m_type = std::make_shared<TypeSpec>();
+                $$.m_type->m_kind = TypeKind::Int32;
         }
 	| LONG          {
                 $$.m_token = LONG;
                 $$.m_text = "long";
+                $$.m_type = std::make_shared<TypeSpec>();
+                $$.m_type->m_kind = TypeKind::Int64;
         }
 	| FLOAT         {
                 $$.m_token = FLOAT;
                 $$.m_text = "float";
+                $$.m_type = std::make_shared<TypeSpec>();
+                $$.m_type->m_kind = TypeKind::Float;
         }
 	| DOUBLE        {
                 $$.m_token = DOUBLE;
                 $$.m_text = "double";
+                $$.m_type = std::make_shared<TypeSpec>();
+                $$.m_type->m_kind = TypeKind::Double;
         }
 	| SIGNED        {
                 $$.m_token = SIGNED;
@@ -395,6 +409,8 @@ type_specifier
 	| BOOL          {
                 $$.m_token = BOOL;
                 $$.m_text = "bool";
+                $$.m_type = std::make_shared<TypeSpec>();
+                $$.m_type->m_kind = TypeKind::Bool;
         }
 	| COMPLEX       {
                 $$.m_token = COMPLEX;
@@ -413,6 +429,19 @@ struct_or_union_specifier
 	: struct_or_union '{' struct_declaration_list '}'
 	| struct_or_union IDENTIFIER '{' struct_declaration_list '}'    {
             fprintf(stderr, "Struct or Union Specifier of Identifier + Struct Declaration List: %s %s %s\n", $1.m_token == STRUCT ? "struct" : "union", $2.m_text.c_str(), $3.m_text.c_str());
+            if ($1.m_token == STRUCT) {
+                $$.m_struct = std::make_shared<StructDecl>();
+                $$.m_struct->m_name = $2.m_text;
+                if ($3.m_fieldDecl) {
+                    for (auto& fieldName : $3.m_fieldDecl->m_names) {
+                        FieldDecl field;
+                        field.m_type = $3.m_fieldDecl->m_type;
+                        field.m_name = fieldName;
+                        $$.m_struct->m_members.push_back(field);
+                    }
+                }
+            } else {
+            }
         }
 	| struct_or_union IDENTIFIER
 	;
@@ -436,8 +465,25 @@ struct_declaration_list
 
 struct_declaration
 	: specifier_qualifier_list ';'	/* for anonymous struct/union */
-	| specifier_qualifier_list struct_declarator_list ';'   {
-            fprintf(stderr, "Struction Declaration of Specifier Qualifier List + Struct Declarator List: %s %s\n", $1.m_text.c_str(), $2.m_text.c_str());
+	| specifier_qualifier_list struct_declarator_list ';' {
+  $$.m_fieldDecl = $2.m_fieldDecl;
+  if ($1.m_type) {
+    $$.m_fieldDecl->m_type = *$1.m_type;
+  }
+  std::string names;
+  if ($$.m_fieldDecl) {
+    for (int i = 0; i < $$.m_fieldDecl->m_names.size(); i++) {
+      auto &field = $$.m_fieldDecl->m_names[i];
+      if (i != 0) {
+        names = names + " " + field;
+      } else {
+        names = field;
+      }
+    }
+  }
+  fprintf(stderr, "Struct Declaration of Specifier Qualifier List + Struct "
+                  "Declarator List: %s %s\n",
+          $1.m_text.c_str(), names.c_str());
         }
 	| static_assert_declaration
 	;
@@ -464,18 +510,22 @@ specifier_qualifier_list
 struct_declarator_list
 	: struct_declarator     {
             fprintf(stderr, "Struct Declarator List Base Item: %s\n", $1.m_text.c_str());
-            $$.m_text = $1.m_text;
+            $$.m_fieldDecl = std::make_shared<FieldDeclInProgress>();
+            $$.m_fieldDecl->m_names.push_back($1.m_text);
         }
 	| struct_declarator_list ',' struct_declarator  {
             fprintf(stderr, "Struct Declarator List Item Addition: %s %s\n", $1.m_text.c_str(), $2.m_text.c_str());
-            $$.m_text = $1.m_text + ", " + $3.m_text;
+            $$.m_fieldDecl = $1.m_fieldDecl;
+            $$.m_fieldDecl->m_names.push_back($3.m_text);
         }
 	;
 
 struct_declarator
 	: ':' constant_expression
 	| declarator ':' constant_expression
-	| declarator
+	| declarator    {
+            $$.m_text = $1.m_text;
+        }
 	;
 
 enum_specifier
@@ -519,12 +569,16 @@ alignment_specifier
 
 declarator
 	: pointer direct_declarator
-	| direct_declarator
+	| direct_declarator     {
+                $$ = $1;
+        }
 	;
 
 direct_declarator
 	: IDENTIFIER                            {
             fprintf(stderr, "Direct Declarator of IDENTIFIER: %s\n", $1.m_text.c_str());
+            $$.m_token = IDENTIFIER;
+            $$.m_text = $1.m_text;
         }
 	| '(' declarator ')'
 	| direct_declarator '[' ']'
