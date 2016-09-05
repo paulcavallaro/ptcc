@@ -430,17 +430,15 @@ struct_or_union_specifier
 	| struct_or_union IDENTIFIER '{' struct_declaration_list '}'    {
             fprintf(stderr, "Struct or Union Specifier of Identifier + Struct Declaration List: %s %s %s\n", $1.m_token == STRUCT ? "struct" : "union", $2.m_text.c_str(), $3.m_text.c_str());
             if ($1.m_token == STRUCT) {
-                $$.m_struct = std::make_shared<StructDecl>();
+                $$.m_struct = $4.m_struct;
                 $$.m_struct->m_name = $2.m_text;
-                if ($3.m_fieldDecl) {
-                    for (auto& fieldName : $3.m_fieldDecl->m_names) {
-                        FieldDecl field;
-                        field.m_type = $3.m_fieldDecl->m_type;
-                        field.m_name = fieldName;
-                        $$.m_struct->m_members.push_back(field);
-                    }
-                }
             } else {
+            }
+            if ($$.m_struct) {
+                fprintf(stderr, "Struct Declaration struct %s with fields:\n", $$.m_struct->m_name.c_str());
+                for (auto& fieldDecl : $$.m_struct->m_members) {
+                    fprintf(stderr, "Field named %s of type %s\n", fieldDecl.m_name.c_str(), specToString(fieldDecl.m_type).c_str());
+                }
             }
         }
 	| struct_or_union IDENTIFIER
@@ -458,9 +456,28 @@ struct_or_union
 struct_declaration_list
 	: struct_declaration    {
             fprintf(stderr, "Struct Declaration List Item: %s\n", $1.m_text.c_str());
-            $$ = $1;
+            if ($1.m_fieldDecl) {
+                $$.m_struct = std::make_shared<StructDecl>();
+                for (auto& name : $1.m_fieldDecl->m_names) {
+                    FieldDecl field;
+                    field.m_type = $1.m_fieldDecl->m_type;
+                    field.m_name = name;
+                    $$.m_struct->m_members.push_back(field);
+                }
+            }
         }
-	| struct_declaration_list struct_declaration
+	| struct_declaration_list struct_declaration    {
+            fprintf(stderr, "Struct Declaration List Item Addition: %s\n", $2.m_text.c_str());
+            $$ = $1;
+            if ($2.m_fieldDecl) {
+                for (auto& name : $2.m_fieldDecl->m_names) {
+                    FieldDecl field;
+                    field.m_type = $2.m_fieldDecl->m_type;
+                    field.m_name = name;
+                    $$.m_struct->m_members.push_back(field);
+                }
+            }
+        }
 	;
 
 struct_declaration
@@ -468,7 +485,7 @@ struct_declaration
 	| specifier_qualifier_list struct_declarator_list ';' {
   $$.m_fieldDecl = $2.m_fieldDecl;
   if ($1.m_type) {
-    $$.m_fieldDecl->m_type = *$1.m_type;
+    $$.m_fieldDecl->m_type = *($1.m_type);
   }
   std::string names;
   if ($$.m_fieldDecl) {

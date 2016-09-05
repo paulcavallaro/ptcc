@@ -69,6 +69,9 @@ struct TypeSpec {
   TypeKind m_kind;
 };
 
+std::string kindToString(const TypeKind kind);
+std::string specToString(const TypeSpec typeSpec);
+
 struct FieldDecl {
   TypeSpec m_type;
   std::string m_name;
