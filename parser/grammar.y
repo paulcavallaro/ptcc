@@ -401,15 +401,7 @@ struct_or_union_specifier
 	| struct_or_union IDENTIFIER '{' struct_declaration_list '}'    {
             fprintf(stderr, "Struct or Union Specifier of Identifier + Struct Declaration List: %s %s %s\n", $1.m_token == STRUCT ? "struct" : "union", $2.m_text.c_str(), $3.m_text.c_str());
             if ($1.m_token == STRUCT) {
-                $$.m_struct = $4.m_struct;
-                $$.m_struct->m_name = $2.m_text;
-            } else {
-            }
-            if ($$.m_struct) {
-                fprintf(stderr, "Struct Declaration struct %s with fields:\n", $$.m_struct->m_name.c_str());
-                for (auto& fieldDecl : $$.m_struct->m_members) {
-                    fprintf(stderr, "\tField named %s of type %s\n", fieldDecl.m_name.c_str(), specToString(fieldDecl.m_type).c_str());
-                }
+                _p->parseStructSpecifier($$, $2, $4);
             }
         }
 	| struct_or_union IDENTIFIER
@@ -418,60 +410,29 @@ struct_or_union_specifier
 struct_or_union
 	: STRUCT        {
                 $$.m_token = STRUCT;
+                $$.m_text = "struct";
         }
 	| UNION         {
                 $$.m_token = UNION;
+                $$.m_text = "union";
         }
 	;
 
 struct_declaration_list
 	: struct_declaration    {
-            fprintf(stderr, "Struct Declaration List Item: %s\n", $1.m_text.c_str());
-            if ($1.m_fieldDecl) {
-                $$.m_struct = std::make_shared<StructDecl>();
-                for (auto& name : $1.m_fieldDecl->m_names) {
-                    FieldDecl field;
-                    field.m_type = $1.m_fieldDecl->m_type;
-                    field.m_name = name;
-                    $$.m_struct->m_members.push_back(field);
-                }
-            }
+            _p->parseStructDeclarationList($$, $1);
+            _p->resetStructDeclaratorList();
         }
 	| struct_declaration_list struct_declaration    {
-            fprintf(stderr, "Struct Declaration List Item Addition: %s\n", $2.m_text.c_str());
-            $$ = $1;
-            if ($2.m_fieldDecl) {
-                for (auto& name : $2.m_fieldDecl->m_names) {
-                    FieldDecl field;
-                    field.m_type = $2.m_fieldDecl->m_type;
-                    field.m_name = name;
-                    $$.m_struct->m_members.push_back(field);
-                }
-            }
+            _p->parseStructDeclarationList($$, $2);
+            _p->resetStructDeclaratorList();
         }
 	;
 
 struct_declaration
 	: specifier_qualifier_list ';'	/* for anonymous struct/union */
 	| specifier_qualifier_list struct_declarator_list ';' {
-  $$.m_fieldDecl = $2.m_fieldDecl;
-  if ($1.m_type) {
-    $$.m_fieldDecl->m_type = *($1.m_type);
-  }
-  std::string names;
-  if ($$.m_fieldDecl) {
-    for (int i = 0; i < $$.m_fieldDecl->m_names.size(); i++) {
-      auto &field = $$.m_fieldDecl->m_names[i];
-      if (i != 0) {
-        names = names + " " + field;
-      } else {
-        names = field;
-      }
-    }
-  }
-  fprintf(stderr, "Struct Declaration of Specifier Qualifier List + Struct "
-                  "Declarator List: %s %s\n",
-          $1.m_text.c_str(), names.c_str());
+            _p->parseStructDeclaration($$, $1, $2);
         }
 	| static_assert_declaration
 	;
@@ -497,14 +458,10 @@ specifier_qualifier_list
 
 struct_declarator_list
 	: struct_declarator     {
-            fprintf(stderr, "Struct Declarator List Base Item: %s\n", $1.m_text.c_str());
-            $$.m_fieldDecl = std::make_shared<FieldDeclInProgress>();
-            $$.m_fieldDecl->m_names.push_back($1.m_text);
+            _p->parseStructDeclarator($$, $1);
         }
 	| struct_declarator_list ',' struct_declarator  {
-            fprintf(stderr, "Struct Declarator List Item Addition: %s %s\n", $1.m_text.c_str(), $2.m_text.c_str());
-            $$.m_fieldDecl = $1.m_fieldDecl;
-            $$.m_fieldDecl->m_names.push_back($3.m_text);
+            _p->parseStructDeclarator($$, $3);
         }
 	;
 
@@ -564,9 +521,7 @@ declarator
 
 direct_declarator
 	: IDENTIFIER                            {
-            fprintf(stderr, "Direct Declarator of IDENTIFIER: %s\n", $1.m_text.c_str());
-            $$.m_token = IDENTIFIER;
-            $$.m_text = $1.m_text;
+            _p->parseDirectDeclaratorId($$, $1);
         }
 	| '(' declarator ')'
 	| direct_declarator '[' ']'
@@ -716,8 +671,7 @@ block_item
 expression_statement
 	: ';'
 	| expression ';'        {
-                                        fprintf(stderr, "Expression Statement of Expression: %s\n", $1.m_text.c_str());
-                                        $$ = $1;
+                                        _p->parseExprStmt($$, $1);
                                 }
 	;
 

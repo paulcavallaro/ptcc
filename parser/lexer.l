@@ -100,7 +100,9 @@ extern void yyerror(YYLTYPE * yylloc, const char *);  /* prints grammar violatio
 
 {L}{A}*					{
                                                 yylval->m_text = std::string(yytext);
-                                                return yyget_extra(yyscanner)->check_type(yytext);
+                                                auto tok = yyget_extra(yyscanner)->check_type(yytext);
+                                                yylval->m_token = tok;
+                                                return tok;
                                         }
 
 {HP}{H}+{IS}?				{

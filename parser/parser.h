@@ -25,6 +25,16 @@ struct Parser {
 
   void parseTypeSpecifier(Token &out, const int token);
   void parseReturnStmt(Token &out, const int ret_token, const Token &expr);
+  void parseExprStmt(Token &out, const Token &expr);
+  void parseDirectDeclaratorId(Token &out, const Token &id);
+  void parseStructDeclarator(Token &out, const Token &structDecl);
+  void parseStructDeclaration(Token &out, const Token &specQualList,
+                              const Token &structDeclList);
+  void parseStructDeclarationList(Token &out, const Token &structDecl);
+  void parseStructSpecifier(Token &out, const Token &id,
+                            const Token &structDeclList);
+  void resetStructDeclaratorList();
+
   void setDebug(bool debug) { m_debug = debug; }
 
 private:
@@ -33,6 +43,9 @@ private:
   bool m_debug{0};
   std::unordered_map<std::string, size_t> m_symtable;
   std::vector<SymTableEntry> m_symbols;
+  std::vector<std::string> m_structDeclList;
+  TypeSpec m_structDeclType;
+  std::vector<FieldDecl> m_structFieldList;
 };
 }
 } // ptcc::parser
