@@ -23,9 +23,14 @@ struct Parser {
   ssize_t insert(const char *symbol);
   const SymTableEntry &get(ssize_t);
 
-  void parseTypeSpecifier(Token &out, int token);
+  void parseTypeSpecifier(Token &out, const int token);
+  void parseReturnStmt(Token &out, const int ret_token, const Token &expr);
+  void setDebug(bool debug) { m_debug = debug; }
 
 private:
+  void debugLn(const char *format, ...);
+
+  bool m_debug{0};
   std::unordered_map<std::string, size_t> m_symtable;
   std::vector<SymTableEntry> m_symbols;
 };

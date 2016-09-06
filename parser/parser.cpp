@@ -35,7 +35,7 @@ ssize_t Parser::insert(const char *symbol) {
   }
 }
 
-void Parser::parseTypeSpecifier(Token &out, int token) {
+void Parser::parseTypeSpecifier(Token &out, const int token) {
   switch (token) {
   case VOID:
     out.m_token = token;
@@ -90,6 +90,21 @@ void Parser::parseTypeSpecifier(Token &out, int token) {
     out.m_token = token;
     break;
   }
+}
+
+void Parser::debugLn(const char *format, ...) {
+  if (m_debug) {
+    va_list args;
+    va_start(args, format);
+    vfprintf(stderr, format, args);
+    fprintf(stderr, "\n");
+  }
+}
+
+void Parser::parseReturnStmt(Token &out, const int ret_token,
+                             const Token &expr) {
+  debugLn("Return Statement: RETURN %s;", expr.m_text.c_str());
+  out.m_text = "RETURN " + expr.m_text + ";";
 }
 }
 } // ptcc::parser

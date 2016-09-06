@@ -742,8 +742,7 @@ jump_statement
 	| BREAK ';'
 	| RETURN ';'
 	| RETURN expression ';'         {
-            fprintf(stderr, "Jump Statement of Return: RETURN %s;\n", $2.m_text.c_str());
-            $$.m_text = "RETURN " + $2.m_text + ";";
+            _p->parseReturnStmt($$, RETURN, $1);
         }
 	;
 
@@ -777,6 +776,7 @@ int main(int argc, char** argv) {
     // Turn on bison debugging for this parse
     // yydebug = 1;
     ptcc::parser::Parser p;
+    p.setDebug(true);
     yyscan_t scanner;
     yylex_init(&scanner);
     yylex_init_extra(&p, &scanner);
