@@ -34,5 +34,62 @@ ssize_t Parser::insert(const char *symbol) {
     return idx;
   }
 }
+
+void Parser::parseTypeSpecifier(Token &out, int token) {
+  switch (token) {
+  case VOID:
+    out.m_token = token;
+    out.m_text = "void";
+    out.m_type = std::make_shared<TypeSpec>();
+    out.m_type->m_kind = TypeKind::Void;
+    break;
+  case CHAR:
+    out.m_token = token;
+    out.m_text = "char";
+    out.m_type = std::make_shared<TypeSpec>();
+    out.m_type->m_kind = TypeKind::Char;
+    break;
+  case SHORT:
+    out.m_token = token;
+    out.m_text = "short";
+    out.m_type = std::make_shared<TypeSpec>();
+    out.m_type->m_kind = TypeKind::Short;
+    break;
+  case INT:
+    out.m_token = token;
+    out.m_text = "int";
+    out.m_type = std::make_shared<TypeSpec>();
+    out.m_type->m_kind = TypeKind::Int32;
+    break;
+  case LONG:
+    out.m_token = token;
+    out.m_text = "long";
+    out.m_type = std::make_shared<TypeSpec>();
+    out.m_type->m_kind = TypeKind::Int64;
+    break;
+  case FLOAT:
+    out.m_token = token;
+    out.m_text = "float";
+    out.m_type = std::make_shared<TypeSpec>();
+    out.m_type->m_kind = TypeKind::Float;
+    break;
+  case DOUBLE:
+    out.m_token = token;
+    out.m_text = "double";
+    out.m_type = std::make_shared<TypeSpec>();
+    out.m_type->m_kind = TypeKind::Double;
+    break;
+  case BOOL:
+    out.m_token = token;
+    out.m_text = "bool";
+    out.m_type = std::make_shared<TypeSpec>();
+    out.m_type->m_kind = TypeKind::Bool;
+    break;
+  default:
+    // TODO(ptc) Handle rest of cases
+    out.m_token = token;
+    break;
+  }
+}
 }
 } // ptcc::parser

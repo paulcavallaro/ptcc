@@ -357,69 +357,40 @@ storage_class_specifier
 
 type_specifier
 	: VOID          {
-                $$.m_token = VOID;
-                $$.m_text = "void";
-                $$.m_type = std::make_shared<TypeSpec>();
-                $$.m_type->m_kind = TypeKind::Void;
+                _p->parseTypeSpecifier($$, VOID);
         }
 	| CHAR          {
-                $$.m_token = CHAR;
-                $$.m_text = "char";
-                $$.m_type = std::make_shared<TypeSpec>();
-                $$.m_type->m_kind = TypeKind::Char;
+                _p->parseTypeSpecifier($$, CHAR);
         }
 	| SHORT         {
-                $$.m_token = SHORT;
-                $$.m_text = "short";
-                $$.m_type = std::make_shared<TypeSpec>();
-                $$.m_type->m_kind = TypeKind::Short;
+                _p->parseTypeSpecifier($$, SHORT);
         }
 	| INT           {
-                $$.m_token = INT;
-                $$.m_text = "int";
-                $$.m_type = std::make_shared<TypeSpec>();
-                $$.m_type->m_kind = TypeKind::Int32;
+                _p->parseTypeSpecifier($$, INT);
         }
 	| LONG          {
-                $$.m_token = LONG;
-                $$.m_text = "long";
-                $$.m_type = std::make_shared<TypeSpec>();
-                $$.m_type->m_kind = TypeKind::Int64;
+                _p->parseTypeSpecifier($$, LONG);
         }
 	| FLOAT         {
-                $$.m_token = FLOAT;
-                $$.m_text = "float";
-                $$.m_type = std::make_shared<TypeSpec>();
-                $$.m_type->m_kind = TypeKind::Float;
+                _p->parseTypeSpecifier($$, FLOAT);
         }
 	| DOUBLE        {
-                $$.m_token = DOUBLE;
-                $$.m_text = "double";
-                $$.m_type = std::make_shared<TypeSpec>();
-                $$.m_type->m_kind = TypeKind::Double;
+                _p->parseTypeSpecifier($$, DOUBLE);
         }
 	| SIGNED        {
-                $$.m_token = SIGNED;
-                $$.m_text = "signed";
+                _p->parseTypeSpecifier($$, SIGNED);
         }
 	| UNSIGNED      {
-                $$.m_token = UNSIGNED;
-                $$.m_text = "unsigned";
+                _p->parseTypeSpecifier($$, UNSIGNED);
         }
 	| BOOL          {
-                $$.m_token = BOOL;
-                $$.m_text = "bool";
-                $$.m_type = std::make_shared<TypeSpec>();
-                $$.m_type->m_kind = TypeKind::Bool;
+                _p->parseTypeSpecifier($$, BOOL);
         }
 	| COMPLEX       {
-                $$.m_token = COMPLEX;
-                $$.m_text = "complex";
+                _p->parseTypeSpecifier($$, COMPLEX);
         }
 	| IMAGINARY	  	/* non-mandated extension */
-	| atomic_type_specifier         {
-                $$ = $1;
-        }
+	| atomic_type_specifier
 	| struct_or_union_specifier
 	| enum_specifier
 	| TYPEDEF_NAME		/* after it has been defined as such */
@@ -437,7 +408,7 @@ struct_or_union_specifier
             if ($$.m_struct) {
                 fprintf(stderr, "Struct Declaration struct %s with fields:\n", $$.m_struct->m_name.c_str());
                 for (auto& fieldDecl : $$.m_struct->m_members) {
-                    fprintf(stderr, "Field named %s of type %s\n", fieldDecl.m_name.c_str(), specToString(fieldDecl.m_type).c_str());
+                    fprintf(stderr, "\tField named %s of type %s\n", fieldDecl.m_name.c_str(), specToString(fieldDecl.m_type).c_str());
                 }
             }
         }
