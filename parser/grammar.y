@@ -496,10 +496,18 @@ atomic_type_specifier
 	;
 
 type_qualifier
-	: CONST
-	| RESTRICT
-	| VOLATILE
-	| ATOMIC
+	: CONST         {
+            _p->parseTypeQualifier($$, CONST);
+        }
+	| RESTRICT      {
+            _p->parseTypeQualifier($$, RESTRICT);
+        }
+	| VOLATILE      {
+            _p->parseTypeQualifier($$, VOLATILE);
+        }
+	| ATOMIC        {
+            _p->parseTypeQualifier($$, ATOMIC);
+        }
 	;
 
 function_specifier
@@ -513,9 +521,11 @@ alignment_specifier
 	;
 
 declarator
-	: pointer direct_declarator
+	: pointer direct_declarator {
+            _p->parsePointerDeclarator($$, $1, $2);
+        }
 	| direct_declarator     {
-                $$ = $1;
+            _p->parseDirectDeclarator($$, $1);
         }
 	;
 
@@ -539,15 +549,27 @@ direct_declarator
 	;
 
 pointer
-	: '*' type_qualifier_list pointer
-	| '*' type_qualifier_list
-	| '*' pointer
-	| '*'
+	: '*' type_qualifier_list pointer       {
+            _p->parsePointerTyQual($$, $1, &$2);
+        }
+	| '*' type_qualifier_list       {
+            _p->parsePointerTyQual($$, $1, nullptr);
+        }
+	| '*' pointer   {
+            _p->parsePointer($$, &$2);
+        }
+	| '*'           {
+            _p->parsePointer($$, nullptr);
+        }
 	;
 
 type_qualifier_list
-	: type_qualifier
-	| type_qualifier_list type_qualifier
+	: type_qualifier        {
+            _p->parseTypeQualifierList($$, $1);
+        }
+	| type_qualifier_list type_qualifier    {
+            _p->parseTypeQualifierList($$, $2);
+        }
 	;
 
 

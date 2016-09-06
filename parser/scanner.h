@@ -63,10 +63,22 @@ enum class TypeKind {
   Char,
   Short,
   Bool,
+  Pointer,
 };
+
+enum class TypeQual {
+  Const,
+  Restrict,
+  Volatile,
+  Atomic,
+};
+
+std::string tyQualToString(const TypeQual tyQual);
 
 struct TypeSpec {
   TypeKind m_kind;
+  std::vector<TypeQual> m_quals;
+  std::shared_ptr<TypeSpec> m_otype;
 };
 
 std::string kindToString(const TypeKind kind);
@@ -100,6 +112,7 @@ struct Token {
   std::shared_ptr<TypeSpec> m_type;
   std::shared_ptr<StructDecl> m_struct;
   std::shared_ptr<FieldDeclInProgress> m_fieldDecl;
+  std::vector<TypeQual> m_typeQuals;
 };
 }
 } // ptc::scanner

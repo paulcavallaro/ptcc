@@ -5,7 +5,7 @@ struct MyStruct {
   int b;
 };
 
-struct MyStruct* get_struct() {
+struct MyStruct *get_struct() {
   struct MyStruct *foo = malloc(sizeof(struct MyStruct));
   if (foo == NULL) {
     return NULL;

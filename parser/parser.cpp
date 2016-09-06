@@ -35,6 +35,91 @@ ssize_t Parser::insert(const char *symbol) {
   }
 }
 
+void Parser::parseTypeQualifierList(Token &out, Token &tQual) {
+  switch (tQual.m_token) {
+  case CONST:
+    out.m_typeQuals.push_back(TypeQual::Const);
+    break;
+  case RESTRICT:
+    out.m_typeQuals.push_back(TypeQual::Restrict);
+    break;
+  case VOLATILE:
+    out.m_typeQuals.push_back(TypeQual::Volatile);
+    break;
+  case ATOMIC:
+    out.m_typeQuals.push_back(TypeQual::Atomic);
+    break;
+  default:
+    debugLn("ERROR - Unknown Type Qualifier");
+    break;
+  }
+}
+
+void Parser::parsePointerTyQual(Token &out, const Token &tyQualList,
+                                const Token *pointer) {
+  out.m_token = '*';
+  out.m_text = "*";
+  out.m_type =
+      std::make_shared<TypeSpec>(TypeSpec{.m_kind = TypeKind::Pointer});
+  out.m_type->m_quals = tyQualList.m_typeQuals;
+  for (auto &tyQual : tyQualList.m_typeQuals) {
+    out.m_text += " ";
+    out.m_text += tyQualToString(tyQual);
+  }
+  if (pointer) {
+    out.m_type->m_otype = pointer->m_type;
+    out.m_text += pointer->m_text;
+  }
+  debugLn("Pointer Type Qualifier of %s", out.m_text.c_str());
+}
+
+void Parser::parsePointer(Token &out, const Token *pointer) {
+  out.m_token = '*';
+  out.m_text = "*";
+  out.m_type =
+      std::make_shared<TypeSpec>(TypeSpec{.m_kind = TypeKind::Pointer});
+  if (pointer) {
+    out.m_type->m_otype = pointer->m_type;
+    out.m_text = out.m_text + pointer->m_text;
+  }
+  debugLn("Pointer of %s", out.m_text.c_str());
+}
+
+void Parser::parsePointerDeclarator(Token &out, const Token &pointer,
+                                    const Token &directDecl) {
+  // TODO(ptc) flesh out pointer + direct delcarator
+  out.m_text = pointer.m_text + directDecl.m_text;
+}
+
+void Parser::parseDirectDeclarator(Token &out, const Token &directDecl) {
+  // TODO(ptc) flesh out pointer + direct delcarator
+  out.m_text = directDecl.m_text;
+}
+
+void Parser::parseTypeQualifier(Token &out, const int token) {
+  switch (token) {
+  case CONST:
+    out.m_token = CONST;
+    out.m_text = "const";
+    break;
+  case RESTRICT:
+    out.m_token = RESTRICT;
+    out.m_text = "restrict";
+    break;
+  case VOLATILE:
+    out.m_token = VOLATILE;
+    out.m_text = "volatile";
+    break;
+  case ATOMIC:
+    out.m_token = ATOMIC;
+    out.m_text = "_Atomic";
+    break;
+  default:
+    debugLn("ERROR - Unknown Type Qualifier");
+    break;
+  }
+}
+
 void Parser::parseTypeSpecifier(Token &out, const int token) {
   switch (token) {
   case VOID:

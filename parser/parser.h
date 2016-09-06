@@ -24,6 +24,8 @@ struct Parser {
   const SymTableEntry &get(ssize_t);
 
   void parseTypeSpecifier(Token &out, const int token);
+  void parseTypeQualifier(Token &out, const int token);
+  void parseTypeQualifierList(Token &out, Token &tQual);
   void parseReturnStmt(Token &out, const int ret_token, const Token &expr);
   void parseExprStmt(Token &out, const Token &expr);
   void parseDirectDeclaratorId(Token &out, const Token &id);
@@ -33,6 +35,13 @@ struct Parser {
   void parseStructDeclarationList(Token &out, const Token &structDecl);
   void parseStructSpecifier(Token &out, const Token &id,
                             const Token &structDeclList);
+  void parseDirectDeclarator(Token &out, const Token &directDecl);
+  void parsePointerDeclarator(Token &out, const Token &pointer,
+                              const Token &directDecl);
+  void parsePointer(Token &out, const Token *pointer);
+  void parsePointerTyQual(Token &out, const Token &tyQualList,
+                          const Token *pointer);
+
   void resetStructDeclaratorList();
 
   void setDebug(bool debug) { m_debug = debug; }
@@ -46,6 +55,8 @@ private:
   std::vector<std::string> m_structDeclList;
   TypeSpec m_structDeclType;
   std::vector<FieldDecl> m_structFieldList;
+  std::vector<TypeQual> m_typeQuals;
+  TypeSpec m_pointerType;
 };
 }
 } // ptcc::parser

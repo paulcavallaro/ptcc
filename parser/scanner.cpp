@@ -27,5 +27,18 @@ std::string kindToString(const TypeKind kind) {
 std::string specToString(const TypeSpec typeSpec) {
   return kindToString(typeSpec.m_kind);
 }
+
+std::string tyQualToString(const TypeQual tyQual) {
+  switch (tyQual) {
+  case TypeQual::Const:
+    return "const";
+  case TypeQual::Restrict:
+    return "restrict";
+  case TypeQual::Volatile:
+    return "volatile";
+  case TypeQual::Atomic:
+    return "_Atomic";
+  }
+}
 }
 } // ptc::scanner
