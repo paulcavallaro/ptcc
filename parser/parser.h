@@ -20,7 +20,8 @@ struct SymTableEntry {
 struct Parser {
   int check_type(const char *text);
   ssize_t find(const char *symbol);
-  ssize_t insert(const char *symbol);
+  ssize_t insert(const char *symbol, int token);
+  ssize_t overwrite(const char *symbol, int token);
   const SymTableEntry &get(ssize_t);
 
   void parseTypeSpecifier(Token &out, const int token);
@@ -41,6 +42,18 @@ struct Parser {
   void parsePointer(Token &out, const Token *pointer);
   void parsePointerTyQual(Token &out, const Token &tyQualList,
                           const Token *pointer);
+
+  void parseStorageClassSpecifier(Token &out, const int token);
+  void parseStructTypeSpecifier(Token &out, const Token &structSpecifier);
+  void parseUnionTypeSpecifier(Token &out, const Token &unionSpecifier);
+
+  void parseDeclarationFromDeclarationSpecifiers(
+      Token &out, const Token &declarationSpecifiers,
+      const Token *initDeclaratorList = nullptr);
+  void
+  parseStorageClassDeclarationSpecifiers(Token &out,
+                                         const Token &storageClassSpecifiers,
+                                         const Token &declarationSpecifiers);
 
   void resetStructDeclaratorList();
 

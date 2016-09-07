@@ -1,9 +1,9 @@
-struct Foo {
+typedef struct Foo {
   int bar, baz;
   double doo;
   char quux;
   char *str;
-};
+} Foo;
 
 // Simple comment
 
@@ -14,7 +14,7 @@ Multi line comment
  */
 
 int main(int argc, char **argv) {
-  struct Foo foo;
+  Foo foo;
   foo.bar = 1;
   foo.baz = 2;
   foo.bar = 2 + 4;

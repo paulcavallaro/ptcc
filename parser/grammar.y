@@ -11,9 +11,11 @@ typedef void *yyscan_t;
 // Enable bison debugging capabilities
 #define YYDEBUG 1
 
+#include <assert.h>
 #include <cstdlib>
 #include <memory>
 #include <stdio.h>
+
 #include "scanner.h"
 #include "parser.h"
 #include "grammar.tab.hpp"
@@ -315,19 +317,30 @@ constant_expression
 	;
 
 declaration
-	: declaration_specifiers ';'
-	| declaration_specifiers init_declarator_list ';'
+	: declaration_specifiers ';'    {
+            _p->parseDeclarationFromDeclarationSpecifiers($$, $1);
+        }
+	| declaration_specifiers init_declarator_list ';'       {
+            // TODO(ptc) have to fix this whole skulduggery, but this should
+            // get typedefs working
+            _p->parseDeclarationFromDeclarationSpecifiers($$, $1, &$2);
+        }
 	| static_assert_declaration
 	;
 
 declaration_specifiers
         : storage_class_specifier declaration_specifiers        {
-            fprintf(stderr, "Found a storage_class_specifier %s with declaration_specifiers %s\n",
+            fprintf(stderr, "Declaration Specifiers of Storage Class Specifier %s with Declaration Specifiers %s\n",
                     $1.m_text.c_str(), $2.m_text.c_str());
+            _p->parseStorageClassDeclarationSpecifiers($$, $1, $2);
         }
-	| storage_class_specifier
+	| storage_class_specifier       {
+            $$ = $1;
+        }
 	| type_specifier declaration_specifiers
-	| type_specifier
+	| type_specifier                {
+            fprintf(stderr, "Declaration Specifiers of Type Specifier %s\n", $1.m_text.c_str());
+        }
 	| type_qualifier declaration_specifiers
 	| type_qualifier
 	| function_specifier declaration_specifiers
@@ -347,12 +360,25 @@ init_declarator
 	;
 
 storage_class_specifier
-	: TYPEDEF	/* identifiers must be flagged as TYPEDEF_NAME */
-	| EXTERN
-	| STATIC
-	| THREAD_LOCAL
-	| AUTO
-	| REGISTER
+	/* identifiers must be flagged as TYPEDEF_NAME */
+	: TYPEDEF       {
+            _p->parseStorageClassSpecifier($$, TYPEDEF);
+        }
+	| EXTERN        {
+            _p->parseStorageClassSpecifier($$, EXTERN);
+        }
+	| STATIC        {
+            _p->parseStorageClassSpecifier($$, STATIC);
+        }
+	| THREAD_LOCAL  {
+            _p->parseStorageClassSpecifier($$, THREAD_LOCAL);
+        }
+	| AUTO          {
+            _p->parseStorageClassSpecifier($$, AUTO);
+        }
+	| REGISTER      {
+            _p->parseStorageClassSpecifier($$, REGISTER);
+        }
 	;
 
 type_specifier
@@ -391,7 +417,14 @@ type_specifier
         }
 	| IMAGINARY	  	/* non-mandated extension */
 	| atomic_type_specifier
-	| struct_or_union_specifier
+	| struct_or_union_specifier     {
+            if ($1.m_token == STRUCT) {
+                _p->parseStructTypeSpecifier($$, $1);
+            } else {
+                assert($1.m_token == UNION);
+                _p->parseUnionTypeSpecifier($$, $1);
+            }
+        }
 	| enum_specifier
 	| TYPEDEF_NAME		/* after it has been defined as such */
 	;

@@ -19,6 +19,8 @@ std::string kindToString(const TypeKind kind) {
     return "char";
   case TypeKind::Bool:
     return "bool";
+  case TypeKind::Struct:
+    return "struct";
   default:
     return "Unknown";
   }

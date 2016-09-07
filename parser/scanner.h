@@ -75,10 +75,14 @@ enum class TypeQual {
 
 std::string tyQualToString(const TypeQual tyQual);
 
+// Forward declare
+struct StructDecl;
+
 struct TypeSpec {
   TypeKind m_kind;
   std::vector<TypeQual> m_quals;
   std::shared_ptr<TypeSpec> m_otype;
+  std::shared_ptr<StructDecl> m_struct;
 };
 
 std::string kindToString(const TypeKind kind);
@@ -89,7 +93,23 @@ struct FieldDecl {
   std::string m_name;
 };
 
+enum class StorageClassSpecifier {
+  Typedef,
+  Extern,
+  Static,
+  ThreadLocal,
+  Auto,
+  Register,
+};
+
+struct DeclarationSpecifiers {
+  std::vector<StorageClassSpecifier> m_storageClassSpecs;
+};
+
 struct StructDecl {
+  StructDecl(std::string name, std::vector<FieldDecl> members)
+      : m_name(name), m_members(members) {}
+
   std::string m_name;
   std::vector<FieldDecl> m_members;
 };
@@ -112,6 +132,7 @@ struct Token {
   std::shared_ptr<TypeSpec> m_type;
   std::shared_ptr<StructDecl> m_struct;
   std::shared_ptr<FieldDeclInProgress> m_fieldDecl;
+  std::shared_ptr<DeclarationSpecifiers> m_declSpecs;
   std::vector<TypeQual> m_typeQuals;
 };
 }

@@ -5,9 +5,18 @@ namespace ptcc {
 namespace parser {
 
 int Parser::check_type(const char *symbol) {
-  auto entry = m_symbols[insert(symbol)];
+  // TODO(ptc) fix this whole mess, just default to adding as IDENTIFIER if not
+  // already defined
+  auto entry = m_symbols[insert(symbol, IDENTIFIER)];
   switch (entry.m_type) {
+  case IDENTIFIER:
+    debugLn("Checking type of: %s, Found: IDENTIFIER", symbol);
+    return IDENTIFIER;
+  case TYPEDEF_NAME:
+    debugLn("Checking type of: %s, Found: TYPEDEF_NAME", symbol);
+    return TYPEDEF_NAME;
   default:
+    debugLn("Checking type of: %s, Not Found, Default To: IDENTIFIER", symbol);
     return IDENTIFIER;
   }
 }
@@ -23,13 +32,27 @@ ssize_t Parser::find(const char *symbol) {
 
 const SymTableEntry &Parser::get(ssize_t idx) { return m_symbols[idx]; }
 
-ssize_t Parser::insert(const char *symbol) {
+ssize_t Parser::insert(const char *symbol, int token) {
   auto res = m_symtable.find(symbol);
   if (res != m_symtable.end()) {
     return static_cast<size_t>(res->second);
   } else {
     auto idx = m_symbols.size();
-    m_symbols.emplace_back(symbol, 0);
+    m_symbols.emplace_back(symbol, token);
+    m_symtable.emplace(symbol, idx);
+    return idx;
+  }
+}
+
+ssize_t Parser::overwrite(const char *symbol, int token) {
+  auto res = m_symtable.find(symbol);
+  if (res != m_symtable.end()) {
+    auto idx = static_cast<size_t>(res->second);
+    m_symbols[idx].m_type = token;
+    return idx;
+  } else {
+    auto idx = m_symbols.size();
+    m_symbols.emplace_back(symbol, token);
     m_symtable.emplace(symbol, idx);
     return idx;
   }
@@ -232,16 +255,144 @@ void Parser::parseStructDeclarationList(Token &out, const Token &structDecl) {
 void Parser::parseStructSpecifier(Token &out, const Token &id,
                                   const Token &structDeclList) {
   debugLn("Struct Specifier struct %s with fields:", id.m_text.c_str());
+  std::string fields;
   for (auto &fieldDecl : m_structFieldList) {
     debugLn("\tField named %s of type %s", fieldDecl.m_name.c_str(),
             specToString(fieldDecl.m_type).c_str());
+    fields +=
+        "\t" + specToString(fieldDecl.m_type) + " " + fieldDecl.m_name + ";\n";
   }
+  out.m_token = STRUCT;
+  out.m_text = "struct " + id.m_text + " {\n" + fields + "}";
+  out.m_type = std::make_shared<TypeSpec>();
+  out.m_type->m_kind = TypeKind::Struct;
+  // TODO(ptc) fix up usage of m_type->m_struct + m_struct in Token
+  out.m_type->m_struct =
+      std::make_shared<StructDecl>(id.m_text, m_structFieldList);
+
+  // Reset parser state
+  m_structFieldList.clear();
 }
 
 void Parser::resetStructDeclaratorList() {
   debugLn("Resetting the Struct Declarator List");
   m_structDeclList.clear();
   m_structDeclType = TypeSpec{.m_kind = TypeKind::Void};
+}
+
+void Parser::parseStorageClassSpecifier(Token &out, const int token) {
+  switch (token) {
+  case EXTERN:
+    out.m_token = EXTERN;
+    out.m_text = "extern";
+    out.m_declSpecs = std::make_shared<DeclarationSpecifiers>();
+    out.m_declSpecs->m_storageClassSpecs.push_back(
+        StorageClassSpecifier::Extern);
+    break;
+  case STATIC:
+    out.m_token = STATIC;
+    out.m_text = "static";
+    out.m_declSpecs = std::make_shared<DeclarationSpecifiers>();
+    out.m_declSpecs->m_storageClassSpecs.push_back(
+        StorageClassSpecifier::Static);
+    break;
+  case THREAD_LOCAL:
+    out.m_token = THREAD_LOCAL;
+    out.m_text = "_Thread_local";
+    out.m_declSpecs = std::make_shared<DeclarationSpecifiers>();
+    out.m_declSpecs->m_storageClassSpecs.push_back(
+        StorageClassSpecifier::ThreadLocal);
+    break;
+  case AUTO:
+    out.m_token = AUTO;
+    out.m_text = "auto";
+    out.m_declSpecs = std::make_shared<DeclarationSpecifiers>();
+    out.m_declSpecs->m_storageClassSpecs.push_back(StorageClassSpecifier::Auto);
+    break;
+  case REGISTER:
+    out.m_token = REGISTER;
+    out.m_text = "register";
+    out.m_declSpecs = std::make_shared<DeclarationSpecifiers>();
+    out.m_declSpecs->m_storageClassSpecs.push_back(
+        StorageClassSpecifier::Register);
+    break;
+  case TYPEDEF:
+    out.m_token = TYPEDEF;
+    out.m_text = "typedef";
+    out.m_declSpecs = std::make_shared<DeclarationSpecifiers>();
+    out.m_declSpecs->m_storageClassSpecs.push_back(
+        StorageClassSpecifier::Typedef);
+    break;
+  default:
+    debugLn("ERROR - Unknown Storage Class Specifier %d", token);
+    return;
+  }
+  debugLn("Storage Class Specifier: %s", out.m_text.c_str());
+}
+
+void Parser::parseStructTypeSpecifier(Token &out,
+                                      const Token &structSpecifier) {
+  out = structSpecifier;
+}
+
+void Parser::parseUnionTypeSpecifier(Token &out, const Token &unionSpecifier) {
+  out = unionSpecifier;
+}
+
+void Parser::parseStorageClassDeclarationSpecifiers(
+    Token &out, const Token &storageClassSpecifier,
+    const Token &declarationSpecifiers) {
+  debugLn("Entering parseStorageClassDeclarationSpecifiers");
+  out = declarationSpecifiers;
+  // TODO(ptc) handle other declaration_specifiers
+  debugLn("Entering parseStorageClassDeclarationSpecifiers "
+          "storageClassSpecifier.m_declSpecs: %d, out.m_declSpecs: %d",
+          storageClassSpecifier.m_declSpecs.get(), out.m_declSpecs.get());
+  if (!out.m_declSpecs) {
+    out.m_declSpecs = std::make_shared<DeclarationSpecifiers>();
+  }
+  if (storageClassSpecifier.m_declSpecs) {
+    debugLn("Entering parseStorageClassDeclarationSpecifiers -- Modifying "
+            "m_declSpecs");
+    for (auto &storageClassSpec :
+         storageClassSpecifier.m_declSpecs->m_storageClassSpecs) {
+      out.m_declSpecs->m_storageClassSpecs.push_back(storageClassSpec);
+    }
+  }
+}
+
+void Parser::parseDeclarationFromDeclarationSpecifiers(
+    Token &out, const Token &declarationSpecifiers,
+    const Token *initDeclaratorList) {
+  debugLn("Entering parseDeclarationFromDeclarationSpecifiers");
+  // TODO(ptc) make this much broader, for now just add possible typedef
+  // declarations into the symbol table
+  if (declarationSpecifiers.m_declSpecs) {
+    debugLn("parseDeclarationFromDeclarationSpecifiers: m_declSpecs not null");
+    bool isTypedef = false;
+    for (auto &storageClassSpec :
+         declarationSpecifiers.m_declSpecs->m_storageClassSpecs) {
+      if (storageClassSpec == StorageClassSpecifier::Typedef) {
+        isTypedef = true;
+        break;
+      }
+    }
+    if (isTypedef) {
+      debugLn("parseDeclarationFromDeclarationSpecifiers: isTypedef");
+      if (declarationSpecifiers.m_type &&
+          declarationSpecifiers.m_type->m_struct) {
+        // Have a typedef of a struct, add the typedef name to the symbol table
+        // TODO(ptc) fix up how we insert into this symbol table
+        if (initDeclaratorList) {
+          debugLn("parseDeclarationFromDeclarationSpecifiers: is "
+                  "initDeclaratorList");
+          debugLn("Adding typedef name of %s",
+                  initDeclaratorList->m_text.c_str());
+          overwrite(initDeclaratorList->m_text.c_str(), TYPEDEF_NAME);
+        }
+      }
+    }
+  }
 }
 
 void Parser::parseReturnStmt(Token &out, const int ret_token,

@@ -1,5 +1,7 @@
 CXXFLAGS = -std=c++14
 
+debug:		CXXFLAGS += -DDEBUG -g
+debug:		lexer
 all:		lexer
 clean:
 	rm -f lex.yy.cpp grammar.tab.c grammar.tab.cpp grammar.tab.hpp lexer *.o flex.h
@@ -14,7 +16,7 @@ grammar.tab.cpp:	grammar.y
 	bison -d grammar.y -o grammar.tab.cpp
 grammar.tab.o:	grammar.tab.cpp
 	$(CXX) $(CXXFLAGS) -c grammar.tab.cpp
-parser.o:
+parser.o:	parser.cpp parser.h
 	$(CXX) $(CXXFLAGS) -c parser.cpp
-scanner.o:
+scanner.o:	scanner.cpp scanner.h
 	$(CXX) $(CXXFLAGS) -c scanner.cpp
