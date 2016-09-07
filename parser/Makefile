@@ -2,7 +2,7 @@ CXXFLAGS = -std=c++14
 
 all:		lexer
 clean:
-	rm -f lex.yy.c grammar.tab.c grammar.tab.cpp grammar.tab.hpp lexer *.o
+	rm -f lex.yy.cpp grammar.tab.c grammar.tab.cpp grammar.tab.hpp lexer *.o flex.h
 
 lexer:		lex.yy.o grammar.tab.o parser.o scanner.o
 	$(CXX) $(CXXFLAGS) -o lexer -lfl -L/usr/local/lib grammar.tab.o lex.yy.o parser.o scanner.o
