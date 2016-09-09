@@ -3,6 +3,8 @@ typedef struct Foo {
   double doo;
   char quux;
   char *str;
+  const char * ptrToConstChar;
+  int intArr[];
 } Foo;
 
 // Simple comment

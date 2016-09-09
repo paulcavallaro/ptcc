@@ -1,6 +1,8 @@
 #include "parser.h"
 #include "grammar.tab.hpp"
 
+#include <assert.h>
+
 namespace ptcc {
 namespace parser {
 
@@ -78,8 +80,36 @@ void Parser::parseTypeQualifierList(Token &out, Token &tQual) {
   }
 }
 
+void Parser::parseSpecifierQualifierListSpecifier(Token &out,
+                                                  const Token &specifier,
+                                                  const Token *list) {
+  debugLn("Entering parseSpecifierQualifierListSpecifier");
+  assert(specifier.m_type);
+  m_typeSpecs.push_back(*specifier.m_type);
+  if (list) {
+    // TODO(ptc) maybe need to do something here
+  }
+}
+
+void Parser::parseSpecifierQualifierListQualifier(Token &out,
+                                                  const Token &qualifier,
+                                                  const Token *list) {
+  debugLn("Entering parseSpecifierQualifierListQualifier");
+  assert(qualifier.m_typeQuals.size() == 1);
+  m_typeQuals.push_back(qualifier.m_typeQuals[0]);
+  if (list) {
+    // TODO(ptc) maybe need to do something here
+  }
+}
+
+void Parser::resetSpecifierQualifierList() {
+  m_typeSpecs.clear();
+  m_typeQuals.clear();
+}
+
 void Parser::parsePointerTyQual(Token &out, const Token &tyQualList,
                                 const Token *pointer) {
+  debugLn("Entering parsePointerTyQual");
   out.m_token = '*';
   out.m_text = "*";
   out.m_type =
@@ -112,6 +142,7 @@ void Parser::parsePointerDeclarator(Token &out, const Token &pointer,
                                     const Token &directDecl) {
   // TODO(ptc) flesh out pointer + direct delcarator
   out.m_text = pointer.m_text + directDecl.m_text;
+  out.m_type = pointer.m_type;
 }
 
 void Parser::parseDirectDeclarator(Token &out, const Token &directDecl) {
@@ -124,18 +155,22 @@ void Parser::parseTypeQualifier(Token &out, const int token) {
   case CONST:
     out.m_token = CONST;
     out.m_text = "const";
+    out.m_typeQuals.push_back(TypeQual::Const);
     break;
   case RESTRICT:
     out.m_token = RESTRICT;
     out.m_text = "restrict";
+    out.m_typeQuals.push_back(TypeQual::Restrict);
     break;
   case VOLATILE:
     out.m_token = VOLATILE;
     out.m_text = "volatile";
+    out.m_typeQuals.push_back(TypeQual::Volatile);
     break;
   case ATOMIC:
     out.m_token = ATOMIC;
     out.m_text = "_Atomic";
+    out.m_typeQuals.push_back(TypeQual::Atomic);
     break;
   default:
     debugLn("ERROR - Unknown Type Qualifier");
@@ -219,22 +254,42 @@ void Parser::parseDirectDeclaratorId(Token &out, const Token &id) {
   out = id;
 }
 
+void Parser::parseDirectDeclaratorArray(Token &out, const Token &declarator) {
+  debugLn("Direct Declarator of Direct Declarator Array []: %s",
+          declarator.m_text.c_str());
+  // TODO(ptc) implement this
+  out = declarator;
+  out.m_text = declarator.m_text + "[]";
+}
+
 void Parser::parseStructDeclarator(Token &out, const Token &structDecl) {
   debugLn("Struct Declarator List Item: %s", structDecl.m_text.c_str());
-  m_structDeclList.push_back(structDecl.m_text);
+  m_structDeclList.push_back(structDecl);
 }
 
 void Parser::parseStructDeclaration(Token &out, const Token &specQualList,
                                     const Token &structDeclList) {
-  m_structDeclType = *specQualList.m_type;
+  // Type specifiers and qualifiers should be in parser local variables
+  // m_typeQuals + m_typeSpecs
+  assert(!(m_typeQuals.empty() && m_typeSpecs.empty()));
+
+  // TODO(ptc) In the future we should do merging of type specifiers such as
+  // "long long" or "long int" or "unsigned int", but for now just take the
+  // first type specifier as the type
+  if (m_typeSpecs.empty()) {
+    debugLn("Can't handle empty typeSpecs!");
+    assert(false);
+  }
+  m_structDeclType = m_typeSpecs[0];
+  m_structDeclType.m_quals = m_typeQuals;
 
   std::string names;
   for (int i = 0; i < m_structDeclList.size(); i++) {
-    auto &field = m_structDeclList[i];
+    auto &declarator = m_structDeclList[i];
     if (i != 0) {
-      names = names + " " + field;
+      names = names + " " + declarator.m_text;
     } else {
-      names = field;
+      names = declarator.m_text;
     }
   }
   debugLn("Struct Declaration of Specifier Qualifier List + Struct "
@@ -244,10 +299,33 @@ void Parser::parseStructDeclaration(Token &out, const Token &specQualList,
 
 void Parser::parseStructDeclarationList(Token &out, const Token &structDecl) {
   debugLn("Struct Declaration List Item: %s", structDecl.m_text.c_str());
-  for (auto &name : m_structDeclList) {
+  for (auto &declarator : m_structDeclList) {
     FieldDecl field;
-    field.m_type = m_structDeclType;
-    field.m_name = name;
+    if (!declarator.m_type) {
+      field.m_type = m_structDeclType;
+    } else {
+      // Declarators can encode extra information about the type that the
+      // declared
+      // thing references, either as a pointer, array, etc.
+      switch (declarator.m_type->m_kind) {
+      // TODO(ptc) codify and expand how this will work for all types not just
+      // the basic
+      // pointer type
+      case TypeKind::Pointer:
+        field.m_type = *declarator.m_type;
+        field.m_type.m_otype = std::make_shared<TypeSpec>(m_structDeclType);
+        break;
+      case TypeKind::Array:
+        field.m_type = *declarator.m_type;
+        field.m_type.m_otype = std::make_shared<TypeSpec>(m_structDeclType);
+        break;
+      default:
+        debugLn("Encountered unhandled declarator m_type!");
+        field.m_type = *declarator.m_type;
+        break;
+      }
+    }
+    field.m_name = declarator.m_text;
     m_structFieldList.push_back(field);
   }
 }

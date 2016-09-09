@@ -1,5 +1,7 @@
 #include "scanner.h"
 
+#include <queue>
+
 namespace ptcc {
 namespace parser {
 
@@ -26,8 +28,59 @@ std::string kindToString(const TypeKind kind) {
   }
 }
 
+std::string typeQualToString(const TypeQual qual) {
+  switch (qual) {
+  case TypeQual::Const:
+    return "const";
+  case TypeQual::Restrict:
+    return "restruct";
+  case TypeQual::Volatile:
+    return "volatile";
+  case TypeQual::Atomic:
+    return "_Atomic";
+  }
+}
+
+std::string pointerTypeToString(const TypeSpec tSpec) {
+  std::queue<TypeSpec> typeQ;
+  // TODO(ptc) actually write this properly, pretty sure this is just incorrect
+  typeQ.push(tSpec);
+  std::string ret;
+  while (!typeQ.empty()) {
+    auto type = typeQ.front();
+    if (type.m_otype) {
+      typeQ.push(*type.m_otype);
+    }
+    for (auto &tQual : type.m_quals) {
+      ret = " " + typeQualToString(tQual) + ret;
+    }
+    switch (type.m_kind) {
+    case TypeKind::Pointer:
+      ret = "*" + ret;
+      break;
+    case TypeKind::Array:
+      ret = "[]" + ret;
+      break;
+    default:
+      ret = kindToString(type.m_kind) + ret;
+      break;
+    }
+    typeQ.pop();
+  }
+  return ret;
+}
+
 std::string specToString(const TypeSpec typeSpec) {
-  return kindToString(typeSpec.m_kind);
+  switch (typeSpec.m_kind) {
+  case TypeKind::Pointer:
+    return pointerTypeToString(typeSpec);
+  case TypeKind::Array:
+    // TODO(ptc) write an array to string function
+    return "UNIMPLEMENTED ARRAY specToString";
+    break;
+  default:
+    return kindToString(typeSpec.m_kind);
+  }
 }
 
 std::string tyQualToString(const TypeQual tyQual) {

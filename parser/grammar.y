@@ -463,29 +463,36 @@ struct_declaration_list
 	;
 
 struct_declaration
-	: specifier_qualifier_list ';'	/* for anonymous struct/union */
+	: specifier_qualifier_list ';'	/* for anonymous struct/union */        {
+            _p->resetSpecifierQualifierList();
+        }
 	| specifier_qualifier_list struct_declarator_list ';' {
             _p->parseStructDeclaration($$, $1, $2);
+            _p->resetSpecifierQualifierList();
         }
 	| static_assert_declaration
 	;
 
 specifier_qualifier_list
 	: type_specifier specifier_qualifier_list       {
-            fprintf(stderr, "Specifier Qualifier List Item Addition of Type Specifier: %s %s\n", $1.m_text.c_str(), $2.m_text.c_str());
-            $$.m_text = $1.m_text + " " + $2.m_text;
+            _p->parseSpecifierQualifierListSpecifier($$, $1, &$2);
+            // fprintf(stderr, "Specifier Qualifier List Item Addition of Type Specifier: %s %s\n", $1.m_text.c_str(), $2.m_text.c_str());
+            // $$.m_text = $1.m_text + " " + $2.m_text;
         }
 	| type_specifier       {
-            fprintf(stderr, "Specifier Qualifier List Base Item of Type Specifier: %s\n", $1.m_text.c_str());
-            $$ = $1;
+            _p->parseSpecifierQualifierListSpecifier($$, $1, nullptr);
+            // fprintf(stderr, "Specifier Qualifier List Base Item of Type Specifier: %s\n", $1.m_text.c_str());
+            // $$ = $1;
         }
 	| type_qualifier specifier_qualifier_list       {
-            fprintf(stderr, "Specifier Qualifier List Item Addition of Type Qualifier: %s %s\n", $1.m_text.c_str(), $2.m_text.c_str());
-            $$.m_text = $1.m_text + " " + $2.m_text;
+            _p->parseSpecifierQualifierListQualifier($$, $1, &$2);
+            // fprintf(stderr, "Specifier Qualifier List Item Addition of Type Qualifier: %s %s\n", $1.m_text.c_str(), $2.m_text.c_str());
+            // $$.m_text = $1.m_text + " " + $2.m_text;
         }
 	| type_qualifier       {
-            fprintf(stderr, "Specifier Qualifier List Base Item of Type Qualifier: %s\n", $1.m_text.c_str());
-            $$ = $1;
+            _p->parseSpecifierQualifierListQualifier($$, $1, nullptr);
+            // fprintf(stderr, "Specifier Qualifier List Base Item of Type Qualifier: %s\n", $1.m_text.c_str());
+            // $$ = $1;
         }
 	;
 
@@ -502,7 +509,7 @@ struct_declarator
 	: ':' constant_expression
 	| declarator ':' constant_expression
 	| declarator    {
-            $$.m_text = $1.m_text;
+            $$ = $1;
         }
 	;
 
@@ -566,8 +573,14 @@ direct_declarator
 	: IDENTIFIER                            {
             _p->parseDirectDeclaratorId($$, $1);
         }
-	| '(' declarator ')'
-	| direct_declarator '[' ']'
+	| '(' declarator ')'                    {
+            // TODO(ptc) not sure this is right since this is a declarator not
+            // a direct_declarator
+            $$ = $2;
+        }
+	| direct_declarator '[' ']'             {
+            _p->parseDirectDeclaratorArray($$, $1);
+        }
 	| direct_declarator '[' '*' ']'
 	| direct_declarator '[' STATIC type_qualifier_list assignment_expression ']'
 	| direct_declarator '[' STATIC assignment_expression ']'
@@ -583,10 +596,10 @@ direct_declarator
 
 pointer
 	: '*' type_qualifier_list pointer       {
-            _p->parsePointerTyQual($$, $1, &$2);
+            _p->parsePointerTyQual($$, $2, &$3);
         }
 	| '*' type_qualifier_list       {
-            _p->parsePointerTyQual($$, $1, nullptr);
+            _p->parsePointerTyQual($$, $2, nullptr);
         }
 	| '*' pointer   {
             _p->parsePointer($$, &$2);
@@ -628,8 +641,12 @@ identifier_list
 	;
 
 type_name
-	: specifier_qualifier_list abstract_declarator
-	| specifier_qualifier_list
+	: specifier_qualifier_list abstract_declarator  {
+            _p->resetSpecifierQualifierList();
+        }
+	| specifier_qualifier_list      {
+            _p->resetSpecifierQualifierList();
+        }
 	;
 
 abstract_declarator
@@ -786,6 +803,11 @@ int main(int argc, char** argv) {
     // yydebug = 1;
     ptcc::parser::Parser p;
     p.setDebug(true);
+    // Set up __builtin's for clang
+    // TODO(ptc) fix this, it should be something else possibly than
+    // TYPEDEF_NAME, maybe a special BUILTIN_TYPE
+    p.insert("__builtin_va_list", TYPEDEF_NAME);
+    p.insert("__routine", TYPEDEF_NAME);
     yyscan_t scanner;
     yylex_init(&scanner);
     yylex_init_extra(&p, &scanner);

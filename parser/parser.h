@@ -27,9 +27,19 @@ struct Parser {
   void parseTypeSpecifier(Token &out, const int token);
   void parseTypeQualifier(Token &out, const int token);
   void parseTypeQualifierList(Token &out, Token &tQual);
+
+  void parseSpecifierQualifierListSpecifier(Token &out, const Token &specifier,
+                                            const Token *list);
+  void parseSpecifierQualifierListQualifier(Token &out, const Token &qualifier,
+                                            const Token *list);
+  void resetSpecifierQualifierList();
+
   void parseReturnStmt(Token &out, const int ret_token, const Token &expr);
   void parseExprStmt(Token &out, const Token &expr);
+
   void parseDirectDeclaratorId(Token &out, const Token &id);
+  void parseDirectDeclaratorArray(Token &out, const Token &declarator);
+
   void parseStructDeclarator(Token &out, const Token &structDecl);
   void parseStructDeclaration(Token &out, const Token &specQualList,
                               const Token &structDeclList);
@@ -65,10 +75,11 @@ private:
   bool m_debug{0};
   std::unordered_map<std::string, size_t> m_symtable;
   std::vector<SymTableEntry> m_symbols;
-  std::vector<std::string> m_structDeclList;
+  std::vector<Token> m_structDeclList;
   TypeSpec m_structDeclType;
   std::vector<FieldDecl> m_structFieldList;
   std::vector<TypeQual> m_typeQuals;
+  std::vector<TypeSpec> m_typeSpecs;
   TypeSpec m_pointerType;
 };
 }
