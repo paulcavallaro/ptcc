@@ -13,6 +13,8 @@ Multi line comment
 
  */
 
+typedef Foo Bar;
+
 int main(int argc, char **argv) {
   Foo foo;
   foo.bar = 1;
@@ -21,5 +23,7 @@ int main(int argc, char **argv) {
   foo.doo = 1.1 + 2.2;
   foo.quux = 'c';
   foo.str = "a string on the stack";
+  Bar bar;
+  bar = foo;
   return 1;
 }
