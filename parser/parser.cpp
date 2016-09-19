@@ -142,12 +142,13 @@ void Parser::parsePointerDeclarator(Token &out, const Token &pointer,
                                     const Token &directDecl) {
   // TODO(ptc) flesh out pointer + direct delcarator
   out.m_text = pointer.m_text + directDecl.m_text;
+  out.m_id = directDecl.m_id;
   out.m_type = pointer.m_type;
 }
 
 void Parser::parseDirectDeclarator(Token &out, const Token &directDecl) {
   // TODO(ptc) flesh out pointer + direct delcarator
-  out.m_text = directDecl.m_text;
+  out = directDecl;
 }
 
 void Parser::parseTypeQualifier(Token &out, const int token) {
@@ -252,6 +253,7 @@ void Parser::parseExprStmt(Token &out, const Token &expr) {
 void Parser::parseDirectDeclaratorId(Token &out, const Token &id) {
   debugLn("Direct Declarator of IDENTIFIER: %s", id.m_text.c_str());
   out = id;
+  out.m_id = id.m_text;
 }
 
 void Parser::parseDirectDeclaratorArray(Token &out, const Token &declarator) {
@@ -325,7 +327,7 @@ void Parser::parseStructDeclarationList(Token &out, const Token &structDecl) {
         break;
       }
     }
-    field.m_name = declarator.m_text;
+    field.m_name = declarator.m_id;
     m_structFieldList.push_back(field);
   }
 }

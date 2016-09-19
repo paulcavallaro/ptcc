@@ -127,6 +127,7 @@ struct FieldDeclInProgress {
 struct Token {
   int m_token{0};
   std::string m_text;
+  std::string m_id;
 
   std::shared_ptr<Expression> m_expr;
   std::shared_ptr<Constant> m_constant;

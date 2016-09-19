@@ -4,6 +4,8 @@ typedef struct Foo {
   char quux;
   char *str;
   const char * ptrToConstChar;
+  const char * const constPtrToConstChar;
+  const char * const * ptrToConstPtrToConstChar;
   int intArr[];
 } Foo;
 
