@@ -1,4 +1,4 @@
-CXXFLAGS = -std=c++14
+CXXFLAGS = -std=c++14 -Wall
 
 debug:		CXXFLAGS += -DDEBUG -g
 debug:		lexer
