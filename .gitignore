@@ -1,5 +1,8 @@
 *.o
+*.a
 parser/grammar.tab.*
 parser/lex.yy.*
 parser/flex.h
 parser/lexer
+parser/*_tests
+build/*
