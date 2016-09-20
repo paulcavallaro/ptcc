@@ -32,8 +32,6 @@ struct Parser {
                                             const Token *list);
   void parseSpecifierQualifierListQualifier(Token &out, const Token &qualifier,
                                             const Token *list);
-  void resetSpecifierQualifierList();
-
   void parseReturnStmt(Token &out, const int ret_token, const Token &expr);
   void parseExprStmt(Token &out, const Token &expr);
 
@@ -68,9 +66,9 @@ struct Parser {
   void resetStructDeclaratorList();
 
   void setDebug(bool debug) { m_debug = debug; }
+  void debugLn(const char *format, ...);
 
 private:
-  void debugLn(const char *format, ...);
 
   bool m_debug{0};
   std::unordered_map<std::string, size_t> m_symtable;
@@ -78,8 +76,6 @@ private:
   std::vector<Token> m_structDeclList;
   TypeSpec m_structDeclType;
   std::vector<FieldDecl> m_structFieldList;
-  std::vector<TypeQual> m_typeQuals;
-  std::vector<TypeSpec> m_typeSpecs;
   TypeSpec m_pointerType;
 };
 }

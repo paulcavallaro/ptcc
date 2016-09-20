@@ -61,6 +61,9 @@ ssize_t Parser::overwrite(const char *symbol, int token) {
 }
 
 void Parser::parseTypeQualifierList(Token &out, Token &tQual) {
+  debugLn("Entering parseTypeQualifierList out.m_typeQuals.size() = %lu",
+          out.m_typeQuals.size());
+  out.m_typeQuals = {};
   switch (tQual.m_token) {
   case CONST:
     out.m_typeQuals.push_back(TypeQual::Const);
@@ -78,6 +81,8 @@ void Parser::parseTypeQualifierList(Token &out, Token &tQual) {
     debugLn("ERROR - Unknown Type Qualifier");
     break;
   }
+  debugLn("Exiting parseTypeQualifierList out.m_typeQuals.size() = %lu",
+          out.m_typeQuals.size());
 }
 
 void Parser::parseSpecifierQualifierListSpecifier(Token &out,
@@ -85,9 +90,30 @@ void Parser::parseSpecifierQualifierListSpecifier(Token &out,
                                                   const Token *list) {
   debugLn("Entering parseSpecifierQualifierListSpecifier");
   assert(specifier.m_type);
-  m_typeSpecs.push_back(*specifier.m_type);
-  if (list) {
-    // TODO(ptc) maybe need to do something here
+  if (!list) {
+    debugLn("No list, setting out = specifier");
+    out = specifier;
+  } else {
+    debugLn("List exists");
+    // If there is a list I believe the further list has to be a pointer type
+    if (list->m_type) {
+      debugLn("List TYPE exists");
+      // TODO(ptc) fill this out
+      assert(false);
+      assert(list->m_type->m_kind == TypeKind::Pointer);
+      // If the list is a pointer type then we need to traverse down and set the
+      // last unset
+      // o_type
+    } else {
+      // Just a bunch of type qualifiers, let's augment our type from the
+      // specifier
+      // then
+      debugLn("No list type, just a bunch of type qualifiers so augmenting our "
+              "specifier with them");
+      out = specifier;
+      assert(!list->m_typeQuals.empty());
+      out.m_type->m_quals = list->m_typeQuals;
+    }
   }
 }
 
@@ -96,15 +122,24 @@ void Parser::parseSpecifierQualifierListQualifier(Token &out,
                                                   const Token *list) {
   debugLn("Entering parseSpecifierQualifierListQualifier");
   assert(qualifier.m_typeQuals.size() == 1);
-  m_typeQuals.push_back(qualifier.m_typeQuals[0]);
-  if (list) {
-    // TODO(ptc) maybe need to do something here
+  if (!list) {
+    debugLn("No list, just setting out = qualifier");
+    out = qualifier;
+  } else {
+    debugLn("List exists");
+    if (list->m_type) {
+      debugLn(
+          "List TYPE exists, just adding our qualifier to the list type then");
+      out = *list;
+      out.m_type->m_quals.push_back(qualifier.m_typeQuals[0]);
+      debugLn("New type is: %s", pointerTypeToString(*out.m_type).c_str());
+    } else {
+      debugLn("No list type, just a bunch of type qualifiers so augmenting our "
+              "m_tyQuals with them as well");
+      out.m_typeQuals = list->m_typeQuals;
+      out.m_typeQuals.push_back(qualifier.m_typeQuals[0]);
+    }
   }
-}
-
-void Parser::resetSpecifierQualifierList() {
-  m_typeSpecs.clear();
-  m_typeQuals.clear();
 }
 
 void Parser::parsePointerTyQual(Token &out, const Token &tyQualList,
@@ -114,16 +149,17 @@ void Parser::parsePointerTyQual(Token &out, const Token &tyQualList,
   out.m_text = "*";
   out.m_type =
       std::make_shared<TypeSpec>(TypeSpec{.m_kind = TypeKind::Pointer});
+  debugLn("tyQualList.m_typeQuals.size() = %lu", tyQualList.m_typeQuals.size());
   out.m_type->m_quals = tyQualList.m_typeQuals;
-  for (auto &tyQual : tyQualList.m_typeQuals) {
-    out.m_text += " ";
-    out.m_text += tyQualToString(tyQual);
-  }
+
   if (pointer) {
+    debugLn("Pointer exists as well! Setting out type's o_type to point to "
+            "pointer type");
     out.m_type->m_otype = pointer->m_type;
-    out.m_text += pointer->m_text;
+    // out.m_text += pointer->m_text;
   }
-  debugLn("Pointer Type Qualifier of %s", out.m_text.c_str());
+  debugLn("Pointer Type Qualifier of %s",
+          pointerTypeToString(*out.m_type).c_str());
 }
 
 void Parser::parsePointer(Token &out, const Token *pointer) {
@@ -133,14 +169,15 @@ void Parser::parsePointer(Token &out, const Token *pointer) {
       std::make_shared<TypeSpec>(TypeSpec{.m_kind = TypeKind::Pointer});
   if (pointer) {
     out.m_type->m_otype = pointer->m_type;
-    out.m_text = out.m_text + pointer->m_text;
+    // out.m_text = out.m_text + pointer->m_text;
   }
-  debugLn("Pointer of %s", out.m_text.c_str());
+  debugLn("Pointer of %s", pointerTypeToString(*out.m_type).c_str());
 }
 
 void Parser::parsePointerDeclarator(Token &out, const Token &pointer,
                                     const Token &directDecl) {
   // TODO(ptc) flesh out pointer + direct delcarator
+  debugLn("Entering parsePointerDeclarator");
   out.m_text = pointer.m_text + directDecl.m_text;
   out.m_id = directDecl.m_id;
   out.m_type = pointer.m_type;
@@ -152,6 +189,8 @@ void Parser::parseDirectDeclarator(Token &out, const Token &directDecl) {
 }
 
 void Parser::parseTypeQualifier(Token &out, const int token) {
+  debugLn("Entering parseTypeQualifier, out.m_typeQuals.size() = %lu",
+          out.m_typeQuals.size());
   switch (token) {
   case CONST:
     out.m_token = CONST;
@@ -271,19 +310,19 @@ void Parser::parseStructDeclarator(Token &out, const Token &structDecl) {
 
 void Parser::parseStructDeclaration(Token &out, const Token &specQualList,
                                     const Token &structDeclList) {
-  // Type specifiers and qualifiers should be in parser local variables
-  // m_typeQuals + m_typeSpecs
-  assert(!(m_typeQuals.empty() && m_typeSpecs.empty()));
+  debugLn("Entering parseStructDeclaration");
+  // Type specifiers and qualifiers should be in the specQualList m_typeQuals
+  // and m_type variables
+  assert(!(specQualList.m_typeQuals.empty() && !specQualList.m_type));
 
   // TODO(ptc) In the future we should do merging of type specifiers such as
   // "long long" or "long int" or "unsigned int", but for now just take the
   // first type specifier as the type
-  if (m_typeSpecs.empty()) {
-    debugLn("Can't handle empty typeSpecs!");
+  if (!specQualList.m_type) {
+    debugLn("Can't handle empty type in specifier qualifier list!");
     assert(false);
   }
-  m_structDeclType = m_typeSpecs[0];
-  m_structDeclType.m_quals = m_typeQuals;
+  m_structDeclType = *specQualList.m_type;
 
   std::string names;
   for (int i = 0; i < m_structDeclList.size(); i++) {

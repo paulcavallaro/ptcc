@@ -464,11 +464,9 @@ struct_declaration_list
 
 struct_declaration
 	: specifier_qualifier_list ';'	/* for anonymous struct/union */        {
-            _p->resetSpecifierQualifierList();
         }
 	| specifier_qualifier_list struct_declarator_list ';' {
             _p->parseStructDeclaration($$, $1, $2);
-            _p->resetSpecifierQualifierList();
         }
 	| static_assert_declaration
 	;
@@ -614,7 +612,9 @@ type_qualifier_list
             _p->parseTypeQualifierList($$, $1);
         }
 	| type_qualifier_list type_qualifier    {
-            _p->parseTypeQualifierList($$, $2);
+          // TODO(ptc) this is wrong we need to handle multiple type qualifiers
+          _p->debugLn("type_qualifier_list with a type_qualifier_list as WELL!");
+          assert(false);
         }
 	;
 
@@ -642,10 +642,8 @@ identifier_list
 
 type_name
 	: specifier_qualifier_list abstract_declarator  {
-            _p->resetSpecifierQualifierList();
         }
 	| specifier_qualifier_list      {
-            _p->resetSpecifierQualifierList();
         }
 	;
 

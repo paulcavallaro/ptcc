@@ -39,5 +39,23 @@ TEST(ToStringRepr, PointerToPointerToConstChar) {
   EXPECT_EQ("const char**", pointerTypeToString(ptrToPtr));
   EXPECT_EQ("const char*", pointerTypeToString(ptrToChar));
 }
+
+TEST(ToStringRepr, PointerToConstPointerToConstChar) {
+  TypeSpec constCharTy;
+  constCharTy.m_kind = TypeKind::Char;
+  constCharTy.m_quals.push_back(TypeQual::Const);
+
+  TypeSpec constPtrToChar;
+  constPtrToChar.m_kind = TypeKind::Pointer;
+  constPtrToChar.m_quals.push_back(TypeQual::Const);
+  constPtrToChar.m_otype = std::make_shared<TypeSpec>(constCharTy);
+
+  TypeSpec ptrToPtr;
+  ptrToPtr.m_kind = TypeKind::Pointer;
+  ptrToPtr.m_otype = std::make_shared<TypeSpec>(constPtrToChar);
+
+  EXPECT_EQ("const char* const*", pointerTypeToString(ptrToPtr));
+  EXPECT_EQ("const char* const", pointerTypeToString(constPtrToChar));
+}
 }
 }

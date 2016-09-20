@@ -50,10 +50,10 @@ struct Constant {
 };
 
 enum class TypeKind {
+  Void,
   TypeDef,
   Struct,
   Union,
-  Void,
   Int32,
   UInt32,
   Int64,
