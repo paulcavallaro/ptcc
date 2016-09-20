@@ -51,18 +51,22 @@ std::string pointerTypeToString(const TypeSpec tSpec) {
     if (type.m_otype) {
       typeQ.push(*type.m_otype);
     }
-    for (auto &tQual : type.m_quals) {
-      ret = " " + typeQualToString(tQual) + ret;
-    }
     switch (type.m_kind) {
     case TypeKind::Pointer:
+      for (auto &tQual : type.m_quals) {
+        ret = " " + typeQualToString(tQual) + ret;
+      }
       ret = "*" + ret;
       break;
     case TypeKind::Array:
       ret = "[]" + ret;
       break;
     default:
-      ret = kindToString(type.m_kind) + ret;
+      std::string tyQuals;
+      for (auto &tQual : type.m_quals) {
+        tyQuals = typeQualToString(tQual) + " " + tyQuals;
+      }
+      ret = tyQuals + kindToString(type.m_kind) + ret;
       break;
     }
     typeQ.pop();

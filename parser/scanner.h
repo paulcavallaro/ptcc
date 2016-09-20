@@ -136,5 +136,7 @@ struct Token {
   std::shared_ptr<DeclarationSpecifiers> m_declSpecs;
   std::vector<TypeQual> m_typeQuals;
 };
+
+std::string pointerTypeToString(const TypeSpec tSpec);
 }
 } // ptc::scanner

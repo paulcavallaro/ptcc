@@ -1,5 +1,43 @@
+#include "scanner.h"
 #include "gtest/gtest.h"
 
-TEST(SimpleTest, Identity) {
-  EXPECT_EQ(1, 1);
+namespace ptcc {
+namespace parser {
+
+TEST(ToStringRepr, PointerToConstChar) {
+  TypeSpec ptrToConstChar;
+  ptrToConstChar.m_kind = TypeKind::Pointer;
+  ptrToConstChar.m_otype = std::make_shared<TypeSpec>();
+  ptrToConstChar.m_otype->m_kind = TypeKind::Char;
+  ptrToConstChar.m_otype->m_quals.push_back(TypeQual::Const);
+  EXPECT_EQ("const char*", pointerTypeToString(ptrToConstChar));
+}
+
+TEST(ToStringRepr, ConstPointerToConstChar) {
+  TypeSpec constPtrToConstChar;
+  constPtrToConstChar.m_kind = TypeKind::Pointer;
+  constPtrToConstChar.m_quals.push_back(TypeQual::Const);
+  constPtrToConstChar.m_otype = std::make_shared<TypeSpec>();
+  constPtrToConstChar.m_otype->m_kind = TypeKind::Char;
+  constPtrToConstChar.m_otype->m_quals.push_back(TypeQual::Const);
+  EXPECT_EQ("const char* const", pointerTypeToString(constPtrToConstChar));
+}
+
+TEST(ToStringRepr, PointerToPointerToConstChar) {
+  TypeSpec constCharTy;
+  constCharTy.m_kind = TypeKind::Char;
+  constCharTy.m_quals.push_back(TypeQual::Const);
+
+  TypeSpec ptrToChar;
+  ptrToChar.m_kind = TypeKind::Pointer;
+  ptrToChar.m_otype = std::make_shared<TypeSpec>(constCharTy);
+
+  TypeSpec ptrToPtr;
+  ptrToPtr.m_kind = TypeKind::Pointer;
+  ptrToPtr.m_otype = std::make_shared<TypeSpec>(ptrToChar);
+
+  EXPECT_EQ("const char**", pointerTypeToString(ptrToPtr));
+  EXPECT_EQ("const char*", pointerTypeToString(ptrToChar));
+}
+}
 }

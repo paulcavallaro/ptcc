@@ -11,8 +11,8 @@ clean:
 lexer:		lex.yy.o grammar.tab.o parser.o scanner.o
 	$(CXX) $(CXXFLAGS) -o ../build/lexer -lfl -L/usr/local/lib grammar.tab.o lex.yy.o parser.o scanner.o
 tests:		parser_tests
-parser_tests:	parser_tests.cpp
-	$(CXX) $(CXXFLAGS) parser_tests.cpp ../third_party/gtest/make/gtest_main.a -o ../build/parser_tests
+parser_tests:	parser_tests.cpp scanner.o parser.o
+	$(CXX) $(CXXFLAGS) parser_tests.cpp parser.o scanner.o ../third_party/gtest/make/gtest_main.a -o ../build/parser_tests
 	$(CXX) $(CXXFLAGS) -c parser_tests.cpp
 lex.yy.o:	lex.yy.cpp
 	$(CXX) $(CXXFLAGS) -c lex.yy.cpp
@@ -22,7 +22,7 @@ grammar.tab.cpp:	grammar.y
 	bison -d grammar.y -o grammar.tab.cpp
 grammar.tab.o:	grammar.tab.cpp
 	$(CXX) $(CXXFLAGS) -c grammar.tab.cpp
-parser.o:	parser.cpp parser.h
+parser.o:	parser.cpp parser.h grammar.tab.cpp
 	$(CXX) $(CXXFLAGS) -c parser.cpp
 scanner.o:	scanner.cpp scanner.h
 	$(CXX) $(CXXFLAGS) -c scanner.cpp
