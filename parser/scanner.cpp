@@ -59,7 +59,7 @@ std::string pointerTypeToString(const TypeSpec tSpec) {
       ret = "*" + ret;
       break;
     case TypeKind::Array:
-      ret = "[]" + ret;
+      ret = ret + "[]";
       break;
     default:
       std::string tyQuals;
@@ -79,8 +79,7 @@ std::string specToString(const TypeSpec typeSpec) {
   case TypeKind::Pointer:
     return pointerTypeToString(typeSpec);
   case TypeKind::Array:
-    // TODO(ptc) write an array to string function
-    return "UNIMPLEMENTED ARRAY specToString";
+    return pointerTypeToString(typeSpec);
     break;
   default:
     return kindToString(typeSpec.m_kind);

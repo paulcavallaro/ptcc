@@ -142,11 +142,15 @@ void Parser::parseSpecifierQualifierListQualifier(Token &out,
   }
 }
 
+bool isIndirectTypeKind(TypeKind kind) {
+  return kind == TypeKind::Pointer || kind == TypeKind::Array;
+}
+
 void setPtrTo(TypeSpec *ptrType, TypeSpec oType) {
   assert(ptrType != nullptr);
-  assert(ptrType->m_kind == TypeKind::Pointer);
-  while (ptrType->m_kind == TypeKind::Pointer && ptrType->m_otype &&
-         ptrType->m_otype->m_kind == TypeKind::Pointer) {
+  assert(isIndirectTypeKind(ptrType->m_kind));
+  while (isIndirectTypeKind(ptrType->m_kind) && ptrType->m_otype &&
+         isIndirectTypeKind(ptrType->m_otype->m_kind)) {
     ptrType = ptrType->m_otype.get();
   }
   ptrType->m_otype = std::make_shared<TypeSpec>(oType);
@@ -317,8 +321,12 @@ void Parser::parseDirectDeclaratorArray(Token &out, const Token &declarator) {
   debugLn("Direct Declarator of Direct Declarator Array []: %s",
           declarator.m_text.c_str());
   // TODO(ptc) implement this
-  out = declarator;
+  out.m_id = declarator.m_id;
   out.m_text = declarator.m_text + "[]";
+  out.m_type = std::make_shared<TypeSpec>(TypeSpec{.m_kind = TypeKind::Array});
+  if (declarator.m_type) {
+    setPtrTo(out.m_type.get(), *declarator.m_type);
+  }
 }
 
 void Parser::parseStructDeclarator(Token &out, const Token &structDecl) {
