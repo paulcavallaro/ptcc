@@ -6,6 +6,8 @@ typedef struct Foo {
   const char * ptrToConstChar;
   const char * const constPtrToConstChar;
   const char * const * ptrToConstPtrToConstChar;
+  char * const * const constPtrToConstPtrToChar;
+  const char * * ptrToPtrToConstChar;
   int intArr[];
 } Foo;
 

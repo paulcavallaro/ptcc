@@ -142,34 +142,50 @@ void Parser::parseSpecifierQualifierListQualifier(Token &out,
   }
 }
 
+void setPtrTo(TypeSpec *ptrType, TypeSpec oType) {
+  assert(ptrType != nullptr);
+  assert(ptrType->m_kind == TypeKind::Pointer);
+  while (ptrType->m_kind == TypeKind::Pointer && ptrType->m_otype &&
+         ptrType->m_otype->m_kind == TypeKind::Pointer) {
+    ptrType = ptrType->m_otype.get();
+  }
+  ptrType->m_otype = std::make_shared<TypeSpec>(oType);
+}
+
 void Parser::parsePointerTyQual(Token &out, const Token &tyQualList,
                                 const Token *pointer) {
-  debugLn("Entering parsePointerTyQual");
+  out = Token{};
+  debugLn("Entering parsePointerTyQual, pointer=%lu", pointer);
   out.m_token = '*';
   out.m_text = "*";
-  out.m_type =
-      std::make_shared<TypeSpec>(TypeSpec{.m_kind = TypeKind::Pointer});
   debugLn("tyQualList.m_typeQuals.size() = %lu", tyQualList.m_typeQuals.size());
-  out.m_type->m_quals = tyQualList.m_typeQuals;
-
-  if (pointer) {
-    debugLn("Pointer exists as well! Setting out type's o_type to point to "
-            "pointer type");
-    out.m_type->m_otype = pointer->m_type;
-    // out.m_text += pointer->m_text;
+  if (!pointer) {
+    out.m_type =
+        std::make_shared<TypeSpec>(TypeSpec{.m_kind = TypeKind::Pointer});
+    out.m_type->m_quals = tyQualList.m_typeQuals;
+  } else {
+    debugLn("Pointer exists as well! Calling setPtrTo to set to pointer");
+    out.m_type = pointer->m_type;
+    setPtrTo(out.m_type.get(), TypeSpec{.m_kind = TypeKind::Pointer,
+                                        .m_quals = tyQualList.m_typeQuals});
   }
   debugLn("Pointer Type Qualifier of %s",
           pointerTypeToString(*out.m_type).c_str());
 }
 
 void Parser::parsePointer(Token &out, const Token *pointer) {
+  out = Token{};
+  debugLn("Entering parsePointer, pointer=%lu", pointer);
   out.m_token = '*';
   out.m_text = "*";
-  out.m_type =
-      std::make_shared<TypeSpec>(TypeSpec{.m_kind = TypeKind::Pointer});
   if (pointer) {
-    out.m_type->m_otype = pointer->m_type;
-    // out.m_text = out.m_text + pointer->m_text;
+    debugLn("Calling setPtrTo");
+    out.m_type = pointer->m_type;
+    setPtrTo(out.m_type.get(), TypeSpec{.m_kind = TypeKind::Pointer});
+    out.m_text = out.m_text + pointer->m_text;
+  } else {
+    out.m_type =
+        std::make_shared<TypeSpec>(TypeSpec{.m_kind = TypeKind::Pointer});
   }
   debugLn("Pointer of %s", pointerTypeToString(*out.m_type).c_str());
 }
@@ -181,6 +197,8 @@ void Parser::parsePointerDeclarator(Token &out, const Token &pointer,
   out.m_text = pointer.m_text + directDecl.m_text;
   out.m_id = directDecl.m_id;
   out.m_type = pointer.m_type;
+  debugLn("Pointer Delcarator Type Of %s",
+          pointerTypeToString(*out.m_type).c_str());
 }
 
 void Parser::parseDirectDeclarator(Token &out, const Token &directDecl) {
@@ -304,7 +322,11 @@ void Parser::parseDirectDeclaratorArray(Token &out, const Token &declarator) {
 }
 
 void Parser::parseStructDeclarator(Token &out, const Token &structDecl) {
-  debugLn("Struct Declarator List Item: %s", structDecl.m_text.c_str());
+  debugLn("Struct Declarator List Item: type=%s, id=%s",
+          structDecl.m_type ? specToString(*structDecl.m_type).c_str()
+                            : "Unknown",
+          structDecl.m_id.c_str());
+
   m_structDeclList.push_back(structDecl);
 }
 
@@ -322,52 +344,32 @@ void Parser::parseStructDeclaration(Token &out, const Token &specQualList,
     debugLn("Can't handle empty type in specifier qualifier list!");
     assert(false);
   }
-  m_structDeclType = *specQualList.m_type;
 
-  std::string names;
+  // TODO(ptc) Have to merge the type from both specQualList and the
+  // structDeclList to arrive at the type for each declarator
+  out.m_fieldDecls = {};
   for (int i = 0; i < m_structDeclList.size(); i++) {
     auto &declarator = m_structDeclList[i];
-    if (i != 0) {
-      names = names + " " + declarator.m_text;
+    // TODO(ptc) This works for pointer types, probably will have to modify it
+    // for other complex array types
+    FieldDecl decl;
+    decl.m_name = declarator.m_id;
+    if (declarator.m_type) {
+      decl.m_type = *declarator.m_type;
+      setPtrTo(&decl.m_type, *specQualList.m_type);
     } else {
-      names = declarator.m_text;
+      decl.m_type = *specQualList.m_type;
     }
+    out.m_fieldDecls.push_back(decl);
+    debugLn("Struct Declaration of type = %s, name = %s",
+            specToString(decl.m_type).c_str(), decl.m_name.c_str());
   }
-  debugLn("Struct Declaration of Specifier Qualifier List + Struct "
-          "Declarator List: %s %s",
-          specQualList.m_text.c_str(), names.c_str());
 }
 
 void Parser::parseStructDeclarationList(Token &out, const Token &structDecl) {
   debugLn("Struct Declaration List Item: %s", structDecl.m_text.c_str());
-  for (auto &declarator : m_structDeclList) {
-    FieldDecl field;
-    if (!declarator.m_type) {
-      field.m_type = m_structDeclType;
-    } else {
-      // Declarators can encode extra information about the type that the
-      // declared
-      // thing references, either as a pointer, array, etc.
-      switch (declarator.m_type->m_kind) {
-      // TODO(ptc) codify and expand how this will work for all types not just
-      // the basic
-      // pointer type
-      case TypeKind::Pointer:
-        field.m_type = *declarator.m_type;
-        field.m_type.m_otype = std::make_shared<TypeSpec>(m_structDeclType);
-        break;
-      case TypeKind::Array:
-        field.m_type = *declarator.m_type;
-        field.m_type.m_otype = std::make_shared<TypeSpec>(m_structDeclType);
-        break;
-      default:
-        debugLn("Encountered unhandled declarator m_type!");
-        field.m_type = *declarator.m_type;
-        break;
-      }
-    }
-    field.m_name = declarator.m_id;
-    m_structFieldList.push_back(field);
+  for (auto &fieldDecl : structDecl.m_fieldDecls) {
+    m_structFieldList.push_back(fieldDecl);
   }
 }
 

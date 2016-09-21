@@ -134,6 +134,7 @@ struct Token {
   std::shared_ptr<TypeSpec> m_type;
   std::shared_ptr<StructDecl> m_struct;
   std::shared_ptr<DeclarationSpecifiers> m_declSpecs;
+  std::vector<FieldDecl> m_fieldDecls;
   std::vector<TypeQual> m_typeQuals;
 };
 

@@ -1,4 +1,5 @@
 #include "scanner.h"
+#include "parser.h"
 #include "gtest/gtest.h"
 
 namespace ptcc {
@@ -56,6 +57,17 @@ TEST(ToStringRepr, PointerToConstPointerToConstChar) {
 
   EXPECT_EQ("const char* const*", pointerTypeToString(ptrToPtr));
   EXPECT_EQ("const char* const", pointerTypeToString(constPtrToChar));
+}
+
+TEST(SetPtrTo, SetPtrToChar) {
+  TypeSpec charTy;
+  charTy.m_kind = TypeKind::Char;
+
+  TypeSpec ptrToChar;
+  ptrToChar.m_kind = TypeKind::Pointer;
+
+  setPtrTo(&ptrToChar, charTy);
+  EXPECT_EQ("char*", pointerTypeToString(ptrToChar));
 }
 }
 }

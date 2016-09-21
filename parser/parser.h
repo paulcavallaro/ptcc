@@ -69,7 +69,6 @@ struct Parser {
   void debugLn(const char *format, ...);
 
 private:
-
   bool m_debug{0};
   std::unordered_map<std::string, size_t> m_symtable;
   std::vector<SymTableEntry> m_symbols;
@@ -78,5 +77,7 @@ private:
   std::vector<FieldDecl> m_structFieldList;
   TypeSpec m_pointerType;
 };
+
+void setPtrTo(TypeSpec *ptrType, TypeSpec oType);
 }
 } // ptcc::parser
