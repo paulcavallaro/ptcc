@@ -532,6 +532,13 @@ void Parser::parseDeclarationFromDeclarationSpecifiers(
   }
 }
 
+void Parser::parseFunctionDefinition(Token &out, const Token &declSpecifiers,
+                                     const Token &declarator,
+                                     const Token *optDeclList,
+                                     const Token &compoundStmt) {
+  debugLn("Entering parseFunctionDefinition");
+}
+
 void Parser::parseReturnStmt(Token &out, const int ret_token,
                              const Token &expr) {
   debugLn("Return Statement: RETURN %s;", expr.m_text.c_str());

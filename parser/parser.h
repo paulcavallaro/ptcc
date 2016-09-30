@@ -63,6 +63,11 @@ struct Parser {
                                          const Token &storageClassSpecifiers,
                                          const Token &declarationSpecifiers);
 
+  void parseFunctionDefinition(Token &out, const Token &declSpecifiers,
+                               const Token &declarator,
+                               const Token *optDeclList,
+                               const Token &compoundStmt);
+
   void resetStructDeclaratorList();
 
   void setDebug(bool debug) { m_debug = debug; }

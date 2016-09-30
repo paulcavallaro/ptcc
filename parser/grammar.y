@@ -781,8 +781,12 @@ external_declaration
 	;
 
 function_definition
-	: declaration_specifiers declarator declaration_list compound_statement
-	| declaration_specifiers declarator compound_statement
+	: declaration_specifiers declarator declaration_list compound_statement {
+          _p->parseFunctionDefinition($$, $1, $2, &$3, $4);
+        }
+	| declaration_specifiers declarator compound_statement  {
+          _p->parseFunctionDefinition($$, $1, $2, nullptr, $3);
+        }
 	;
 
 declaration_list
