@@ -337,9 +337,11 @@ declaration_specifiers
 	| storage_class_specifier       {
             $$ = $1;
         }
-	| type_specifier declaration_specifiers
+	| type_specifier declaration_specifiers {
+          _p->parseTypeSpecifierDeclarationSpecifier($$, $1, $2);
+        }
 	| type_specifier                {
-            fprintf(stderr, "Declaration Specifiers of Type Specifier %s\n", $1.m_text.c_str());
+            $$ = $1;
         }
 	| type_qualifier declaration_specifiers
 	| type_qualifier
@@ -587,7 +589,9 @@ direct_declarator
 	| direct_declarator '[' type_qualifier_list assignment_expression ']'
 	| direct_declarator '[' type_qualifier_list ']'
 	| direct_declarator '[' assignment_expression ']'
-	| direct_declarator '(' parameter_type_list ')'
+	| direct_declarator '(' parameter_type_list ')' {
+          _p->parseFunctionDirectDeclarator($$, $1, $2);
+        }
 	| direct_declarator '(' ')'
 	| direct_declarator '(' identifier_list ')'
 	;

@@ -490,6 +490,27 @@ void Parser::parseStorageClassDeclarationSpecifiers(
   }
 }
 
+void Parser::parseTypeSpecifierDeclarationSpecifier(
+    Token &out, const Token &typeSpecifier,
+    const Token &declarationSpecifiers) {
+  debugLn("Entering parseTypeSpecifierDeclarationSpecifier %s",
+          typeSpecifier.m_text.c_str());
+  out.m_declSpecs = declarationSpecifiers.m_declSpecs;
+  if (!out.m_declSpecs) {
+    out.m_declSpecs = std::make_shared<DeclarationSpecifiers>();
+  }
+  // Should have a type from the TypeSpecifier
+  if (typeSpecifier.m_type) {
+    assert(typeSpecifier.m_type);
+    out.m_declSpecs->m_typeSpecs.push_back(*typeSpecifier.m_type);
+  } else {
+    // TODO(ptc) still need to flesh out type_specifier parsing so that
+    // all routes will return a type
+  }
+  // TODO(ptc) still need to pass through some information here regard to text
+  // span and whatnot
+}
+
 void Parser::parseDeclarationFromDeclarationSpecifiers(
     Token &out, const Token &declarationSpecifiers,
     const Token *initDeclaratorList) {
@@ -530,6 +551,12 @@ void Parser::parseDeclarationFromDeclarationSpecifiers(
       }
     }
   }
+}
+
+void Parser::parseFunctionDirectDeclarator(Token &out,
+                                           const Token &directDeclarator,
+                                           const Token &parameterTypeList) {
+  debugLn("Entering parseFunctionDirectDeclarator");
 }
 
 void Parser::parseFunctionDefinition(Token &out, const Token &declSpecifiers,

@@ -105,6 +105,7 @@ enum class StorageClassSpecifier {
 
 struct DeclarationSpecifiers {
   std::vector<StorageClassSpecifier> m_storageClassSpecs;
+  std::vector<TypeSpec> m_typeSpecs;
 };
 
 struct StructDecl {
