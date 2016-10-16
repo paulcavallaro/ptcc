@@ -343,8 +343,12 @@ declaration_specifiers
 	| type_specifier                {
             $$ = $1;
         }
-	| type_qualifier declaration_specifiers
-	| type_qualifier
+	| type_qualifier declaration_specifiers {
+           // TODO(ptc) Need this for paramter type list
+        }
+	| type_qualifier        {
+           // TODO(ptc) Need this for paramter type list
+        }
 	| function_specifier declaration_specifiers
 	| function_specifier
 	| alignment_specifier declaration_specifiers
@@ -624,19 +628,34 @@ type_qualifier_list
 
 
 parameter_type_list
-	: parameter_list ',' ELLIPSIS
-	| parameter_list
+	: parameter_list ',' ELLIPSIS   {
+          // TODO(ptc) Handle Var Args ELLIPSIS in parameter type list
+          _p->parseParameterTypeList($$, $1);
+        }
+	| parameter_list        {
+          _p->parseParameterTypeList($$, $1);
+        }
 	;
 
 parameter_list
-	: parameter_declaration
-	| parameter_list ',' parameter_declaration
+	: parameter_declaration         {
+          _p->parseParameterListBase($$, $1);
+        }
+	| parameter_list ',' parameter_declaration      {
+          _p->parseParameterList($$, $1, $2);
+        }
 	;
 
 parameter_declaration
-	: declaration_specifiers declarator
-	| declaration_specifiers abstract_declarator
-	| declaration_specifiers
+	: declaration_specifiers declarator     {
+            _p->parseParameterDeclarator($$, $1, $2);
+        }
+	| declaration_specifiers abstract_declarator    {
+            _p->parseParameterAbstractDeclarator($$, $1, $2);
+        }
+	| declaration_specifiers        {
+            _p->parseParameterDeclSpecs($$, $1);
+        }
 	;
 
 identifier_list

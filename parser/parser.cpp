@@ -553,9 +553,44 @@ void Parser::parseDeclarationFromDeclarationSpecifiers(
   }
 }
 
+void Parser::parseParameterDeclarator(Token &out, const Token &declSpecifiers,
+                                      const Token &declarator) {
+  // TODO(ptc)
+  debugLn("Entering parseParameterDeclarator");
+}
+
+void Parser::parseParameterAbstractDeclarator(Token &out,
+                                              const Token &declSpecifiers,
+                                              const Token &abstractDeclarator) {
+  // TODO(ptc)
+  debugLn("Entering parseParameterAbstractDeclarator");
+}
+
+void Parser::parseParameterDeclSpecs(Token &out, const Token &declSpecifiers) {
+  // TODO(ptc)
+  debugLn("Entering parseParameterDeclSpecs");
+}
+
+void Parser::parseParameterListBase(Token &out, const Token &parameterDecl) {
+  // TODO(ptc)
+  debugLn("Entering parseParameterListBase");
+}
+
+void Parser::parseParameterList(Token &out, const Token &parameterList,
+                                const Token &parameterDecl) {
+  // TODO(ptc)
+  debugLn("Entering parseParameterList");
+}
+
+void Parser::parseParameterTypeList(Token &out, const Token &parameterList) {
+  // TODO(ptc)
+  debugLn("Entering parseParameterTypeList");
+}
+
 void Parser::parseFunctionDirectDeclarator(Token &out,
                                            const Token &directDeclarator,
                                            const Token &parameterTypeList) {
+  // TODO(ptc)
   debugLn("Entering parseFunctionDirectDeclarator");
 }
 
@@ -563,11 +598,13 @@ void Parser::parseFunctionDefinition(Token &out, const Token &declSpecifiers,
                                      const Token &declarator,
                                      const Token *optDeclList,
                                      const Token &compoundStmt) {
+  // TODO(ptc)
   debugLn("Entering parseFunctionDefinition");
 }
 
 void Parser::parseReturnStmt(Token &out, const int ret_token,
                              const Token &expr) {
+  // TODO(ptc)
   debugLn("Return Statement: RETURN %s;", expr.m_text.c_str());
   out.m_text = "RETURN " + expr.m_text + ";";
 }

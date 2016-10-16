@@ -63,8 +63,7 @@ struct Parser {
                                          const Token &storageClassSpecifiers,
                                          const Token &declarationSpecifiers);
   void
-  parseTypeSpecifierDeclarationSpecifier(Token &out,
-                                         const Token &typeSpecifier,
+  parseTypeSpecifierDeclarationSpecifier(Token &out, const Token &typeSpecifier,
                                          const Token &declarationSpecifiers);
 
   void parseFunctionDefinition(Token &out, const Token &declSpecifiers,
@@ -74,7 +73,15 @@ struct Parser {
 
   void parseFunctionDirectDeclarator(Token &out, const Token &directDeclarator,
                                      const Token &parameterTypeList);
-
+  void parseParameterTypeList(Token &out, const Token &parameterList);
+  void parseParameterListBase(Token &out, const Token &parameterDecl);
+  void parseParameterList(Token &out, const Token &parameterList,
+                          const Token &parameterDecl);
+  void parseParameterDeclarator(Token &out, const Token &declSpecifiers,
+                                const Token &declarator);
+  void parseParameterAbstractDeclarator(Token &out, const Token &declSpecifiers,
+                                        const Token &abstractDeclarator);
+  void parseParameterDeclSpecs(Token &out, const Token &declSpecifiers);
 
   void resetStructDeclaratorList();
 
