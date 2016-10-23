@@ -3,3 +3,9 @@
 [cxx]
     cxxflags = -std=c++14 -Wall
     gtest_dep = //third_party/gtest:gtest
+[project]
+    glob_handler = python
+    allow_symlinks = forbid
+    build_file_search_method = watchman
+    watchman_query_timeout_ms = 1000
+    ignore = .git
