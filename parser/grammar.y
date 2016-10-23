@@ -16,10 +16,10 @@ typedef void *yyscan_t;
 #include <memory>
 #include <stdio.h>
 
-#include "scanner.h"
-#include "parser.h"
-#include "grammar.tab.hpp"
-#include "flex.h"
+#include "parser/scanner.h"
+#include "parser/parser.h"
+#include "parser/grammar.tab.hpp"
+#include "parser/flex.h"
 
 #define YYSTYPE ptcc::parser::Token
 

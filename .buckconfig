@@ -1,0 +1,5 @@
+[alias]
+    lexer = //parser:lexer
+[cxx]
+    cxxflags = -std=c++14 -Wall
+    gtest_dep = //third_party/gtest:gtest

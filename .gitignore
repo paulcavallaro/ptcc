@@ -6,3 +6,5 @@ parser/flex.h
 parser/lexer
 parser/*_tests
 build/*
+/buck-out
+/.buckd

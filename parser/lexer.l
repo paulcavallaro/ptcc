@@ -36,9 +36,9 @@ WS  [ \t\v\n\f]
 #define YY_USER_ACTION yylloc->first_line = yylloc->last_line = yylineno;
 
 #include <stdio.h>
-#include "scanner.h"
-#include "parser.h"
-#include "grammar.tab.hpp"
+#include "parser/scanner.h"
+#include "parser/parser.h"
+#include "parser/grammar.tab.hpp"
 
 extern void yyerror(YYLTYPE * yylloc, const char *);  /* prints grammar violation message */
 
