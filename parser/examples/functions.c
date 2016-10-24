@@ -14,6 +14,8 @@ int add(int a, int b) {
   return a + b;
 }
 
+// This is the stupidest fucking syntax ever, and I don't think any compiler
+// even supports the semantics in the spec.
 int sum(a, b)
 int a, b; {
   return a + b;

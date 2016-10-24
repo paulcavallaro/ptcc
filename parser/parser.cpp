@@ -558,7 +558,11 @@ void Parser::parseParameterDeclarator(Token &out, const Token &declSpecifiers,
   // TODO(ptc) still need to do more
   debugLn("Entering parseParameterDeclarator");
   out.m_declSpecs = declSpecifiers.m_declSpecs;
+  if (out.m_declSpecs) {
+    debugLn("parseParameterDeclarator: declSpecifiers has m_declSpecs");
+  }
   out.m_id = declarator.m_id;
+  debugLn("parseParameterDeclarator: id=%s", out.m_id.c_str());
   if (declarator.m_type) {
     debugLn("parseParameterDeclarator: declarator has m_type");
     out.m_type = declarator.m_type;
