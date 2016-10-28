@@ -125,6 +125,12 @@ struct FieldDeclInProgress {
   std::vector<std::string> m_names;
 };
 
+struct ParameterDecl {
+  std::string m_id;
+  std::shared_ptr<DeclarationSpecifiers> m_declSpecs;
+  std::shared_ptr<TypeSpec> m_type;
+};
+
 struct Token {
   int m_token{0};
   std::string m_text;
@@ -137,6 +143,7 @@ struct Token {
   std::shared_ptr<DeclarationSpecifiers> m_declSpecs;
   std::vector<FieldDecl> m_fieldDecls;
   std::vector<TypeQual> m_typeQuals;
+  std::vector<ParameterDecl> m_paramDecls;
 };
 
 std::string pointerTypeToString(const TypeSpec tSpec);

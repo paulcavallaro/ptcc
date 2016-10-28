@@ -567,29 +567,41 @@ void Parser::parseParameterDeclarator(Token &out, const Token &declSpecifiers,
     debugLn("parseParameterDeclarator: declarator has m_type");
     out.m_type = declarator.m_type;
   }
+
+  // TODO(ptc)
+  out.m_paramDecls = {};
+  out.m_paramDecls.emplace_back();
 }
 
 void Parser::parseParameterAbstractDeclarator(Token &out,
                                               const Token &declSpecifiers,
                                               const Token &abstractDeclarator) {
-  // TODO(ptc)
   debugLn("Entering parseParameterAbstractDeclarator");
+  // TODO(ptc)
+  out.m_paramDecls = {};
+  out.m_paramDecls.emplace_back();
 }
 
 void Parser::parseParameterDeclSpecs(Token &out, const Token &declSpecifiers) {
-  // TODO(ptc)
   debugLn("Entering parseParameterDeclSpecs");
+  // TODO(ptc)
+  out.m_paramDecls = {};
+  out.m_paramDecls.emplace_back();
 }
 
 void Parser::parseParameterListBase(Token &out, const Token &parameterDecl) {
-  // TODO(ptc)
   debugLn("Entering parseParameterListBase");
+  debugLn("parameterDecl.m_paramDecls.size() == %d", parameterDecl.m_paramDecls.size());
+  assert(parameterDecl.m_paramDecls.size() == 1);
+  out.m_paramDecls = parameterDecl.m_paramDecls;
 }
 
 void Parser::parseParameterList(Token &out, const Token &parameterList,
                                 const Token &parameterDecl) {
-  // TODO(ptc)
   debugLn("Entering parseParameterList");
+  debugLn("parameterDecl.m_paramDecls.size() == %d", parameterDecl.m_paramDecls.size());
+  assert(parameterDecl.m_paramDecls.size() == 1);
+  out.m_paramDecls.push_back(parameterDecl.m_paramDecls[0]);
 }
 
 void Parser::parseParameterTypeList(Token &out, const Token &parameterList) {

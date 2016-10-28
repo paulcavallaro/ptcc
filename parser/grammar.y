@@ -642,7 +642,7 @@ parameter_list
           _p->parseParameterListBase($$, $1);
         }
 	| parameter_list ',' parameter_declaration      {
-          _p->parseParameterList($$, $1, $2);
+          _p->parseParameterList($$, $1, $3);
         }
 	;
 
