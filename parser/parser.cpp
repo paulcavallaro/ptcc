@@ -594,9 +594,9 @@ void Parser::parseParameterAbstractDeclarator(Token &out,
 
 void Parser::parseParameterDeclSpecs(Token &out, const Token &declSpecifiers) {
   debugLn("Entering parseParameterDeclSpecs");
-  // TODO(ptc)
-  out.m_paramDecls = {};
-  out.m_paramDecls.emplace_back();
+  // Pass an empty declarator to parseParameterDeclarator
+  Token emptyDeclarator;
+  return parseParameterDeclarator(out, declSpecifiers, emptyDeclarator);
 }
 
 void Parser::parseParameterListBase(Token &out, const Token &parameterDecl) {

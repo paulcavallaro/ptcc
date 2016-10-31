@@ -39,3 +39,6 @@ unsigned int gcd(unsigned int a, unsigned int b) {
   return a;
 }
 
+int unused_args(float a, float) {
+  return sum(a, a);
+}
