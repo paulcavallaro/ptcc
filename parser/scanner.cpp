@@ -9,10 +9,16 @@ std::string kindToString(const TypeKind kind) {
   switch (kind) {
   case TypeKind::Void:
     return "void";
-  case TypeKind::Int64:
-    return "int64";
-  case TypeKind::Int32:
-    return "int32";
+  case TypeKind::Int:
+    return "int";
+  case TypeKind::Short:
+    return "long";
+  case TypeKind::Long:
+    return "long";
+  case TypeKind::Signed:
+    return "signed";
+  case TypeKind::Unsigned:
+    return "unsigned";
   case TypeKind::Double:
     return "double";
   case TypeKind::Float:
@@ -23,8 +29,14 @@ std::string kindToString(const TypeKind kind) {
     return "bool";
   case TypeKind::Struct:
     return "struct";
-  default:
-    return "Unknown";
+  case TypeKind::Union:
+    return "union";
+  case TypeKind::Array:
+    return "array";
+  case TypeKind::Pointer:
+    return "*";
+  case TypeKind::TypeDef:
+    return "typedef";
   }
 }
 

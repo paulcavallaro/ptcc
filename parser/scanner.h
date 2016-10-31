@@ -50,21 +50,21 @@ struct Constant {
 };
 
 enum class TypeKind {
-  Void,
-  TypeDef,
-  Struct,
-  Union,
-  Int32,
-  UInt32,
-  Int64,
-  UInt64,
-  Float,
-  Double,
-  Char,
-  Short,
-  Bool,
-  Pointer,
   Array,
+  Bool,
+  Char,
+  Double,
+  Float,
+  Int,
+  Long,
+  Pointer,
+  Short,
+  Signed,
+  Struct,
+  TypeDef,
+  Union,
+  Unsigned,
+  Void,
 };
 
 enum class TypeQual {

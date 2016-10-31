@@ -669,7 +669,12 @@ abstract_declarator
 	;
 
 direct_abstract_declarator
-	: '(' abstract_declarator ')'
+	: '(' abstract_declarator ')'   {
+          // TODO(ptc) pretty sure this isn't correct since they are different
+          // and this is how you're supposed to change priorities of parsing
+          // but maybe this is okay. Have to revisit
+          $$ = $2;
+        }
 	| '[' ']'
 	| '[' '*' ']'
 	| '[' STATIC type_qualifier_list assignment_expression ']'

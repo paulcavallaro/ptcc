@@ -96,6 +96,8 @@ private:
   TypeSpec m_structDeclType;
   std::vector<FieldDecl> m_structFieldList;
   TypeSpec m_pointerType;
+
+  TypeSpec mergeTypes(TypeSpec type, TypeSpec listType);
 };
 
 // TODO(ptc) rename to something clearer since can also be used for arrays

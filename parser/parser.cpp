@@ -85,6 +85,73 @@ void Parser::parseTypeQualifierList(Token &out, Token &tQual) {
           out.m_typeQuals.size());
 }
 
+TypeSpec Parser::mergeTypes(TypeSpec type, TypeSpec listType) {
+  /*
+
+    From the spec:
+
+    At least one type specifier shall be given in the declaration specifiers in
+    each declaration, and in the specifier-qualifier list in each struct
+    declaration and type name. Each list of type specifiers shall be one of the
+    following multisets (delimited by commas, when there is more than one
+    multiset per item); the type specifiers may occur in any order, possibly
+    intermixed with the other declaration specifiers.
+
+    — void
+    — char
+    — signed char
+    — unsigned char
+    — short, signed short, short int, or signed short int — unsigned short, or
+    unsigned short int
+    — int, signed, or signed int
+    — unsigned, or unsigned int
+    — long, signed long, long int, or signed long int
+    — unsigned long, or unsigned long int
+    — long long, signed long long, long long int, or signed long long int
+    — unsigned long long, or unsigned long long int
+    — float
+    — double
+    — long double
+    — _Bool
+    — float _Complex
+    — double _Complex
+    — long double _Complex
+    — atomic type specifier
+    — struct or union specifier
+    — enum specifier
+    — typedef name
+
+    This function  has to deal with when we have two or more types in a
+    specifier qualifier list, so we have to check if the two types are in this
+    insanity.
+
+   */
+
+  switch (type.m_kind) {
+  case TypeKind::Struct:
+  case TypeKind::TypeDef:
+  case TypeKind::Pointer:
+  case TypeKind::Array:
+  case TypeKind::Union:
+  case TypeKind::Void:
+    // These are all errors
+    assert(false);
+    break;
+  case TypeKind::Int:
+  case TypeKind::Long:
+  case TypeKind::Char:
+  case TypeKind::Signed:
+  case TypeKind::Unsigned:
+    // TODO(ptc)
+    assert(false);
+    break;
+  default:
+    // TODO(ptc)
+    assert(false);
+    break;
+  }
+}
+
 void Parser::parseSpecifierQualifierListSpecifier(Token &out,
                                                   const Token &specifier,
                                                   const Token *list) {
@@ -95,15 +162,11 @@ void Parser::parseSpecifierQualifierListSpecifier(Token &out,
     out = specifier;
   } else {
     debugLn("List exists");
-    // If there is a list I believe the further list has to be a pointer type
     if (list->m_type) {
       debugLn("List TYPE exists");
-      // TODO(ptc) fill this out
-      assert(false);
-      assert(list->m_type->m_kind == TypeKind::Pointer);
-      // If the list is a pointer type then we need to traverse down and set the
-      // last unset
-      // o_type
+      // These are types like `long long` or `long int`
+      out.m_type = std::make_shared<TypeSpec>(
+          mergeTypes(*specifier.m_type, *list->m_type));
     } else {
       // Just a bunch of type qualifiers, let's augment our type from the
       // specifier
@@ -264,13 +327,13 @@ void Parser::parseTypeSpecifier(Token &out, const int token) {
     out.m_token = token;
     out.m_text = "int";
     out.m_type = std::make_shared<TypeSpec>();
-    out.m_type->m_kind = TypeKind::Int32;
+    out.m_type->m_kind = TypeKind::Int;
     break;
   case LONG:
     out.m_token = token;
     out.m_text = "long";
     out.m_type = std::make_shared<TypeSpec>();
-    out.m_type->m_kind = TypeKind::Int64;
+    out.m_type->m_kind = TypeKind::Long;
     break;
   case FLOAT:
     out.m_token = token;
@@ -290,10 +353,21 @@ void Parser::parseTypeSpecifier(Token &out, const int token) {
     out.m_type = std::make_shared<TypeSpec>();
     out.m_type->m_kind = TypeKind::Bool;
     break;
+  case UNSIGNED:
+    out.m_token = token;
+    out.m_text = "unsigned";
+    out.m_type = std::make_shared<TypeSpec>();
+    out.m_type->m_kind = TypeKind::Unsigned;
+    break;
+  case SIGNED:
+    out.m_token = token;
+    out.m_text = "unsigned";
+    out.m_type = std::make_shared<TypeSpec>();
+    out.m_type->m_kind = TypeKind::Unsigned;
+    break;
   default:
     // TODO(ptc) Handle rest of cases
-    out.m_token = token;
-    break;
+    assert(false);
   }
 }
 
@@ -475,7 +549,7 @@ void Parser::parseStorageClassDeclarationSpecifiers(
   out = declarationSpecifiers;
   // TODO(ptc) handle other declaration_specifiers
   debugLn("Entering parseStorageClassDeclarationSpecifiers "
-          "storageClassSpecifier.m_declSpecs: %d, out.m_declSpecs: %d",
+          "storageClassSpecifier.m_declSpecs: %p, out.m_declSpecs: %p",
           storageClassSpecifier.m_declSpecs.get(), out.m_declSpecs.get());
   if (!out.m_declSpecs) {
     out.m_declSpecs = std::make_shared<DeclarationSpecifiers>();
@@ -601,7 +675,8 @@ void Parser::parseParameterDeclSpecs(Token &out, const Token &declSpecifiers) {
 
 void Parser::parseParameterListBase(Token &out, const Token &parameterDecl) {
   debugLn("Entering parseParameterListBase");
-  debugLn("parameterDecl.m_paramDecls.size() == %d", parameterDecl.m_paramDecls.size());
+  debugLn("parameterDecl.m_paramDecls.size() == %d",
+          parameterDecl.m_paramDecls.size());
   assert(parameterDecl.m_paramDecls.size() == 1);
   out.m_paramDecls = parameterDecl.m_paramDecls;
 }
@@ -609,7 +684,8 @@ void Parser::parseParameterListBase(Token &out, const Token &parameterDecl) {
 void Parser::parseParameterList(Token &out, const Token &parameterList,
                                 const Token &parameterDecl) {
   debugLn("Entering parseParameterList");
-  debugLn("parameterDecl.m_paramDecls.size() == %d", parameterDecl.m_paramDecls.size());
+  debugLn("parameterDecl.m_paramDecls.size() == %d",
+          parameterDecl.m_paramDecls.size());
   assert(parameterDecl.m_paramDecls.size() == 1);
   out.m_paramDecls.push_back(parameterDecl.m_paramDecls[0]);
 }
