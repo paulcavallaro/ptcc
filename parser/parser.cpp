@@ -555,22 +555,32 @@ void Parser::parseDeclarationFromDeclarationSpecifiers(
 
 void Parser::parseParameterDeclarator(Token &out, const Token &declSpecifiers,
                                       const Token &declarator) {
-  // TODO(ptc) still need to do more
   debugLn("Entering parseParameterDeclarator");
-  out.m_declSpecs = declSpecifiers.m_declSpecs;
-  if (out.m_declSpecs) {
+  ParameterDecl paramDecl;
+  paramDecl.m_declSpecs = declSpecifiers.m_declSpecs;
+  if (declSpecifiers.m_declSpecs) {
     debugLn("parseParameterDeclarator: declSpecifiers has m_declSpecs");
   }
-  out.m_id = declarator.m_id;
-  debugLn("parseParameterDeclarator: id=%s", out.m_id.c_str());
-  if (declarator.m_type) {
-    debugLn("parseParameterDeclarator: declarator has m_type");
-    out.m_type = declarator.m_type;
+  paramDecl.m_id = declarator.m_id;
+  debugLn("parseParameterDeclarator: id=%s", declarator.m_id.c_str());
+  if (declSpecifiers.m_type) {
+    debugLn("parseParameterDeclarator: declSpecifiers has m_type");
+    paramDecl.m_type = declSpecifiers.m_type;
+  } else {
+    /* NOTE: This is the very strange syntax of
+     *
+     * int sum(a, b)
+     * int a, b; {
+     *   return a + b;
+     * }
+     *
+     * which is admittedly insane, but conforms to the spec.
+     */
+    debugLn("parseParameterDeclarator: declSpecifiers DOESN'T HAVE m_type");
   }
 
-  // TODO(ptc)
   out.m_paramDecls = {};
-  out.m_paramDecls.emplace_back();
+  out.m_paramDecls.push_back(std::move(paramDecl));
 }
 
 void Parser::parseParameterAbstractDeclarator(Token &out,

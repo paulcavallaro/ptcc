@@ -480,23 +480,15 @@ struct_declaration
 specifier_qualifier_list
 	: type_specifier specifier_qualifier_list       {
             _p->parseSpecifierQualifierListSpecifier($$, $1, &$2);
-            // fprintf(stderr, "Specifier Qualifier List Item Addition of Type Specifier: %s %s\n", $1.m_text.c_str(), $2.m_text.c_str());
-            // $$.m_text = $1.m_text + " " + $2.m_text;
         }
 	| type_specifier       {
             _p->parseSpecifierQualifierListSpecifier($$, $1, nullptr);
-            // fprintf(stderr, "Specifier Qualifier List Base Item of Type Specifier: %s\n", $1.m_text.c_str());
-            // $$ = $1;
         }
 	| type_qualifier specifier_qualifier_list       {
             _p->parseSpecifierQualifierListQualifier($$, $1, &$2);
-            // fprintf(stderr, "Specifier Qualifier List Item Addition of Type Qualifier: %s %s\n", $1.m_text.c_str(), $2.m_text.c_str());
-            // $$.m_text = $1.m_text + " " + $2.m_text;
         }
 	| type_qualifier       {
             _p->parseSpecifierQualifierListQualifier($$, $1, nullptr);
-            // fprintf(stderr, "Specifier Qualifier List Base Item of Type Qualifier: %s\n", $1.m_text.c_str());
-            // $$ = $1;
         }
 	;
 
