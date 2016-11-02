@@ -144,6 +144,10 @@ TypeSpec Parser::mergeTypes(TypeSpec type, TypeSpec listType) {
   case TypeKind::Signed:
   case TypeKind::Unsigned:
     // TODO(ptc)
+    // Have to actually implement this, but just throw away one of the types for
+    // now to
+    // see how far we can get processing a file
+    return type;
     assert(false);
     break;
   default:
@@ -626,6 +630,17 @@ void Parser::parseDeclarationFromDeclarationSpecifiers(
       }
     }
   }
+}
+
+void Parser::parseEnumSpecifier(Token &out, const Token &enumeratorList,
+                                const Token *optionalEnumId) {
+  // TODO(ptc)
+  out.m_type = std::make_shared<TypeSpec>();
+}
+
+void Parser::parseEnumSpecifierNoEnums(Token &out, const Token &enumId) {
+  // TODO(ptc)
+  out.m_type = std::make_shared<TypeSpec>();
 }
 
 void Parser::parseParameterDeclarator(Token &out, const Token &declSpecifiers,

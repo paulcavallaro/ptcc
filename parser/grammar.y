@@ -431,7 +431,9 @@ type_specifier
                 _p->parseUnionTypeSpecifier($$, $1);
             }
         }
-	| enum_specifier
+	| enum_specifier        {
+            $$ = $1;
+        }
 	| TYPEDEF_NAME		/* after it has been defined as such */
 	;
 
@@ -443,7 +445,9 @@ struct_or_union_specifier
                 _p->parseStructSpecifier($$, $2, $4);
             }
         }
-	| struct_or_union IDENTIFIER
+	| struct_or_union IDENTIFIER    {
+          // TODO(PTC) this should allow the definition of structs that hold pointers to themselves
+        }
 	;
 
 struct_or_union
@@ -510,11 +514,21 @@ struct_declarator
 	;
 
 enum_specifier
-	: ENUM '{' enumerator_list '}'
-	| ENUM '{' enumerator_list ',' '}'
-	| ENUM IDENTIFIER '{' enumerator_list '}'
-	| ENUM IDENTIFIER '{' enumerator_list ',' '}'
-	| ENUM IDENTIFIER
+	: ENUM '{' enumerator_list '}'  {
+          _p->parseEnumSpecifier($$, $3, nullptr);
+        }
+	| ENUM '{' enumerator_list ',' '}'      {
+          _p->parseEnumSpecifier($$, $3, nullptr);
+        }
+	| ENUM IDENTIFIER '{' enumerator_list '}'       {
+          _p->parseEnumSpecifier($$, $4, &$2);
+        }
+	| ENUM IDENTIFIER '{' enumerator_list ',' '}'   {
+          _p->parseEnumSpecifier($$, $4, &$2);
+        }
+	| ENUM IDENTIFIER       {
+          _p->parseEnumSpecifierNoEnums($$, $2);
+        }
 	;
 
 enumerator_list
@@ -829,7 +843,8 @@ int main(int argc, char** argv) {
     // TODO(ptc) fix this, it should be something else possibly than
     // TYPEDEF_NAME, maybe a special BUILTIN_TYPE
     p.insert("__builtin_va_list", TYPEDEF_NAME);
-    p.insert("__routine", TYPEDEF_NAME);
+    p.insert("__builtin_bswap32", TYPEDEF_NAME);
+    p.insert("__builtin_bswap64", TYPEDEF_NAME);
     yyscan_t scanner;
     yylex_init(&scanner);
     yylex_init_extra(&p, &scanner);
