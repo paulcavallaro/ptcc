@@ -2,6 +2,7 @@
 #include "parser/grammar.tab.hpp"
 
 #include <assert.h>
+#include <cstdarg>
 
 namespace ptcc {
 namespace parser {
@@ -430,7 +431,7 @@ void Parser::parseStructDeclaration(Token &out, const Token &specQualList,
   // TODO(ptc) Have to merge the type from both specQualList and the
   // structDeclList to arrive at the type for each declarator
   out.m_fieldDecls = {};
-  for (int i = 0; i < m_structDeclList.size(); i++) {
+  for (size_t i = 0; i < m_structDeclList.size(); i++) {
     auto &declarator = m_structDeclList[i];
     // TODO(ptc) This works for pointer types, probably will have to modify it
     // for other complex array types
