@@ -25,6 +25,7 @@ struct Parser {
   const SymTableEntry &get(ssize_t);
 
   void parseTypeSpecifier(Token &out, const int token);
+  void parseTypedefTypeSpec(Token &out, const Token &typeDef);
   void parseTypeQualifier(Token &out, const int token);
   void parseTypeQualifierList(Token &out, Token &tQual);
 
@@ -38,10 +39,12 @@ struct Parser {
   void parseDirectDeclaratorId(Token &out, const Token &id);
   void parseDirectDeclaratorArray(Token &out, const Token &declarator);
 
-  void parseStructDeclarator(Token &out, const Token &structDecl);
+  void parseStructDeclarator(Token &out, const Token &structDecl,
+                             const Token *optStructDeclList);
   void parseStructDeclaration(Token &out, const Token &specQualList,
                               const Token &structDeclList);
-  void parseStructDeclarationList(Token &out, const Token &structDecl);
+  void parseStructDeclarationList(Token &out, const Token &structDecl,
+                                  const Token *optStructDeclList);
   void parseStructSpecifier(Token &out, const Token &id,
                             const Token &structDeclList);
   void parseDirectDeclarator(Token &out, const Token &directDecl);
@@ -93,8 +96,6 @@ struct Parser {
                                         const Token &abstractDeclarator);
   void parseParameterDeclSpecs(Token &out, const Token &declSpecifiers);
 
-  void resetStructDeclaratorList();
-
   void setDebug(bool debug) { m_debug = debug; }
   void debugLn(const char *format, ...);
 
@@ -102,10 +103,6 @@ private:
   bool m_debug{0};
   std::unordered_map<std::string, size_t> m_symtable;
   std::vector<SymTableEntry> m_symbols;
-  std::vector<Token> m_structDeclList;
-  TypeSpec m_structDeclType;
-  std::vector<FieldDecl> m_structFieldList;
-  TypeSpec m_pointerType;
 
   TypeSpec mergeTypes(TypeSpec type, TypeSpec listType);
 };

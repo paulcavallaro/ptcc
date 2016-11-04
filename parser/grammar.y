@@ -436,7 +436,9 @@ type_specifier
 	| enum_specifier        {
             $$ = $1;
         }
-	| TYPEDEF_NAME		/* after it has been defined as such */
+	| TYPEDEF_NAME		/* after it has been defined as such */ {
+          _p->parseTypedefTypeSpec($$, $1);
+        }
 	;
 
 struct_or_union_specifier
@@ -448,6 +450,9 @@ struct_or_union_specifier
             }
         }
 	| struct_or_union IDENTIFIER    {
+          if ($1.m_token == STRUCT) {
+            _p->parseStructSpecifier($$, $2, YYSTYPE{});
+          }
           // TODO(PTC) this should allow the definition of structs that hold pointers to themselves
         }
 	;
@@ -465,12 +470,10 @@ struct_or_union
 
 struct_declaration_list
 	: struct_declaration    {
-            _p->parseStructDeclarationList($$, $1);
-            _p->resetStructDeclaratorList();
+          _p->parseStructDeclarationList($$, $1, nullptr);
         }
 	| struct_declaration_list struct_declaration    {
-            _p->parseStructDeclarationList($$, $2);
-            _p->resetStructDeclaratorList();
+          _p->parseStructDeclarationList($$, $2, &$1);
         }
 	;
 
@@ -500,10 +503,10 @@ specifier_qualifier_list
 
 struct_declarator_list
 	: struct_declarator     {
-            _p->parseStructDeclarator($$, $1);
+          _p->parseStructDeclarator($$, $1, nullptr);
         }
 	| struct_declarator_list ',' struct_declarator  {
-            _p->parseStructDeclarator($$, $3);
+          _p->parseStructDeclarator($$, $3, &$1);
         }
 	;
 

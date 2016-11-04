@@ -376,6 +376,12 @@ void Parser::parseTypeSpecifier(Token &out, const int token) {
   }
 }
 
+void Parser::parseTypedefTypeSpec(Token &out, const Token &typeDef) {
+  // TODO(ptc) really should expand TypeSpec to have better support for a
+  // typedef that points to some other more canonical type
+  out.m_type = std::make_shared<TypeSpec>(TypeSpec{ .m_kind = TypeKind::TypeDef });
+}
+
 void Parser::debugLn(const char *format, ...) {
   if (m_debug) {
     va_list args;
@@ -408,13 +414,17 @@ void Parser::parseDirectDeclaratorArray(Token &out, const Token &declarator) {
   }
 }
 
-void Parser::parseStructDeclarator(Token &out, const Token &structDecl) {
+void Parser::parseStructDeclarator(Token &out, const Token &structDecl,
+                                   const Token *optStructDeclList) {
   debugLn("Struct Declarator List Item: type=%s, id=%s",
           structDecl.m_type ? specToString(*structDecl.m_type).c_str()
                             : "Unknown",
           structDecl.m_id.c_str());
 
-  m_structDeclList.push_back(structDecl);
+  if (optStructDeclList) {
+    out.m_structDeclList = std::move(optStructDeclList->m_structDeclList);
+  }
+  out.m_structDeclList.push_back(structDecl);
 }
 
 void Parser::parseStructDeclaration(Token &out, const Token &specQualList,
@@ -435,8 +445,8 @@ void Parser::parseStructDeclaration(Token &out, const Token &specQualList,
   // TODO(ptc) Have to merge the type from both specQualList and the
   // structDeclList to arrive at the type for each declarator
   out.m_fieldDecls = {};
-  for (size_t i = 0; i < m_structDeclList.size(); i++) {
-    auto &declarator = m_structDeclList[i];
+  for (size_t i = 0; i < structDeclList.m_structDeclList.size(); i++) {
+    auto &declarator = structDeclList.m_structDeclList[i];
     // TODO(ptc) This works for pointer types, probably will have to modify it
     // for other complex array types
     FieldDecl decl;
@@ -453,10 +463,16 @@ void Parser::parseStructDeclaration(Token &out, const Token &specQualList,
   }
 }
 
-void Parser::parseStructDeclarationList(Token &out, const Token &structDecl) {
+void Parser::parseStructDeclarationList(Token &out, const Token &structDecl,
+                                        const Token *optStructDeclList) {
   debugLn("Struct Declaration List Item: %s", structDecl.m_text.c_str());
-  for (auto &fieldDecl : structDecl.m_fieldDecls) {
-    m_structFieldList.push_back(fieldDecl);
+  if (optStructDeclList) {
+    out.m_fieldDecls = optStructDeclList->m_fieldDecls;
+    for (auto &fieldDecl : structDecl.m_fieldDecls) {
+      out.m_fieldDecls.push_back(std::move(fieldDecl));
+    }
+  } else {
+    out.m_fieldDecls = structDecl.m_fieldDecls;
   }
 }
 
@@ -464,7 +480,7 @@ void Parser::parseStructSpecifier(Token &out, const Token &id,
                                   const Token &structDeclList) {
   debugLn("Struct Specifier struct %s with fields:", id.m_text.c_str());
   std::string fields;
-  for (auto &fieldDecl : m_structFieldList) {
+  for (auto &fieldDecl : structDeclList.m_fieldDecls) {
     debugLn("\tField named %s of type %s", fieldDecl.m_name.c_str(),
             specToString(fieldDecl.m_type).c_str());
     fields +=
@@ -476,16 +492,7 @@ void Parser::parseStructSpecifier(Token &out, const Token &id,
   out.m_type->m_kind = TypeKind::Struct;
   // TODO(ptc) fix up usage of m_type->m_struct + m_struct in Token
   out.m_type->m_struct =
-      std::make_shared<StructDecl>(id.m_text, m_structFieldList);
-
-  // Reset parser state
-  m_structFieldList.clear();
-}
-
-void Parser::resetStructDeclaratorList() {
-  debugLn("Resetting the Struct Declarator List");
-  m_structDeclList.clear();
-  m_structDeclType = TypeSpec{.m_kind = TypeKind::Void};
+      std::make_shared<StructDecl>(id.m_text, structDeclList.m_fieldDecls);
 }
 
 void Parser::parseStorageClassSpecifier(Token &out, const int token) {

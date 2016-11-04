@@ -146,6 +146,7 @@ struct Token {
   std::vector<FieldDecl> m_fieldDecls;
   std::vector<TypeQual> m_typeQuals;
   std::vector<ParameterDecl> m_paramDecls;
+  std::vector<Token> m_structDeclList;
 };
 
 std::string pointerTypeToString(const TypeSpec tSpec);
