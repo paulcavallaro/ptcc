@@ -55,6 +55,7 @@ enum class TypeKind {
   Bool,
   Char,
   Double,
+  Enum,
   Float,
   Int,
   Long,

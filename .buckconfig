@@ -1,7 +1,7 @@
 [alias]
     lexer = //parser:lexer
 [cxx]
-    cxxflags = -std=c++14 -Wall
+    cxxflags = -std=c++14 -Wall -Werror=switch -Werror=return-type
     gtest_dep = //third_party/gtest:gtest
 [project]
     glob_handler = python

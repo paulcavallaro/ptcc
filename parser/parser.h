@@ -66,6 +66,12 @@ struct Parser {
   parseTypeSpecifierDeclarationSpecifier(Token &out, const Token &typeSpecifier,
                                          const Token &declarationSpecifiers);
 
+  void createNewEnumConstant(Token &out, const Token &id);
+  void parseEnumeratorListBase(Token &out, const Token &enumerator);
+  void parseEnumeratorList(Token &out, const Token &enumeratorList,
+                           const Token &enumerator);
+  void parseEnumerator(Token &out, const Token &enumConstant,
+                       const Token *optionalConstExpression);
   void parseEnumSpecifier(Token &out, const Token &enumeratorList,
                           const Token *optionalEnumId);
   void parseEnumSpecifierNoEnums(Token &out, const Token &enumId);

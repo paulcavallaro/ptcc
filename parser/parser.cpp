@@ -632,6 +632,26 @@ void Parser::parseDeclarationFromDeclarationSpecifiers(
   }
 }
 
+void Parser::createNewEnumConstant(Token &out, const Token &id) {
+  out.m_id = id.m_text;
+  out.m_token = ENUMERATION_CONSTANT;
+  overwrite(out.m_id.c_str(), ENUMERATION_CONSTANT);
+}
+
+void Parser::parseEnumeratorListBase(Token &out, const Token &enumerator) {
+  // TODO(ptc)
+}
+
+void Parser::parseEnumeratorList(Token &out, const Token &enumeratorList,
+                                 const Token &enumerator) {
+  // TODO(ptc)
+}
+
+void Parser::parseEnumerator(Token &out, const Token &enumConstant,
+                             const Token *optionalConstExpression) {
+  // TODO(ptc)
+}
+
 void Parser::parseEnumSpecifier(Token &out, const Token &enumeratorList,
                                 const Token *optionalEnumId) {
   // TODO(ptc)

@@ -23,6 +23,8 @@ std::string kindToString(const TypeKind kind) {
     return "double";
   case TypeKind::Float:
     return "float";
+  case TypeKind::Enum:
+    return "enum";
   case TypeKind::Char:
     return "char";
   case TypeKind::Bool:
@@ -38,6 +40,7 @@ std::string kindToString(const TypeKind kind) {
   case TypeKind::TypeDef:
     return "typedef";
   }
+  return "<UNKNOWN>";
 }
 
 std::string typeQualToString(const TypeQual qual) {
@@ -51,6 +54,7 @@ std::string typeQualToString(const TypeQual qual) {
   case TypeQual::Atomic:
     return "_Atomic";
   }
+  return "<UNKNOWN>";
 }
 
 std::string pointerTypeToString(const TypeSpec tSpec) {
@@ -109,6 +113,7 @@ std::string tyQualToString(const TypeQual tyQual) {
   case TypeQual::Atomic:
     return "_Atomic";
   }
+  return "<UNKNOWN>";
 }
 }
 } // ptc::scanner

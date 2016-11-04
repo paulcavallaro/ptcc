@@ -102,7 +102,9 @@ constant
         ;
 
 enumeration_constant            /* before it has been defined as such */
-        : IDENTIFIER
+        : IDENTIFIER    {
+          _p->createNewEnumConstant($$, $1);
+        }
         ;
 
 string
@@ -532,13 +534,21 @@ enum_specifier
 	;
 
 enumerator_list
-	: enumerator
-	| enumerator_list ',' enumerator
+	: enumerator    {
+          _p->parseEnumeratorListBase($$, $1);
+        }
+	| enumerator_list ',' enumerator        {
+          _p->parseEnumeratorList($$, $1, $3);
+        }
 	;
 
 enumerator	/* identifiers must be flagged as ENUMERATION_CONSTANT */
-	: enumeration_constant '=' constant_expression
-	| enumeration_constant
+	: enumeration_constant '=' constant_expression  {
+          _p->parseEnumerator($$, $1, &$3);
+        }
+	| enumeration_constant  {
+          _p->parseEnumerator($$, $1, nullptr);
+        }
 	;
 
 atomic_type_specifier
