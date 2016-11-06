@@ -11,6 +11,11 @@ typedef struct Foo {
   int intArr[];
 } Foo;
 
+typedef union IntOrStr {
+  int num;
+  const char *str;
+} IntOrStr;
+
 // Simple comment
 
 /*

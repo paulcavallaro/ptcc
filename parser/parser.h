@@ -45,8 +45,8 @@ struct Parser {
                               const Token &structDeclList);
   void parseStructDeclarationList(Token &out, const Token &structDecl,
                                   const Token *optStructDeclList);
-  void parseStructSpecifier(Token &out, const Token &id,
-                            const Token &structDeclList);
+  void parseStructUnionSpecifier(Token &out, const Token &structOrUnion,
+                                 const Token &id, const Token &structDeclList);
   void parseDirectDeclarator(Token &out, const Token &directDecl);
   void parsePointerDeclarator(Token &out, const Token &pointer,
                               const Token &directDecl);

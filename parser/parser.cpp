@@ -379,7 +379,8 @@ void Parser::parseTypeSpecifier(Token &out, const int token) {
 void Parser::parseTypedefTypeSpec(Token &out, const Token &typeDef) {
   // TODO(ptc) really should expand TypeSpec to have better support for a
   // typedef that points to some other more canonical type
-  out.m_type = std::make_shared<TypeSpec>(TypeSpec{ .m_kind = TypeKind::TypeDef });
+  out.m_type =
+      std::make_shared<TypeSpec>(TypeSpec{.m_kind = TypeKind::TypeDef});
 }
 
 void Parser::debugLn(const char *format, ...) {
@@ -476,9 +477,11 @@ void Parser::parseStructDeclarationList(Token &out, const Token &structDecl,
   }
 }
 
-void Parser::parseStructSpecifier(Token &out, const Token &id,
-                                  const Token &structDeclList) {
-  debugLn("Struct Specifier struct %s with fields:", id.m_text.c_str());
+void Parser::parseStructUnionSpecifier(Token &out, const Token &structOrUnion,
+                                       const Token &id,
+                                       const Token &structDeclList) {
+  debugLn("%s Specifier %s with fields:", structOrUnion.m_text.c_str(),
+          id.m_text.c_str());
   std::string fields;
   for (auto &fieldDecl : structDeclList.m_fieldDecls) {
     debugLn("\tField named %s of type %s", fieldDecl.m_name.c_str(),
@@ -486,13 +489,18 @@ void Parser::parseStructSpecifier(Token &out, const Token &id,
     fields +=
         "\t" + specToString(fieldDecl.m_type) + " " + fieldDecl.m_name + ";\n";
   }
-  out.m_token = STRUCT;
-  out.m_text = "struct " + id.m_text + " {\n" + fields + "}";
+  out.m_token = structOrUnion.m_token;
   out.m_type = std::make_shared<TypeSpec>();
-  out.m_type->m_kind = TypeKind::Struct;
+  if (structOrUnion.m_token == STRUCT) {
+    out.m_text = "struct " + id.m_text + " {\n" + fields + "}";
+    out.m_type->m_kind = TypeKind::Struct;
+  } else if (structOrUnion.m_token == UNION) {
+    out.m_text = "union " + id.m_text + " {\n" + fields + "}";
+    out.m_type->m_kind = TypeKind::Union;
+  }
   // TODO(ptc) fix up usage of m_type->m_struct + m_struct in Token
   out.m_type->m_struct =
-      std::make_shared<StructDecl>(id.m_text, structDeclList.m_fieldDecls);
+      std::make_shared<StructUnionDecl>(id.m_text, structDeclList.m_fieldDecls);
 }
 
 void Parser::parseStorageClassSpecifier(Token &out, const int token) {

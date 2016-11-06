@@ -445,15 +445,12 @@ struct_or_union_specifier
 	: struct_or_union '{' struct_declaration_list '}'
 	| struct_or_union IDENTIFIER '{' struct_declaration_list '}'    {
             fprintf(stderr, "Struct or Union Specifier of Identifier + Struct Declaration List: %s %s %s\n", $1.m_token == STRUCT ? "struct" : "union", $2.m_text.c_str(), $3.m_text.c_str());
-            if ($1.m_token == STRUCT) {
-                _p->parseStructSpecifier($$, $2, $4);
-            }
+            _p->parseStructUnionSpecifier($$, $1, $2, $4);
         }
 	| struct_or_union IDENTIFIER    {
-          if ($1.m_token == STRUCT) {
-            _p->parseStructSpecifier($$, $2, YYSTYPE{});
-          }
-          // TODO(PTC) this should allow the definition of structs that hold pointers to themselves
+          // TODO(PTC) this should allow the definition of structs that hold
+          // pointers to themselves
+          _p->parseStructUnionSpecifier($$, $1, $2, YYSTYPE{});
         }
 	;
 

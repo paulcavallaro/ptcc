@@ -79,13 +79,13 @@ enum class TypeQual {
 std::string tyQualToString(const TypeQual tyQual);
 
 // Forward declare
-struct StructDecl;
+struct StructUnionDecl;
 
 struct TypeSpec {
   TypeKind m_kind;
   std::vector<TypeQual> m_quals;
   std::shared_ptr<TypeSpec> m_otype;
-  std::shared_ptr<StructDecl> m_struct;
+  std::shared_ptr<StructUnionDecl> m_struct;
 };
 
 std::string kindToString(const TypeKind kind);
@@ -110,8 +110,8 @@ struct DeclarationSpecifiers {
   std::vector<TypeSpec> m_typeSpecs;
 };
 
-struct StructDecl {
-  StructDecl(std::string name, std::vector<FieldDecl> members)
+struct StructUnionDecl {
+  StructUnionDecl(std::string name, std::vector<FieldDecl> members)
       : m_name(name), m_members(members) {}
 
   std::string m_name;
@@ -141,7 +141,7 @@ struct Token {
   std::shared_ptr<Expression> m_expr;
   std::shared_ptr<Constant> m_constant;
   std::shared_ptr<TypeSpec> m_type;
-  std::shared_ptr<StructDecl> m_struct;
+  std::shared_ptr<StructUnionDecl> m_struct;
   std::shared_ptr<DeclarationSpecifiers> m_declSpecs;
   std::vector<FieldDecl> m_fieldDecls;
   std::vector<TypeQual> m_typeQuals;
