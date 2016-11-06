@@ -632,7 +632,7 @@ void Parser::parseDeclarationFromDeclarationSpecifiers(
                   "initDeclaratorList");
           debugLn("Adding typedef name of %s",
                   initDeclaratorList->m_text.c_str());
-          overwrite(initDeclaratorList->m_text.c_str(), TYPEDEF_NAME);
+          overwrite(initDeclaratorList->m_id.c_str(), TYPEDEF_NAME);
         }
       } else {
         if (initDeclaratorList) {
@@ -640,7 +640,7 @@ void Parser::parseDeclarationFromDeclarationSpecifiers(
                   "initDeclaratorList and not declarationSpecifiers.m_type");
           debugLn("Adding typedef name of %s",
                   initDeclaratorList->m_text.c_str());
-          overwrite(initDeclaratorList->m_text.c_str(), TYPEDEF_NAME);
+          overwrite(initDeclaratorList->m_id.c_str(), TYPEDEF_NAME);
         }
       }
     }
