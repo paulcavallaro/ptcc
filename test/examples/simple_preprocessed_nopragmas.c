@@ -1094,9 +1094,9 @@ void arc4random_stir(void);
 u_int32_t
   arc4random_uniform(u_int32_t ) __attribute__((availability(macosx,introduced=10.7)));
 
-int atexit_b(void (^)(void)) __attribute__((availability(macosx,introduced=10.6)));
-void *bsearch_b(const void *, const void *, size_t,
-     size_t, int (^)(const void *, const void *)) __attribute__((availability(macosx,introduced=10.6)));
+
+
+
 
 
 
@@ -1122,26 +1122,26 @@ const char
 int heapsort(void *, size_t, size_t,
      int (*)(const void *, const void *));
 
-int heapsort_b(void *, size_t, size_t,
-     int (^)(const void *, const void *)) __attribute__((availability(macosx,introduced=10.6)));
+
+
 
 int mergesort(void *, size_t, size_t,
      int (*)(const void *, const void *));
 
-int mergesort_b(void *, size_t, size_t,
-     int (^)(const void *, const void *)) __attribute__((availability(macosx,introduced=10.6)));
+
+
 
 void psort(void *, size_t, size_t,
      int (*)(const void *, const void *)) __attribute__((availability(macosx,introduced=10.6)));
 
-void psort_b(void *, size_t, size_t,
-     int (^)(const void *, const void *)) __attribute__((availability(macosx,introduced=10.6)));
+
+
 
 void psort_r(void *, size_t, size_t, void *,
      int (*)(void *, const void *, const void *)) __attribute__((availability(macosx,introduced=10.6)));
 
-void qsort_b(void *, size_t, size_t,
-     int (^)(const void *, const void *)) __attribute__((availability(macosx,introduced=10.6)));
+
+
 
 void qsort_r(void *, size_t, size_t, void *,
      int (*)(void *, const void *, const void *));

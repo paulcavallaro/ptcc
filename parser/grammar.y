@@ -443,7 +443,13 @@ type_specifier
 	;
 
 struct_or_union_specifier
-	: struct_or_union '{' struct_declaration_list '}'
+	: struct_or_union '{' struct_declaration_list '}'       {
+          // TODO(ptc) this should allow use of anonymous struct declarations,
+          // have to do better passing through that this is an anonymous struct
+          // so that we can handle it better with typedefs and when declared
+          // inside another struct or union.
+          _p->parseStructUnionSpecifier($$, $1, YYSTYPE{}, $3);
+         }
 	| struct_or_union IDENTIFIER '{' struct_declaration_list '}'    {
             fprintf(stderr, "Struct or Union Specifier of Identifier + Struct Declaration List: %s %s %s\n", $1.m_token == STRUCT ? "struct" : "union", $2.m_text.c_str(), $3.m_text.c_str());
             _p->parseStructUnionSpecifier($$, $1, $2, $4);
@@ -854,8 +860,8 @@ int main(int argc, char** argv) {
     // TODO(ptc) fix this, it should be something else possibly than
     // TYPEDEF_NAME, maybe a special BUILTIN_TYPE
     p.insert("__builtin_va_list", TYPEDEF_NAME);
-    p.insert("__builtin_bswap32", TYPEDEF_NAME);
-    p.insert("__builtin_bswap64", TYPEDEF_NAME);
+    p.insert("__builtin_bswap32", IDENTIFIER);
+    p.insert("__builtin_bswap64", IDENTIFIER);
     yyscan_t scanner;
     yylex_init(&scanner);
     yylex_init_extra(&p, &scanner);

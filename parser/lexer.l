@@ -43,11 +43,13 @@ WS  [ \t\v\n\f]
 extern void yyerror(YYLTYPE * yylloc, const char *);  /* prints grammar violation message */
 
 int attribute_paren_count{0};
+int asm_paren_count{0};
 
 %}
 
 %x IN_COMMENT
 %x IN_ATTRIBUTES
+%x IN_ASM
 
 %%
 <INITIAL>"/*"                           { BEGIN(IN_COMMENT); }
@@ -58,7 +60,11 @@ int attribute_paren_count{0};
 
 <IN_ATTRIBUTES>")"                      { attribute_paren_count--; if (attribute_paren_count == 0) BEGIN(INITIAL); }
 <IN_ATTRIBUTES>"("                      { attribute_paren_count++; }
-<IN_ATTRIBUTES>.                        { /* consume attributes */ }
+<IN_ATTRIBUTES>.                        { /* consume attributes, ignore for now */ }
+
+<IN_ASM>")"                             { asm_paren_count--; if (asm_paren_count == 0) BEGIN(INITIAL); }
+<IN_ASM>"("                             { asm_paren_count++; }
+<IN_ASM>.                               { /* consume asm, ignore for now */ }
 
 "auto"					{ return(AUTO); }
 "break"					{ return(BREAK); }
@@ -104,6 +110,7 @@ int attribute_paren_count{0};
 "_Noreturn"                             { return NORETURN; }
 "_Static_assert"                        { return STATIC_ASSERT; }
 "_Thread_local"                         { return THREAD_LOCAL; }
+"__asm"                                 { BEGIN(IN_ASM); }
 "__attribute__"                         { BEGIN(IN_ATTRIBUTES); }
 "__extension__"                         { /* Ignore __extension__ for now */ }
 "__restrict"                            { return(RESTRICT); }
