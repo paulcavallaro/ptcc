@@ -56,6 +56,7 @@ int asm_paren_count{0};
 <IN_COMMENT>"*/"                        { BEGIN(INITIAL); }
 <IN_COMMENT>.                           { /* consume comment */ }
 "//".*                                  { /* consume //-comment */ }
+"#".*                                   { /* consume #-pragma */ }
 
 
 <IN_ATTRIBUTES>")"                      { attribute_paren_count--; if (attribute_paren_count == 0) BEGIN(INITIAL); }
