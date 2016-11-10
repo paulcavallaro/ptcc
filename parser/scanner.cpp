@@ -17,6 +17,8 @@ std::string kindToString(const TypeKind kind) {
     return "long";
   case TypeKind::Signed:
     return "signed";
+  case TypeKind::Undecided:
+    return "<undecided>";
   case TypeKind::Unsigned:
     return "unsigned";
   case TypeKind::Double:
@@ -48,7 +50,7 @@ std::string typeQualToString(const TypeQual qual) {
   case TypeQual::Const:
     return "const";
   case TypeQual::Restrict:
-    return "restruct";
+    return "restrict";
   case TypeQual::Volatile:
     return "volatile";
   case TypeQual::Atomic:

@@ -27,7 +27,12 @@ struct Parser {
   void parseTypeSpecifier(Token &out, const int token);
   void parseTypedefTypeSpec(Token &out, const Token &typeDef);
   void parseTypeQualifier(Token &out, const int token);
-  void parseTypeQualifierList(Token &out, Token &tQual);
+  void parseTypeQualifierList(Token &out, const Token &tQual);
+  void parseTypeQualifierBaseDeclarationSpecifier(Token &out,
+                                                  const Token &typeQualifier);
+  void parseTypeQualifierDeclarationSpecifier(Token &out,
+                                              const Token &typeQualifier,
+                                              const Token &declSpecs);
 
   void parseSpecifierQualifierListSpecifier(Token &out, const Token &specifier,
                                             const Token *list);
@@ -65,6 +70,8 @@ struct Parser {
   parseStorageClassDeclarationSpecifiers(Token &out,
                                          const Token &storageClassSpecifiers,
                                          const Token &declarationSpecifiers);
+  void parseTypeSpecifierBaseDeclarationSpecifier(Token &out,
+                                                  const Token &typeSpecifier);
   void
   parseTypeSpecifierDeclarationSpecifier(Token &out, const Token &typeSpecifier,
                                          const Token &declarationSpecifiers);

@@ -61,7 +61,7 @@ ssize_t Parser::overwrite(const char *symbol, int token) {
   }
 }
 
-void Parser::parseTypeQualifierList(Token &out, Token &tQual) {
+void Parser::parseTypeQualifierList(Token &out, const Token &tQual) {
   debugLn("Entering parseTypeQualifierList out.m_typeQuals.size() = %lu",
           out.m_typeQuals.size());
   out.m_typeQuals = {};
@@ -269,12 +269,13 @@ void Parser::parsePointerDeclarator(Token &out, const Token &pointer,
   out.m_text = pointer.m_text + directDecl.m_text;
   out.m_id = directDecl.m_id;
   out.m_type = pointer.m_type;
-  debugLn("Pointer Delcarator Type Of %s",
+  debugLn("Pointer Declarator Id=%s Type Of %s", out.m_id.c_str(),
           pointerTypeToString(*out.m_type).c_str());
 }
 
 void Parser::parseDirectDeclarator(Token &out, const Token &directDecl) {
   // TODO(ptc) flesh out pointer + direct delcarator
+  debugLn("Entering parseDirectDeclarator id=%s", directDecl.m_id.c_str());
   out = directDecl;
 }
 
@@ -309,6 +310,8 @@ void Parser::parseTypeQualifier(Token &out, const int token) {
 }
 
 void Parser::parseTypeSpecifier(Token &out, const int token) {
+  debugLn("Entering parseTypeSpecifier, token = %i, out.m_text = %s", token,
+          out.m_text.c_str());
   switch (token) {
   case VOID:
     out.m_token = token;
@@ -584,6 +587,51 @@ void Parser::parseStorageClassDeclarationSpecifiers(
   }
 }
 
+void Parser::parseTypeQualifierBaseDeclarationSpecifier(
+    Token &out, const Token &typeQualifier) {
+  debugLn("Entering parseTypeQualifierBaseDeclarationSpecifier %s",
+          typeQualifier.m_text.c_str());
+  assert(typeQualifier.m_typeQuals.size() == 1);
+  TypeSpec tySpec{.m_kind = TypeKind::Undecided,
+                  .m_quals = typeQualifier.m_typeQuals};
+  out.m_declSpecs = std::make_shared<DeclarationSpecifiers>();
+  out.m_declSpecs->m_typeSpecs.push_back(tySpec);
+}
+
+void Parser::parseTypeQualifierDeclarationSpecifier(Token &out,
+                                                    const Token &typeQualifier,
+                                                    const Token &declSpecs) {
+  debugLn("Entering parseTypeQualifierDeclarationSpecifier %s",
+          typeQualifier.m_text.c_str());
+  assert(typeQualifier.m_typeQuals.size() == 1);
+  if (out.m_declSpecs) {
+    // Look at back of declSpecs.m_declSpecs->m_typeSpecs to see if there
+    // is a TypeSpec we can modify
+    if (declSpecs.m_declSpecs->m_typeSpecs.size() > 0) {
+      declSpecs.m_declSpecs->m_typeSpecs.back().m_quals = typeQualifier.m_typeQuals;
+    } else {
+      // This shouldn't happen, but we haven't finished implementing all of
+      // declaration_specifiers so it could happen in theory
+      debugLn("parseTypeQualifierDeclarationSpecifier: declSpecs.m_declSpecs->m_typeSpecs is EMPTY!");
+    }
+  } else {
+    TypeSpec tySpec{.m_kind = TypeKind::Undecided,
+        .m_quals = typeQualifier.m_typeQuals};
+    out.m_declSpecs = std::make_shared<DeclarationSpecifiers>();
+    out.m_declSpecs->m_typeSpecs.push_back(tySpec);
+  }
+}
+
+void Parser::parseTypeSpecifierBaseDeclarationSpecifier(
+    Token &out, const Token &typeSpecifier) {
+  debugLn("Entering parseTypeSpecifierBaseDeclarationSpecifier %s",
+          typeSpecifier.m_text.c_str());
+  out.m_declSpecs = std::make_shared<DeclarationSpecifiers>();
+  assert(typeSpecifier.m_type);
+  out.m_text = typeSpecifier.m_text;
+  out.m_declSpecs->m_typeSpecs.push_back(*typeSpecifier.m_type);
+}
+
 void Parser::parseTypeSpecifierDeclarationSpecifier(
     Token &out, const Token &typeSpecifier,
     const Token &declarationSpecifiers) {
@@ -685,23 +733,26 @@ void Parser::parseParameterDeclarator(Token &out, const Token &declSpecifiers,
   paramDecl.m_declSpecs = declSpecifiers.m_declSpecs;
   if (declSpecifiers.m_declSpecs) {
     debugLn("parseParameterDeclarator: declSpecifiers has m_declSpecs");
+  } else {
+    debugLn(
+        "parseParameterDeclarator: declSpecifiers DOESN'T have m_declSpecs");
   }
   paramDecl.m_id = declarator.m_id;
   debugLn("parseParameterDeclarator: id=%s", declarator.m_id.c_str());
   if (declSpecifiers.m_type) {
-    debugLn("parseParameterDeclarator: declSpecifiers has m_type");
+    debugLn("parseParameterDeclarator: declSpecifiers has m_type of %s", pointerTypeToString(*declSpecifiers.m_type).c_str());
     paramDecl.m_type = declSpecifiers.m_type;
   } else {
-    /* NOTE: This is the very strange syntax of
-     *
-     * int sum(a, b)
-     * int a, b; {
-     *   return a + b;
-     * }
-     *
-     * which is admittedly insane, but conforms to the spec.
-     */
     debugLn("parseParameterDeclarator: declSpecifiers DOESN'T HAVE m_type");
+    if (declSpecifiers.m_declSpecs) {
+      if (declSpecifiers.m_declSpecs->m_typeSpecs.size() != 0) {
+        debugLn("parseParameterDeclarator: declSpecifiers's m_declSpecs has "
+                "m_typeSpecs");
+      } else {
+        debugLn("parseParameterDeclarator: declSpecifiers's m_declSpecs "
+                "DOESN'T HAVE m_typeSpecs");
+      }
+    }
   }
 
   out.m_paramDecls = {};

@@ -344,13 +344,13 @@ declaration_specifiers
           _p->parseTypeSpecifierDeclarationSpecifier($$, $1, $2);
         }
 	| type_specifier                {
-            $$ = $1;
+          _p->parseTypeSpecifierBaseDeclarationSpecifier($$, $1);
         }
 	| type_qualifier declaration_specifiers {
-           // TODO(ptc) Need this for paramter type list
+          _p->parseTypeQualifierDeclarationSpecifier($$, $1, $2);
         }
 	| type_qualifier        {
-           // TODO(ptc) Need this for paramter type list
+          _p->parseTypeQualifierBaseDeclarationSpecifier($$, $1);
         }
 	| function_specifier declaration_specifiers
 	| function_specifier

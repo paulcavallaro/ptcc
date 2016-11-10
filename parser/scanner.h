@@ -65,6 +65,7 @@ enum class TypeKind {
   Struct,
   TypeDef,
   Union,
+  Undecided,
   Unsigned,
   Void,
 };
