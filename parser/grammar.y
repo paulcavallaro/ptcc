@@ -617,7 +617,7 @@ direct_declarator
 	| direct_declarator '[' type_qualifier_list ']'
 	| direct_declarator '[' assignment_expression ']'
 	| direct_declarator '(' parameter_type_list ')' {
-          _p->parseFunctionDirectDeclarator($$, $1, $2);
+          _p->parseFunctionDirectDeclarator($$, $1, $3);
         }
 	| direct_declarator '(' ')'
 	| direct_declarator '(' identifier_list ')'

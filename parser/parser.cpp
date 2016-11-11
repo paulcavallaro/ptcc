@@ -269,6 +269,7 @@ void Parser::parsePointerDeclarator(Token &out, const Token &pointer,
   out.m_text = pointer.m_text + directDecl.m_text;
   out.m_id = directDecl.m_id;
   out.m_type = pointer.m_type;
+  out.m_declSpecs = pointer.m_declSpecs;
   debugLn("Pointer Declarator Id=%s Type Of %s", out.m_id.c_str(),
           pointerTypeToString(*out.m_type).c_str());
 }
@@ -604,19 +605,22 @@ void Parser::parseTypeQualifierDeclarationSpecifier(Token &out,
   debugLn("Entering parseTypeQualifierDeclarationSpecifier %s",
           typeQualifier.m_text.c_str());
   assert(typeQualifier.m_typeQuals.size() == 1);
-  if (out.m_declSpecs) {
+  if (declSpecs.m_declSpecs) {
+    out.m_declSpecs = declSpecs.m_declSpecs;
     // Look at back of declSpecs.m_declSpecs->m_typeSpecs to see if there
     // is a TypeSpec we can modify
     if (declSpecs.m_declSpecs->m_typeSpecs.size() > 0) {
-      declSpecs.m_declSpecs->m_typeSpecs.back().m_quals = typeQualifier.m_typeQuals;
+      out.m_declSpecs->m_typeSpecs.back().m_quals =
+          typeQualifier.m_typeQuals;
     } else {
       // This shouldn't happen, but we haven't finished implementing all of
       // declaration_specifiers so it could happen in theory
-      debugLn("parseTypeQualifierDeclarationSpecifier: declSpecs.m_declSpecs->m_typeSpecs is EMPTY!");
+      debugLn("parseTypeQualifierDeclarationSpecifier: "
+              "declSpecs.m_declSpecs->m_typeSpecs is EMPTY!");
     }
   } else {
     TypeSpec tySpec{.m_kind = TypeKind::Undecided,
-        .m_quals = typeQualifier.m_typeQuals};
+                    .m_quals = typeQualifier.m_typeQuals};
     out.m_declSpecs = std::make_shared<DeclarationSpecifiers>();
     out.m_declSpecs->m_typeSpecs.push_back(tySpec);
   }
@@ -740,14 +744,51 @@ void Parser::parseParameterDeclarator(Token &out, const Token &declSpecifiers,
   paramDecl.m_id = declarator.m_id;
   debugLn("parseParameterDeclarator: id=%s", declarator.m_id.c_str());
   if (declSpecifiers.m_type) {
-    debugLn("parseParameterDeclarator: declSpecifiers has m_type of %s", pointerTypeToString(*declSpecifiers.m_type).c_str());
+    debugLn("parseParameterDeclarator: declSpecifiers has m_type of %s",
+            pointerTypeToString(*declSpecifiers.m_type).c_str());
     paramDecl.m_type = declSpecifiers.m_type;
   } else {
     debugLn("parseParameterDeclarator: declSpecifiers DOESN'T HAVE m_type");
+    // TODO(ptc) need to take the below code snippet and translate it to here,
+    // basically we need to do the same merging we do in parseStructDeclaration
+    // of the declarator.m_type (in case it's a pointer) and the specifier
+    // qualifier list here, in this case with the declarator.m_type + the
+    // declSpecifiers.m_declSpecs
+
+    /*
+
+    // TODO(ptc) This works for pointer types, probably will have to modify it
+    // for other complex array types
+    FieldDecl decl;
+    decl.m_name = declarator.m_id;
+    if (declarator.m_type) {
+      decl.m_type = *declarator.m_type;
+      setPtrTo(&decl.m_type, *specQualList.m_type);
+    } else {
+      decl.m_type = *specQualList.m_type;
+    }
+    out.m_fieldDecls.push_back(decl);
+    debugLn("Struct Declaration of type = %s, name = %s",
+            specToString(decl.m_type).c_str(), decl.m_name.c_str());
+
+    */
+
     if (declSpecifiers.m_declSpecs) {
       if (declSpecifiers.m_declSpecs->m_typeSpecs.size() != 0) {
-        debugLn("parseParameterDeclarator: declSpecifiers's m_declSpecs has "
-                "m_typeSpecs");
+        debugLn("parseParameterDeclarator: declSpecifiers's m_declSpecs has %d "
+                "m_typeSpecs",
+                declSpecifiers.m_declSpecs->m_typeSpecs.size());
+        if (declSpecifiers.m_declSpecs->m_typeSpecs.size() > 1) {
+          debugLn("More than one m_typeSpecs, not sure what to do...");
+        } else {
+          if (declarator.m_type) {
+            paramDecl.m_type = declarator.m_type;
+            setPtrTo(paramDecl.m_type.get(), declSpecifiers.m_declSpecs->m_typeSpecs[0]);
+          } else {
+            paramDecl.m_type = std::make_shared<TypeSpec>(
+                declSpecifiers.m_declSpecs->m_typeSpecs[0]);
+          }
+        }
       } else {
         debugLn("parseParameterDeclarator: declSpecifiers's m_declSpecs "
                 "DOESN'T HAVE m_typeSpecs");
@@ -789,12 +830,16 @@ void Parser::parseParameterList(Token &out, const Token &parameterList,
   debugLn("parameterDecl.m_paramDecls.size() == %d",
           parameterDecl.m_paramDecls.size());
   assert(parameterDecl.m_paramDecls.size() == 1);
+  out.m_paramDecls = parameterList.m_paramDecls;
+  out.m_text = parameterList.m_text + ", " + parameterDecl.m_text;
   out.m_paramDecls.push_back(parameterDecl.m_paramDecls[0]);
 }
 
 void Parser::parseParameterTypeList(Token &out, const Token &parameterList) {
-  // TODO(ptc)
+  // TODO(ptc) handling ellipsis, but skip for now
   debugLn("Entering parseParameterTypeList");
+  out.m_paramDecls = parameterList.m_paramDecls;
+  out.m_text = parameterList.m_text;
 }
 
 void Parser::parseFunctionDirectDeclarator(Token &out,
@@ -802,6 +847,16 @@ void Parser::parseFunctionDirectDeclarator(Token &out,
                                            const Token &parameterTypeList) {
   // TODO(ptc)
   debugLn("Entering parseFunctionDirectDeclarator");
+  debugLn("Function named %s with parameters:", directDeclarator.m_id.c_str());
+  for (auto paramDecl : parameterTypeList.m_paramDecls) {
+    if (paramDecl.m_type) {
+      debugLn("\t%s %s", pointerTypeToString(*paramDecl.m_type).c_str(),
+              paramDecl.m_id.size() ? paramDecl.m_id.c_str() : "<unnamed>");
+    } else {
+      debugLn("\t %s (paramDecl.m_type is nullptr)",
+              paramDecl.m_id.size() ? paramDecl.m_id.c_str() : "<unnamed>");
+    }
+  }
 }
 
 void Parser::parseFunctionDefinition(Token &out, const Token &declSpecifiers,
