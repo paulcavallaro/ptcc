@@ -610,8 +610,7 @@ void Parser::parseTypeQualifierDeclarationSpecifier(Token &out,
     // Look at back of declSpecs.m_declSpecs->m_typeSpecs to see if there
     // is a TypeSpec we can modify
     if (declSpecs.m_declSpecs->m_typeSpecs.size() > 0) {
-      out.m_declSpecs->m_typeSpecs.back().m_quals =
-          typeQualifier.m_typeQuals;
+      out.m_declSpecs->m_typeSpecs.back().m_quals = typeQualifier.m_typeQuals;
     } else {
       // This shouldn't happen, but we haven't finished implementing all of
       // declaration_specifiers so it could happen in theory
@@ -783,7 +782,8 @@ void Parser::parseParameterDeclarator(Token &out, const Token &declSpecifiers,
         } else {
           if (declarator.m_type) {
             paramDecl.m_type = declarator.m_type;
-            setPtrTo(paramDecl.m_type.get(), declSpecifiers.m_declSpecs->m_typeSpecs[0]);
+            setPtrTo(paramDecl.m_type.get(),
+                     declSpecifiers.m_declSpecs->m_typeSpecs[0]);
           } else {
             paramDecl.m_type = std::make_shared<TypeSpec>(
                 declSpecifiers.m_declSpecs->m_typeSpecs[0]);
@@ -865,6 +865,16 @@ void Parser::parseFunctionDefinition(Token &out, const Token &declSpecifiers,
                                      const Token &compoundStmt) {
   // TODO(ptc)
   debugLn("Entering parseFunctionDefinition");
+  /* If optDeclList is not nullptr, then it's handling the unusual syntax:
+
+     void foo(a, b)
+       int a, b;
+
+   */
+  if (optDeclList) {
+    // TODO(ptc) Handle this craziness later
+    return
+  }
 }
 
 void Parser::parseReturnStmt(Token &out, const int ret_token,
