@@ -123,11 +123,6 @@ struct StructDeclList {
   std::vector<std::string> m_names;
 };
 
-struct FieldDeclInProgress {
-  TypeSpec m_type;
-  std::vector<std::string> m_names;
-};
-
 struct ParameterDecl {
   std::string m_id;
   std::shared_ptr<DeclarationSpecifiers> m_declSpecs;
@@ -149,6 +144,22 @@ struct Token {
   std::vector<ParameterDecl> m_paramDecls;
   std::vector<Token> m_structDeclList;
 };
+
+std::string toString(const Token tok);
+std::string toString(const ExprType exprType);
+std::string toString(const Expression expr);
+std::string toString(const TypeSpec typeSpec);
+std::string toString(const FieldDecl fieldDecl);
+std::string toString(const StructUnionDecl structUnionDecl);
+std::string toString(const ConstantType constType);
+std::string toString(const Constant constant);
+std::string toString(const DeclarationSpecifiers declSpecs);
+std::string toString(const StorageClassSpecifier storageClassSpec);
+std::string toString(const TypeQual tyQual);
+std::string toString(const ParameterDecl paramDecl);
+
+template <typename T> std::string toString(const std::shared_ptr<T> token);
+template <typename T> std::string toString(const std::vector<T> vec);
 
 std::string pointerTypeToString(const TypeSpec tSpec);
 }

@@ -857,6 +857,8 @@ void Parser::parseFunctionDirectDeclarator(Token &out,
               paramDecl.m_id.size() ? paramDecl.m_id.c_str() : "<unnamed>");
     }
   }
+  debugLn("toString(ParameterTypeList) = %s",
+          toString(parameterTypeList).c_str());
 }
 
 void Parser::parseFunctionDefinition(Token &out, const Token &declSpecifiers,
@@ -873,8 +875,11 @@ void Parser::parseFunctionDefinition(Token &out, const Token &declSpecifiers,
    */
   if (optDeclList) {
     // TODO(ptc) Handle this craziness later
-    return
+    return;
   }
+  debugLn(toString(declSpecifiers).c_str());
+  debugLn(toString(declarator).c_str());
+  debugLn(toString(compoundStmt).c_str());
 }
 
 void Parser::parseReturnStmt(Token &out, const int ret_token,
