@@ -102,6 +102,11 @@ struct Parser {
   void parseParameterAbstractDeclarator(Token &out, const Token &declSpecifiers,
                                         const Token &abstractDeclarator);
   void parseParameterDeclSpecs(Token &out, const Token &declSpecifiers);
+  void parseTranslationUnitBase(Token &out, const Token &externalDecl);
+  void parseTranslationUnitAdd(Token &out, const Token &externalDecl);
+  void parseExternalDeclarationFunc(Token &out,
+                                    const Token &functionDefinition);
+  void parseExternalDeclarationDecl(Token &out, const Token &declaration);
 
   void setDebug(bool debug) { m_debug = debug; }
   void debugLn(const char *format, ...);

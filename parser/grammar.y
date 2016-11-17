@@ -822,13 +822,21 @@ jump_statement
 	;
 
 translation_unit
-	: external_declaration
-	| translation_unit external_declaration
+	: external_declaration  {
+          _p->parseTranslationUnitBase($$, $1);
+        }
+	| translation_unit external_declaration {
+          _p->parseTranslationUnitAdd($$, $1);
+        }
 	;
 
 external_declaration
-	: function_definition
-	| declaration
+	: function_definition   {
+          _p->parseExternalDeclarationFunc($$, $1);
+        }
+	| declaration   {
+          _p->parseExternalDeclarationDecl($$, $1);
+        }
 	;
 
 function_definition

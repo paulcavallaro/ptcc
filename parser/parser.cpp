@@ -882,6 +882,34 @@ void Parser::parseFunctionDefinition(Token &out, const Token &declSpecifiers,
   debugLn(toString(compoundStmt).c_str());
 }
 
+void Parser::parseExternalDeclarationFunc(Token &out,
+                                          const Token &functionDefinition) {
+  // TODO(ptc)
+  debugLn("Entering parseExternalDeclarationFunc functionDefinition = %s",
+          toString(functionDefinition).c_str());
+  out = functionDefinition;
+}
+
+void Parser::parseExternalDeclarationDecl(Token &out,
+                                          const Token &declaration) {
+  // TODO(ptc)
+  debugLn("Entering parseExternalDeclarationDecl declaration = %s",
+          toString(declaration).c_str());
+  out = declaration;
+}
+
+void Parser::parseTranslationUnitBase(Token &out, const Token &externalDecl) {
+  // TODO(ptc)
+  debugLn("Entering parseTranslationUnitBase externalDecl = %s",
+          toString(externalDecl).c_str());
+}
+
+void Parser::parseTranslationUnitAdd(Token &out, const Token &externalDecl) {
+  // TODO(ptc)
+  debugLn("Entering parseTranslationUnitAdd externalDecl = %s",
+          toString(externalDecl).c_str());
+}
+
 void Parser::parseReturnStmt(Token &out, const int ret_token,
                              const Token &expr) {
   // TODO(ptc)
