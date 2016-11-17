@@ -882,6 +882,35 @@ void Parser::parseFunctionDefinition(Token &out, const Token &declSpecifiers,
   debugLn(toString(compoundStmt).c_str());
 }
 
+void Parser::parseInitDeclaratorListAdd(Token &out,
+                                        const Token &initDeclaratorList,
+                                        const Token &initDeclarator) {
+  // TODO(ptc)
+  debugLn("Entering parseInitDeclaratorListAdd initDeclaratorList = %s, "
+          "initDeclarator = %s",
+          toString(initDeclaratorList).c_str(),
+          toString(initDeclarator).c_str());
+}
+
+void Parser::parseInitDeclaratorListBase(Token &out,
+                                         const Token &initDeclarator) {
+  // TODO(ptc)
+  debugLn("Entering parseInitDeclaratorListBase initDeclarator = %s",
+          toString(initDeclarator).c_str());
+  out = initDeclarator;
+}
+
+void Parser::parseInitDeclarator(Token &out, const Token &declarator,
+                                 const Token *optInitializer) {
+  // TODO(ptc)
+  debugLn("Entering parseInitDeclarator declarator = %s",
+          toString(declarator).c_str());
+  if (optInitializer) {
+    debugLn("optInitializer = %s", toString(*optInitializer).c_str());
+  }
+  out = declarator;
+}
+
 void Parser::parseExternalDeclarationFunc(Token &out,
                                           const Token &functionDefinition) {
   // TODO(ptc)

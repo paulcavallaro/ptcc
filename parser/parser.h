@@ -108,6 +108,12 @@ struct Parser {
                                     const Token &functionDefinition);
   void parseExternalDeclarationDecl(Token &out, const Token &declaration);
 
+  void parseInitDeclarator(Token &out, const Token &declarator,
+                           const Token *optInitializer);
+  void parseInitDeclaratorListAdd(Token &out, const Token &initDeclaratorList,
+                                  const Token &initDeclarator);
+  void parseInitDeclaratorListBase(Token &out, const Token &initDeclarator);
+
   void setDebug(bool debug) { m_debug = debug; }
   void debugLn(const char *format, ...);
 

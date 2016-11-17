@@ -359,13 +359,21 @@ declaration_specifiers
 	;
 
 init_declarator_list
-	: init_declarator
-	| init_declarator_list ',' init_declarator
+	: init_declarator       {
+          _p->parseInitDeclaratorListBase($$, $1);
+        }
+	| init_declarator_list ',' init_declarator      {
+          _p->parseInitDeclaratorListAdd($$, $1, $3);
+        }
 	;
 
 init_declarator
-	: declarator '=' initializer
-	| declarator
+	: declarator '=' initializer    {
+          _p->parseInitDeclarator($$, $1, &$3);
+        }
+	| declarator    {
+          _p->parseInitDeclarator($$, $1, nullptr);
+        }
 	;
 
 storage_class_specifier
