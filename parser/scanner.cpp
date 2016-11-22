@@ -98,10 +98,21 @@ std::string specToString(const TypeSpec typeSpec) {
     return pointerTypeToString(typeSpec);
   case TypeKind::Array:
     return pointerTypeToString(typeSpec);
-    break;
+  case TypeKind::Struct:
+    return structTypeToString(typeSpec);
+  case TypeKind::Union:
+    return unionTypeToString(typeSpec);
   default:
     return kindToString(typeSpec.m_kind);
   }
+}
+
+std::string structTypeToString(const TypeSpec typeSpec) {
+  return "struct " + typeSpec.m_struct->m_name;
+}
+
+std::string unionTypeToString(const TypeSpec typeSpec) {
+  return "struct " + typeSpec.m_struct->m_name;
 }
 
 std::string tyQualToString(const TypeQual tyQual) {

@@ -91,6 +91,8 @@ struct TypeSpec {
 
 std::string kindToString(const TypeKind kind);
 std::string specToString(const TypeSpec typeSpec);
+std::string structTypeToString(const TypeSpec typeSpec);
+std::string unionTypeToString(const TypeSpec typeSpec);
 
 struct FieldDecl {
   TypeSpec m_type;
