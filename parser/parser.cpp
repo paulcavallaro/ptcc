@@ -7,10 +7,15 @@
 namespace ptcc {
 namespace parser {
 
+// Parser::check_type will search m_symbols for a TYPEDEF_NAME and if not found
+// will return IDENTIFIER
 int Parser::check_type(const char *symbol) {
-  // TODO(ptc) fix this whole mess, just default to adding as IDENTIFIER if not
-  // already defined
-  auto entry = m_symbols[insert(symbol, IDENTIFIER)];
+  auto idx = find(symbol);
+  if (idx == -1) {
+    debugLn("Checking type of: %s, Not Found, Default To IDENTIFIER", symbol);
+    return IDENTIFIER;
+  }
+  auto entry = get(idx);
   switch (entry.m_type) {
   case IDENTIFIER:
     debugLn("Checking type of: %s, Found: IDENTIFIER", symbol);
@@ -19,8 +24,8 @@ int Parser::check_type(const char *symbol) {
     debugLn("Checking type of: %s, Found: TYPEDEF_NAME", symbol);
     return TYPEDEF_NAME;
   default:
-    debugLn("Checking type of: %s, Not Found, Default To: IDENTIFIER", symbol);
-    return IDENTIFIER;
+    debugLn("Checking type of: %s, Found: %d", symbol, entry.m_type);
+    return entry.m_type;
   }
 }
 
