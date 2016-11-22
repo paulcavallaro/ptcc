@@ -872,12 +872,6 @@ int main(int argc, char** argv) {
     // yydebug = 1;
     ptcc::parser::Parser p;
     p.setDebug(true);
-    // Set up __builtin's for clang
-    // TODO(ptc) fix this, it should be something else possibly than
-    // TYPEDEF_NAME, maybe a special BUILTIN_TYPE
-    p.insert("__builtin_va_list", TYPEDEF_NAME);
-    p.insert("__builtin_bswap32", IDENTIFIER);
-    p.insert("__builtin_bswap64", IDENTIFIER);
     yyscan_t scanner;
     yylex_init(&scanner);
     yylex_init_extra(&p, &scanner);

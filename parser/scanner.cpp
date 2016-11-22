@@ -102,6 +102,8 @@ std::string specToString(const TypeSpec typeSpec) {
     return structTypeToString(typeSpec);
   case TypeKind::Union:
     return unionTypeToString(typeSpec);
+  case TypeKind::TypeDef:
+    return "typedef " + typeSpec.m_typedefName + " aka " + specToString(*typeSpec.m_otype);
   default:
     return kindToString(typeSpec.m_kind);
   }

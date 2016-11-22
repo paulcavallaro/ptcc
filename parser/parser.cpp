@@ -16,7 +16,7 @@ int Parser::check_type(const char *symbol) {
     return IDENTIFIER;
   }
   auto entry = get(idx);
-  switch (entry.m_type) {
+  switch (entry.m_token) {
   case IDENTIFIER:
     debugLn("Checking type of: %s, Found: IDENTIFIER", symbol);
     return IDENTIFIER;
@@ -24,12 +24,12 @@ int Parser::check_type(const char *symbol) {
     debugLn("Checking type of: %s, Found: TYPEDEF_NAME", symbol);
     return TYPEDEF_NAME;
   default:
-    debugLn("Checking type of: %s, Found: %d", symbol, entry.m_type);
-    return entry.m_type;
+    debugLn("Checking type of: %s, Found: %d", symbol, entry.m_token);
+    return entry.m_token;
   }
 }
 
-ssize_t Parser::find(const char *symbol) {
+ssize_t Parser::find(const std::string &symbol) {
   auto res = m_symtable.find(symbol);
   if (res != m_symtable.end()) {
     return static_cast<size_t>(res->second);
@@ -40,28 +40,28 @@ ssize_t Parser::find(const char *symbol) {
 
 const SymTableEntry &Parser::get(ssize_t idx) { return m_symbols[idx]; }
 
-ssize_t Parser::insert(const char *symbol, int token) {
-  auto res = m_symtable.find(symbol);
+ssize_t Parser::insert(const SymTableEntry entry) {
+  auto res = m_symtable.find(entry.m_symbol);
   if (res != m_symtable.end()) {
     return static_cast<size_t>(res->second);
   } else {
     auto idx = m_symbols.size();
-    m_symbols.emplace_back(symbol, token);
-    m_symtable.emplace(symbol, idx);
+    m_symtable.emplace(entry.m_symbol, idx);
+    m_symbols.emplace_back(std::move(entry));
     return idx;
   }
 }
 
-ssize_t Parser::overwrite(const char *symbol, int token) {
-  auto res = m_symtable.find(symbol);
+ssize_t Parser::overwrite(const SymTableEntry entry) {
+  auto res = m_symtable.find(entry.m_symbol);
   if (res != m_symtable.end()) {
     auto idx = static_cast<size_t>(res->second);
-    m_symbols[idx].m_type = token;
+    m_symbols[idx] = std::move(entry);
     return idx;
   } else {
     auto idx = m_symbols.size();
-    m_symbols.emplace_back(symbol, token);
-    m_symtable.emplace(symbol, idx);
+    m_symtable.emplace(entry.m_symbol, idx);
+    m_symbols.emplace_back(std::move(entry));
     return idx;
   }
 }
@@ -386,10 +386,14 @@ void Parser::parseTypeSpecifier(Token &out, const int token) {
 }
 
 void Parser::parseTypedefTypeSpec(Token &out, const Token &typeDef) {
-  // TODO(ptc) really should expand TypeSpec to have better support for a
-  // typedef that points to some other more canonical type
-  out.m_type =
-      std::make_shared<TypeSpec>(TypeSpec{.m_kind = TypeKind::TypeDef});
+  // Look up the aliased type in the symbol table and reference it from m_otype
+  auto otype = get(find(typeDef.m_text)).m_type;
+  out.m_type = std::make_shared<TypeSpec>(
+      TypeSpec{.m_kind = TypeKind::TypeDef,
+               .m_quals = {},
+               .m_otype = get(find(typeDef.m_text)).m_type,
+               .m_struct = nullptr,
+               .m_typedefName = typeDef.m_text});
 }
 
 void Parser::debugLn(const char *format, ...) {
@@ -679,25 +683,25 @@ void Parser::parseDeclarationFromDeclarationSpecifiers(
     }
     if (isTypedef) {
       debugLn("parseDeclarationFromDeclarationSpecifiers: isTypedef");
-      if (declarationSpecifiers.m_type &&
-          declarationSpecifiers.m_type->m_struct) {
-        // Have a typedef of a struct, add the typedef name to the symbol table
-        // TODO(ptc) fix up how we insert into this symbol table
+      if (declarationSpecifiers.m_type) {
         if (initDeclaratorList) {
+          // Have a typedef of some type, add the typedef name to the symbol
+          // table
+          // with the corresponding type
           debugLn("parseDeclarationFromDeclarationSpecifiers: is "
                   "initDeclaratorList");
           debugLn("Adding typedef name of %s",
-                  initDeclaratorList->m_text.c_str());
-          overwrite(initDeclaratorList->m_id.c_str(), TYPEDEF_NAME);
+                  initDeclaratorList->m_id.c_str());
+          SymTableEntry entry{
+              .m_symbol = initDeclaratorList->m_id,
+              .m_token = TYPEDEF_NAME,
+              .m_type = declarationSpecifiers.m_type,
+          };
+          overwrite(entry);
         }
       } else {
-        if (initDeclaratorList) {
-          debugLn("parseDeclarationFromDeclarationSpecifiers: is "
-                  "initDeclaratorList and not declarationSpecifiers.m_type");
-          debugLn("Adding typedef name of %s",
-                  initDeclaratorList->m_text.c_str());
-          overwrite(initDeclaratorList->m_id.c_str(), TYPEDEF_NAME);
-        }
+        // Should not happen I believe....
+        assert(false);
       }
     }
   }
@@ -706,7 +710,10 @@ void Parser::parseDeclarationFromDeclarationSpecifiers(
 void Parser::createNewEnumConstant(Token &out, const Token &id) {
   out.m_id = id.m_text;
   out.m_token = ENUMERATION_CONSTANT;
-  overwrite(out.m_id.c_str(), ENUMERATION_CONSTANT);
+  SymTableEntry entry{
+      .m_symbol = id.m_text, .m_token = ENUMERATION_CONSTANT, .m_type = nullptr,
+  };
+  overwrite(entry);
 }
 
 void Parser::parseEnumeratorListBase(Token &out, const Token &enumerator) {

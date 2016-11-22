@@ -87,6 +87,7 @@ struct TypeSpec {
   std::vector<TypeQual> m_quals;
   std::shared_ptr<TypeSpec> m_otype;
   std::shared_ptr<StructUnionDecl> m_struct;
+  std::string m_typedefName;
 };
 
 std::string kindToString(const TypeKind kind);
