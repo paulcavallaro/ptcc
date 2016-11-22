@@ -638,6 +638,8 @@ void Parser::parseTypeSpecifierBaseDeclarationSpecifier(
     Token &out, const Token &typeSpecifier) {
   debugLn("Entering parseTypeSpecifierBaseDeclarationSpecifier %s",
           typeSpecifier.m_text.c_str());
+  // TODO(ptc) Not sure why we have to re-initialize tokens ...
+  out = Token{};
   out.m_declSpecs = std::make_shared<DeclarationSpecifiers>();
   assert(typeSpecifier.m_type);
   out.m_text = typeSpecifier.m_text;
@@ -649,18 +651,21 @@ void Parser::parseTypeSpecifierDeclarationSpecifier(
     const Token &declarationSpecifiers) {
   debugLn("Entering parseTypeSpecifierDeclarationSpecifier %s",
           typeSpecifier.m_text.c_str());
+  out = Token{};
+  out.m_text = declarationSpecifiers.m_text;
   out.m_declSpecs = declarationSpecifiers.m_declSpecs;
   if (!out.m_declSpecs) {
+    // TODO(ptc) Remove this once we actually handle parsing all the possible
+    // constructions of declaration_specifier, namely:
+    // alignment_specifier and function_specifier
     out.m_declSpecs = std::make_shared<DeclarationSpecifiers>();
   }
   // Should have a type from the TypeSpecifier
-  if (typeSpecifier.m_type) {
-    assert(typeSpecifier.m_type);
-    out.m_declSpecs->m_typeSpecs.push_back(*typeSpecifier.m_type);
-  } else {
-    // TODO(ptc) still need to flesh out type_specifier parsing so that
-    // all routes will return a type
-  }
+  assert(typeSpecifier.m_type);
+  out.m_declSpecs->m_typeSpecs.push_back(*typeSpecifier.m_type);
+  out.m_text = typeSpecifier.m_text + " " + out.m_text;
+  debugLn("Token Output of parseTypeSpecifierDeclarationSpecifier\n%s",
+          toString(out).c_str());
   // TODO(ptc) still need to pass through some information here regard to text
   // span and whatnot
 }
@@ -669,8 +674,15 @@ void Parser::parseDeclarationFromDeclarationSpecifiers(
     Token &out, const Token &declarationSpecifiers,
     const Token *initDeclaratorList) {
   debugLn("Entering parseDeclarationFromDeclarationSpecifiers");
-  // TODO(ptc) make this much broader, for now just add possible typedef
-  // declarations into the symbol table
+  debugLn(
+      "parseTypeSpecifierDeclarationSpecifier: declarationSpecifiers = \n%s",
+      toString(declarationSpecifiers).c_str());
+  debugLn("parseTypeSpecifierDeclarationSpecifier: initDeclaratorList = \n%s",
+          initDeclaratorList ? toString(*initDeclaratorList).c_str()
+                             : "nullptr");
+  // TODO(ptc) Have to keep this if (declarationSpecifiers.m_declSpecs) check
+  // because we do not handle all the declaration_specifier constructions,
+  // namely: alignment_specifier and function_specifier
   if (declarationSpecifiers.m_declSpecs) {
     debugLn("parseDeclarationFromDeclarationSpecifiers: m_declSpecs not null");
     bool isTypedef = false;
@@ -681,29 +693,40 @@ void Parser::parseDeclarationFromDeclarationSpecifiers(
         break;
       }
     }
+    // TODO(ptc) make this much broader, for now just add possible typedef
+    // declarations into the symbol table
     if (isTypedef) {
       debugLn("parseDeclarationFromDeclarationSpecifiers: isTypedef");
-      if (declarationSpecifiers.m_type) {
-        if (initDeclaratorList) {
-          // Have a typedef of some type, add the typedef name to the symbol
-          // table
-          // with the corresponding type
-          debugLn("parseDeclarationFromDeclarationSpecifiers: is "
-                  "initDeclaratorList");
-          debugLn("Adding typedef name of %s",
-                  initDeclaratorList->m_id.c_str());
-          SymTableEntry entry{
-              .m_symbol = initDeclaratorList->m_id,
-              .m_token = TYPEDEF_NAME,
-              .m_type = declarationSpecifiers.m_type,
-          };
-          overwrite(entry);
-        }
-      } else {
-        // Should not happen I believe....
-        assert(false);
+      assert(!declarationSpecifiers.m_type);
+      if (initDeclaratorList) {
+        // Have a typedef of some type, add the typedef name to the symbol
+        // table with the corresponding type
+        debugLn("parseDeclarationFromDeclarationSpecifiers: is "
+                "initDeclaratorList");
+        debugLn("Adding typedef name of %s", initDeclaratorList->m_id.c_str());
+        assert(!declarationSpecifiers.m_declSpecs->m_typeSpecs.empty());
+        auto type =
+            coalesceTypes(declarationSpecifiers.m_declSpecs->m_typeSpecs);
+        SymTableEntry entry{
+            .m_symbol = initDeclaratorList->m_id,
+            .m_token = TYPEDEF_NAME,
+            .m_type = std::make_shared<TypeSpec>(type),
+        };
+        overwrite(entry);
       }
     }
+  }
+}
+
+TypeSpec Parser::coalesceTypes(const std::vector<TypeSpec> types) {
+  // TODO(ptc) this is similar to mergeTypes and should be combined into on thing
+  // also it should be fully implemented
+  assert(!types.empty());
+  if (types.size() == 1) {
+    return types[0];
+  } else {
+    // TODO(ptc): lolwut remove this code and implement this properly
+    return types[types.size()-1];
   }
 }
 

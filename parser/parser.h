@@ -121,6 +121,7 @@ private:
   std::vector<SymTableEntry> m_symbols;
 
   TypeSpec mergeTypes(TypeSpec type, TypeSpec listType);
+  TypeSpec coalesceTypes(const std::vector<TypeSpec> types);
 };
 
 // TODO(ptc) rename to something clearer since can also be used for arrays
