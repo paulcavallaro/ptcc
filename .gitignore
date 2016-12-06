@@ -8,3 +8,5 @@ parser/*_tests
 build/*
 /buck-out
 /.buckd
+scratch/hello
+scratch/jasm
