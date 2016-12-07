@@ -5,7 +5,7 @@ clean:
 	rm -f bin/* *.o
 
 bindir:
-	mkdir bin
+	mkdir -p bin
 
 jasm:	jasm.o bindir
 	$(CXX) $(CXXFLAGS) jasm.o -o bin/jasm
