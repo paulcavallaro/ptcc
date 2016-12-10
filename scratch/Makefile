@@ -13,11 +13,11 @@ jasm:	jasm.o bindir
 jasm.o: jasm.cpp
 	$(CXX) $(CXXFLAGS) -c jasm.cpp
 
-hello:	hello.o bindir
-	ld -s -o bin/hello hello.o
+hello:	hello_world.o bindir
+	gcc -static -o bin/hello hello_world.o
 
-hello.o: hello_world.S
-	as -64 -o bin/hello.o hello_world.S
+hello_world.o: hello_world.S
+	gcc -fPIC -c hello_world.S
 
 hello_osx: hello_osx.o bindir
 	ld -e _start -macosx_version_min 10.11 -arch x86_64 -lSystem -o bin/hello_osx hello_osx.o
