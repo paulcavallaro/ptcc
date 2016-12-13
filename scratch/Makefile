@@ -27,7 +27,7 @@ hello_world.o: hello_world.S
 	$(CC) $(CFLAGS) -fPIC -c hello_world.S
 
 hello_osx:	hello_world_osx.o bindir
-	ld -e main -macosx_version_min 10.11 -arch x86_64 -lSystem -o bin/hello_osx hello_world_osx.o
+	ld -macosx_version_min 10.11 -arch x86_64 -lSystem -o bin/hello_osx hello_world_osx.o
 
 hello_world_osx.o:	hello_world_osx.S
 	$(CC) -fPIC -c hello_world_osx.S

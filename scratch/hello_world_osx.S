@@ -2,9 +2,9 @@
 
 .text
 
-.global main
+.global _main
 
-main:
+_main:
         /* Call hello_world 5 times */
         movq    $5, %rdi
         movq    hello_world@GOTPCREL(%rip), %rsi
