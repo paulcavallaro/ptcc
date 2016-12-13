@@ -3,19 +3,30 @@
 .text
 
 .global main
+.global strlen_sse2
+.global strlen_sse4
 
 main:
+        /* 16 byte align stack pointer */
+        sub     $0x8, %rsp
+
         /* Call hello_world 5 times */
         movq    $5, %rdi
         movq    hello_world@GOTPCREL(%rip), %rsi
         call    multiple
 
-        /* Get length of a string */
+        /* Get length of a string w/ strlen_sse2 */
         movq    other_msg@GOTPCREL(%rip), %rdi
         call    strlen_sse2
         /* Print out return value in %rax */
-        /* 16 byte align stack pointer */
-        sub     $0x8, %rsp
+        movq    fmt_str@GOTPCREL(%rip), %rdi
+        movq    %rax, %rsi
+        call    *printf@GOTPCREL(%rip)
+
+        /* Get length of a string w/ strlen_sse4 */
+        movq    other_msg@GOTPCREL(%rip), %rdi
+        call    strlen_sse4
+        /* Print out return value in %rax */
         movq    fmt_str@GOTPCREL(%rip), %rdi
         movq    %rax, %rsi
         call    *printf@GOTPCREL(%rip)
@@ -59,18 +70,32 @@ multiple:
 strlen_sse2:
         mov             $-16, %rax
         pxor            %xmm0, %xmm0
-.loop:
+.strlen_sse2.loop:
         addq            $16, %rax
         movdqu          (%rdi,%rax), %xmm1
         pcmpeqb         %xmm0, %xmm1
         pmovmskb        %xmm1, %ecx
         test            %ecx, %ecx
-        jz              .loop
+        jz              .strlen_sse2.loop
 
         bsf             %ecx, %ecx
         addq            %rcx, %rax
         ret
 
+strlen_sse4:
+
+        movq            $-16, %rax
+        pxor            %xmm0, %xmm0
+
+.strlen_sse4.loop:      /* Must perform addition before the string comparison */
+                        /* doing it after would interfere with the status flags */
+
+        addq            $16, %rax
+        pcmpistri       $0x08, (%rdi,%rax,1), %xmm0       /* EQUAL_EACH */
+        jnz             .strlen_sse4.loop
+
+        add             %rcx, %rax
+        retq
 
 .data
 
