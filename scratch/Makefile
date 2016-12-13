@@ -4,7 +4,6 @@ UNAME := $(shell uname)
 
 ifeq ($(UNAME), Darwin)
 	CC = clang
-	LDFLAGS += -mmacosx_version_min=10.10
 endif
 
 all:	jasm hello
@@ -31,3 +30,9 @@ hello_osx:	hello_world_osx.o bindir
 
 hello_world_osx.o:	hello_world_osx.S
 	$(CC) -fPIC -c hello_world_osx.S
+
+hello_osx_intel:	hello_world_osx_intel.o bindir
+	ld -macosx_version_min 10.11 -arch x86_64 -lSystem -o bin/hello_osx_intel hello_world_osx_intel.o
+
+hello_world_osx_intel.o:	hello_world_osx_intel.S
+	$(CC) -fPIC -c hello_world_osx_intel.S
