@@ -719,14 +719,15 @@ void Parser::parseDeclarationFromDeclarationSpecifiers(
 }
 
 TypeSpec Parser::coalesceTypes(const std::vector<TypeSpec> types) {
-  // TODO(ptc) this is similar to mergeTypes and should be combined into on thing
+  // TODO(ptc) this is similar to mergeTypes and should be combined into on
+  // thing
   // also it should be fully implemented
   assert(!types.empty());
   if (types.size() == 1) {
     return types[0];
   } else {
     // TODO(ptc): lolwut remove this code and implement this properly
-    return types[types.size()-1];
+    return types[types.size() - 1];
   }
 }
 
