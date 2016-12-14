@@ -1,14 +1,14 @@
 .intel_syntax noprefix
 
-.extern _printf
+.extern printf
 
 .text
 
-.global _main
+.global main
 .global strlen_sse2
 .global strlen_sse4
 
-_main:
+main:
         /* 16 byte align stack pointer */
         sub     rsp, 0x8
 
@@ -23,7 +23,7 @@ _main:
         /* Print out return value in rax */
         mov     rdi, [rip+fmt_str@GOTPCREL]
         mov     rsi, rax
-        call    [rip+_printf@GOTPCREL]
+        call    [rip+printf@GOTPCREL]
 
         /* Get length of a string w/ strlen_sse4 */
         mov     rdi, [rip+other_msg@GOTPCREL]
@@ -31,7 +31,7 @@ _main:
         /* Print out return value in rax */
         mov     rdi, [rip+fmt_str@GOTPCREL]
         mov     rsi, rax
-        call    [rip+_printf@GOTPCREL]
+        call    [rip+printf@GOTPCREL]
 
         /* Call sys exit */
         mov     rax, 60
