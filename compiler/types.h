@@ -13,12 +13,11 @@ enum class BuiltinType {
 
 enum class TypeKind {
   Builtin,
-  Pointer,
-  Array,
   Struct,
   Union,
 };
 
 struct InternalType {
   TypeKind m_kind;
+  BuiltinType m_btype;
 };
