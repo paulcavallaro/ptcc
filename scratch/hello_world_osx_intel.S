@@ -7,6 +7,7 @@
 .global _main
 .global strlen_sse2
 .global strlen_sse4
+.global strcmp_x64
 
 _main:
         /* 16 byte align stack pointer */
@@ -33,6 +34,15 @@ _main:
         mov     rsi, rax
         call    [rip+_printf@GOTPCREL]
 
+        /* strcmp msg with other_msg */
+        mov     rdi, [rip+msg@GOTPCREL]
+        mov     rsi, [rip+other_msg@GOTPCREL]
+        call    strcmp_x64
+        /* Print out return value in rax */
+        mov     rdi, [rip+fmt_str@GOTPCREL]
+        mov     rsi, rax
+        call    [rip+_printf@GOTPCREL]
+
         /* OSX adds 0x2000000 to syscall numbers */
         /* Call sys exit */
         mov     rax, 0x2000001
@@ -42,6 +52,8 @@ _main:
 hello_world:
         push    rbp
         mov     rbp, rsp
+        /* OSX adds 0x2000000 to syscall numbers */
+        /* Call sys write */
         mov     rax, 0x2000004
         mov     rdi, 1
         mov     rsi, [rip+msg@GOTPCREL]
@@ -98,6 +110,32 @@ strlen_sse4:
         jnz             .strlen_sse4.loop
 
         add             rax, rcx
+        ret
+
+strcmp_x64:
+        xor             eax, eax
+        xor             ecx, ecx
+        xor             rdx, rdx
+
+.strcmp_x64.loop:
+        mov             cl, [rsi + rdx]         /* fetch bytes */
+        mov             al, [rdi + rdx]
+
+        mov             r8b, cl                 /* move bytes to temporary      */
+        or              r8b, al                 /* if both bytes are null,      */
+        jz              .strcmp_x64.ret         /* strings are equal            */
+
+        sub             ax, cx                  /* subtract bytes,              */
+        jne             .strcmp_x64.ext         /* result from -255 to 255      */
+
+        inc             rdx                     /* check next char if equal     */
+        jmp             .strcmp_x64.loop
+
+.strcmp_x64.ext:
+        cwde                                    /* sign extend ax to eax        */
+        cdqe                                    /* sign extend eax to rax       */
+
+.strcmp_x64.ret:
         ret
 
 .data
