@@ -863,37 +863,41 @@ declaration_list
 
 %%
 
-int main(int argc, char** argv) {
-    if (argc != 1 && argc != 2) {
-        fprintf(stderr, "Usage: lexer [FILE]");
-        return 1;
+#include "glog/logging.h"
+
+int main(int argc, char **argv) {
+  google::InitGoogleLogging(argv[0]);
+
+  if (argc != 1 && argc != 2) {
+    fprintf(stderr, "Usage: lexer [FILE]");
+    return 1;
+  }
+  // Turn on bison debugging for this parse
+  // yydebug = 1;
+  ptcc::parser::Parser p;
+  p.setDebug(true);
+  yyscan_t scanner;
+  yylex_init(&scanner);
+  yylex_init_extra(&p, &scanner);
+
+  FILE *fin = nullptr;
+  if (argc == 2) {
+    fin = fopen(argv[1], "r");
+    if (!fin) {
+      fprintf(stderr, "Error: Cannot open file %s\n", argv[1]);
+      return 1;
     }
-    // Turn on bison debugging for this parse
-    // yydebug = 1;
-    ptcc::parser::Parser p;
-    p.setDebug(true);
-    yyscan_t scanner;
-    yylex_init(&scanner);
-    yylex_init_extra(&p, &scanner);
+    yyset_in(fin, scanner);
+  }
 
-    FILE* fin = nullptr;
-    if (argc == 2) {
-        fin = fopen(argv[1], "r");
-        if (!fin) {
-            fprintf(stderr, "Error: Cannot open file %s\n", argv[1]);
-            return 1;
-        }
-        yyset_in(fin, scanner);
-    }
+  // Set debugging to true for the scanner;
+  // yyset_debug(true, scanner);
 
-    // Set debugging to true for the scanner;
-    // yyset_debug(true, scanner);
+  auto res = yyparse(&p, scanner);
+  yylex_destroy(scanner);
 
-    auto res = yyparse(&p, scanner);
-    yylex_destroy(scanner);
-
-    if (fin) {
-        fclose(fin);
-    }
-    return res;
+  if (fin) {
+    fclose(fin);
+  }
+  return res;
 }

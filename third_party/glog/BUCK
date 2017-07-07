@@ -1,0 +1,39 @@
+cxx_library(
+  name = 'glog',
+  srcs = glob(['src/**/**/*.cc'],
+              excludes=[
+                  'src/demangle_unittest.cc',
+                  'src/logging_striptest10.cc',
+                  'src/logging_striptest2.cc',
+                  'src/logging_striptest_main.cc',
+                  'src/logging_unittest.cc',
+                  'src/mock-log_test.cc',
+                  'src/signalhandler_unittest.cc',
+                  'src/stacktrace_unittest.cc',
+                  'src/stl_logging_unittest.cc',
+                  'src/symbolize_unittest.cc',
+                  'src/utilities_unittest.cc',
+                  # TODO(ptc) This is a hack but exclude windows for now, this
+                  # should be moved out into a platform include
+                  'src/windows/port.cc'
+              ]),
+  header_namespace = '',
+  exported_headers = subdir_glob([
+    ('src', '**/*.h'),
+  ]),
+  deps = [
+      ':pthread',
+  ],
+  visibility = [
+    'PUBLIC',
+  ],
+)
+
+prebuilt_cxx_library(
+  name = 'pthread',
+  header_only = True,
+  exported_linker_flags = ['-lpthread'],
+  visibility = [
+    'PUBLIC',
+  ],
+)

@@ -4,6 +4,8 @@
 #include <assert.h>
 #include <cstdarg>
 
+#include "glog/logging.h"
+
 namespace ptcc {
 namespace parser {
 
@@ -978,6 +980,7 @@ void Parser::parseTranslationUnitAdd(Token &out, const Token &externalDecl) {
 void Parser::parseReturnStmt(Token &out, const int ret_token,
                              const Token &expr) {
   // TODO(ptc)
+  LOG(INFO) << "Return statement encountered";
   debugLn("Return Statement: RETURN %s;", expr.m_text.c_str());
   out.m_text = "RETURN " + expr.m_text + ";";
 }
