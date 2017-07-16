@@ -1,0 +1,15 @@
+cxx_binary(
+    name='huge_pages',
+    srcs=[
+        'huge_pages.cpp',
+    ],
+    headers=[
+    ],
+    deps=[
+        '//third_party/glog:glog',
+    ],
+    compiler_flags = [
+        '-fPIC',
+        '-O2',
+    ],
+)
