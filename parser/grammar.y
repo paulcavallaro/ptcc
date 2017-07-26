@@ -71,12 +71,10 @@ using namespace ptcc::parser;
 
 primary_expression
         : IDENTIFIER            {
-                                        fprintf(stderr, "Primary Expression of IDENTIFIER: %s\n", $1.m_text.c_str());
                                         $$.m_token = IDENTIFIER;
                                         $$.m_text = $1.m_text;
                                 }
         | constant              {
-                                        fprintf(stderr, "Primary Expression of Constant: %s\n", $1.m_text.c_str());
                                         $$.m_token = $1.m_token;
                                         $$.m_text = $1.m_text;
                                 }
@@ -87,7 +85,6 @@ primary_expression
 
 constant
         : I_CONSTANT            {
-                                        fprintf(stderr, "Constant of I_CONSTANT: %s\n", $1.m_text.c_str());
                                         $$.m_text = $1.m_text;
                                         $$.m_constant = std::make_shared<Constant>();
                                         $$.m_constant->m_type = ConstantType::Int64;
@@ -95,7 +92,6 @@ constant
                                         $$.m_constant->m_ivalue = atoi($1.m_text.c_str());
                                  } /* includes character_constant */
         | F_CONSTANT            {
-                                        fprintf(stderr, "Constant of F_CONSTANT: %s\n", $1.m_text.c_str());
                                         $$.m_text = $1.m_text;
                                         $$.m_constant = std::make_shared<Constant>();
                                         $$.m_constant->m_type = ConstantType::Double;
@@ -113,7 +109,6 @@ enumeration_constant            /* before it has been defined as such */
 
 string
         : STRING_LITERAL        {
-            fprintf(stderr, "String of STRING_LITERAL: %s\n", $1.m_text.c_str());
             $$ = $1;
         }
         | FUNC_NAME
@@ -135,14 +130,12 @@ generic_association
 
 postfix_expression
         : primary_expression            {
-                                                fprintf(stderr, "Postfix Expression of Primary Expression: %s\n", $1.m_text.c_str());
                                                 $$ = $1;
                                         }
         | postfix_expression '[' expression ']'
         | postfix_expression '(' ')'
         | postfix_expression '(' argument_expression_list ')'
         | postfix_expression '.' IDENTIFIER     {
-            fprintf(stderr, "Postfix Expression of Accessing Identifier %s.%s\n", $1.m_text.c_str(), $3.m_text.c_str());
             $$.m_text = $1.m_text + "." + $3.m_text;
         }
         | postfix_expression PTR_OP IDENTIFIER
@@ -191,7 +184,6 @@ multiplicative_expression
 additive_expression
         : multiplicative_expression     { $$ = $1; }
         | additive_expression '+' multiplicative_expression     {
-                fprintf(stderr, "Additive Expression: %s + %s\n", $1.m_text.c_str(), $3.m_text.c_str());
                 $$.m_text = $1.m_text + " + " + $3.m_text;
                 auto expr = std::make_shared<BinaryExpression>();
                 expr->m_exp1 = $1.m_expr;
@@ -204,7 +196,6 @@ additive_expression
 
 shift_expression
         : additive_expression   {
-            fprintf(stderr, "Shift Expression of Additive Expression: %s\n", $1.m_text.c_str());
             $$ = $1;
         }
         | shift_expression LEFT_OP additive_expression
@@ -213,7 +204,6 @@ shift_expression
 
 relational_expression
         : shift_expression      {
-            fprintf(stderr, "Relational Expression of Shift Expression: %s\n", $1.m_text.c_str());
             $$ = $1;
         }
         | relational_expression '<' shift_expression
@@ -224,7 +214,6 @@ relational_expression
 
 equality_expression
         : relational_expression {
-            fprintf(stderr, "Equality Expression of Relational Expression: %s\n", $1.m_text.c_str());
             $$ = $1;
         }
         | equality_expression EQ_OP relational_expression
@@ -233,7 +222,6 @@ equality_expression
 
 and_expression
         : equality_expression   {
-            fprintf(stderr, "And Expression of Equality Expression: %s\n", $1.m_text.c_str());
             $$ = $1;
         }
         | and_expression '&' equality_expression
@@ -241,7 +229,6 @@ and_expression
 
 exclusive_or_expression
         : and_expression        {
-            fprintf(stderr, "Exclusive Or Expression of And Expression: %s\n", $1.m_text.c_str());
             $$ = $1;
         }
         | exclusive_or_expression '^' and_expression
@@ -249,7 +236,6 @@ exclusive_or_expression
 
 inclusive_or_expression
         : exclusive_or_expression       {
-            fprintf(stderr, "Inclusive Or Expression of Exclusive Or Expression: %s\n", $1.m_text.c_str());
             $$ = $1;
         }
         | inclusive_or_expression '|' exclusive_or_expression
@@ -257,7 +243,6 @@ inclusive_or_expression
 
 logical_and_expression
         : inclusive_or_expression       {
-            fprintf(stderr, "Logical And Expression of Inclusive Or Expression: %s\n", $1.m_text.c_str());
             $$ = $1;
         }
         | logical_and_expression AND_OP inclusive_or_expression
@@ -265,7 +250,6 @@ logical_and_expression
 
 logical_or_expression
         : logical_and_expression        {
-            fprintf(stderr, "Logical Or Expression or Logical And Expression: %s\n", $1.m_text.c_str());
             $$ = $1;
         }
         | logical_or_expression OR_OP logical_and_expression
@@ -273,7 +257,6 @@ logical_or_expression
 
 conditional_expression
         : logical_or_expression         {
-            fprintf(stderr, "Conditional Expression of Logical Or Expression: %s\n", $1.m_text.c_str());
             $$ = $1;
         }
         | logical_or_expression '?' expression ':' conditional_expression
@@ -281,11 +264,9 @@ conditional_expression
 
 assignment_expression
         : conditional_expression        {
-            fprintf(stderr, "Assignment Expression of Conditional Expression: %s\n", $1.m_text.c_str());
             $$ = $1;
         }
         | unary_expression assignment_operator assignment_expression    {
-            fprintf(stderr, "Assignment Expression of [Unary Expression: %s] [Assignment Op: %s] [Assignment Expression: %s]\n", $1.m_text.c_str(), $2.m_text.c_str(), $3.m_text.c_str());
             $$.m_text = $1.m_text + " " + $2.m_text + " " + $3.m_text;
         }
         ;
@@ -312,7 +293,6 @@ assignment_operator
 
 expression
 	: assignment_expression         {
-            fprintf(stderr, "Expression of Assignment Expression: %s\n", $1.m_text.c_str());
             $$ = $1;
         }
 	| expression ',' assignment_expression
@@ -336,8 +316,6 @@ declaration
 
 declaration_specifiers
         : storage_class_specifier declaration_specifiers        {
-            fprintf(stderr, "Declaration Specifiers of Storage Class Specifier %s with Declaration Specifiers %s\n",
-                    $1.m_text.c_str(), $2.m_text.c_str());
             _p->parseStorageClassDeclarationSpecifiers($$, $1, $2);
         }
 	| storage_class_specifier       {
@@ -462,7 +440,6 @@ struct_or_union_specifier
           _p->parseStructUnionSpecifier($$, $1, YYSTYPE{}, $3);
          }
 	| struct_or_union IDENTIFIER '{' struct_declaration_list '}'    {
-            fprintf(stderr, "Struct or Union Specifier of Identifier + Struct Declaration List: %s %s %s\n", $1.m_token == STRUCT ? "struct" : "union", $2.m_text.c_str(), $3.m_text.c_str());
             _p->parseStructUnionSpecifier($$, $1, $2, $4);
         }
 	| struct_or_union IDENTIFIER    {

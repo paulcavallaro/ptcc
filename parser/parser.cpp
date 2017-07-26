@@ -284,7 +284,7 @@ void Parser::parsePointerDeclarator(Token &out, const Token &pointer,
 
 void Parser::parseDirectDeclarator(Token &out, const Token &directDecl) {
   // TODO(ptc) flesh out pointer + direct delcarator
-  VLOG(2) << "Entering parseDirectDeclarator id=%s" << directDecl.m_id;
+  VLOG(2) << "Entering parseDirectDeclarator id=" << directDecl.m_id;
   out = directDecl;
 }
 
@@ -563,10 +563,10 @@ void Parser::parseStorageClassSpecifier(Token &out, const int token) {
           StorageClassSpecifier::Typedef);
       break;
     default:
-      debugLn("ERROR - Unknown Storage Class Specifier %d", token);
+      LOG(ERROR) << "ERROR - Unknown Storage Class Specifier " << token;
       return;
   }
-  debugLn("Storage Class Specifier: %s", out.m_text.c_str());
+  VLOG(2) << "Storage Class Specifier: " << out.m_text;
 }
 
 void Parser::parseStructTypeSpecifier(Token &out,
@@ -581,20 +581,19 @@ void Parser::parseUnionTypeSpecifier(Token &out, const Token &unionSpecifier) {
 void Parser::parseStorageClassDeclarationSpecifiers(
     Token &out, const Token &storageClassSpecifier,
     const Token &declarationSpecifiers) {
-  debugLn("Entering parseStorageClassDeclarationSpecifiers");
+  VLOG(2) << "Entering parseStorageClassDeclarationSpecifiers";
   out = declarationSpecifiers;
   // TODO(ptc) handle other declaration_specifiers
-  debugLn(
-      "Entering parseStorageClassDeclarationSpecifiers "
-      "storageClassSpecifier.m_declSpecs: %p, out.m_declSpecs: %p",
-      storageClassSpecifier.m_declSpecs.get(), out.m_declSpecs.get());
+  VLOG(2) << "Entering parseStorageClassDeclarationSpecifiers "
+             "storageClassSpecifier.m_declSpecs: "
+          << storageClassSpecifier.m_declSpecs.get()
+          << ", out.m_declSpecs: " << out.m_declSpecs.get();
   if (!out.m_declSpecs) {
     out.m_declSpecs = std::make_shared<DeclarationSpecifiers>();
   }
   if (storageClassSpecifier.m_declSpecs) {
-    debugLn(
-        "Entering parseStorageClassDeclarationSpecifiers -- Modifying "
-        "m_declSpecs");
+    VLOG(2) << "Entering parseStorageClassDeclarationSpecifiers -- Modifying "
+               "m_declSpecs";
     for (auto &storageClassSpec :
          storageClassSpecifier.m_declSpecs->m_storageClassSpecs) {
       out.m_declSpecs->m_storageClassSpecs.push_back(storageClassSpec);
@@ -604,8 +603,8 @@ void Parser::parseStorageClassDeclarationSpecifiers(
 
 void Parser::parseTypeQualifierBaseDeclarationSpecifier(
     Token &out, const Token &typeQualifier) {
-  debugLn("Entering parseTypeQualifierBaseDeclarationSpecifier %s",
-          typeQualifier.m_text.c_str());
+  VLOG(2) << "Entering parseTypeQualifierBaseDeclarationSpecifier "
+          << typeQualifier.m_text;
   assert(typeQualifier.m_typeQuals.size() == 1);
   TypeSpec tySpec{.m_kind = TypeKind::Undecided,
                   .m_quals = typeQualifier.m_typeQuals};
@@ -616,8 +615,8 @@ void Parser::parseTypeQualifierBaseDeclarationSpecifier(
 void Parser::parseTypeQualifierDeclarationSpecifier(Token &out,
                                                     const Token &typeQualifier,
                                                     const Token &declSpecs) {
-  debugLn("Entering parseTypeQualifierDeclarationSpecifier %s",
-          typeQualifier.m_text.c_str());
+  VLOG(2) << "Entering parseTypeQualifierDeclarationSpecifier "
+          << typeQualifier.m_text;
   assert(typeQualifier.m_typeQuals.size() == 1);
   if (declSpecs.m_declSpecs) {
     out.m_declSpecs = declSpecs.m_declSpecs;
@@ -628,9 +627,8 @@ void Parser::parseTypeQualifierDeclarationSpecifier(Token &out,
     } else {
       // This shouldn't happen, but we haven't finished implementing all of
       // declaration_specifiers so it could happen in theory
-      debugLn(
-          "parseTypeQualifierDeclarationSpecifier: "
-          "declSpecs.m_declSpecs->m_typeSpecs is EMPTY!");
+      LOG(WARNING) << "parseTypeQualifierDeclarationSpecifier: "
+                      "declSpecs.m_declSpecs->m_typeSpecs is EMPTY!";
     }
   } else {
     TypeSpec tySpec{.m_kind = TypeKind::Undecided,
@@ -642,8 +640,8 @@ void Parser::parseTypeQualifierDeclarationSpecifier(Token &out,
 
 void Parser::parseTypeSpecifierBaseDeclarationSpecifier(
     Token &out, const Token &typeSpecifier) {
-  debugLn("Entering parseTypeSpecifierBaseDeclarationSpecifier %s",
-          typeSpecifier.m_text.c_str());
+  VLOG(2) << "Entering parseTypeSpecifierBaseDeclarationSpecifier "
+          << typeSpecifier.m_text;
   // TODO(ptc) Not sure why we have to re-initialize tokens ...
   out = Token{};
   out.m_declSpecs = std::make_shared<DeclarationSpecifiers>();
@@ -655,8 +653,8 @@ void Parser::parseTypeSpecifierBaseDeclarationSpecifier(
 void Parser::parseTypeSpecifierDeclarationSpecifier(
     Token &out, const Token &typeSpecifier,
     const Token &declarationSpecifiers) {
-  debugLn("Entering parseTypeSpecifierDeclarationSpecifier %s",
-          typeSpecifier.m_text.c_str());
+  VLOG(2) << "Entering parseTypeSpecifierDeclarationSpecifier "
+          << typeSpecifier.m_text;
   out = Token{};
   out.m_text = declarationSpecifiers.m_text;
   out.m_declSpecs = declarationSpecifiers.m_declSpecs;
@@ -670,8 +668,8 @@ void Parser::parseTypeSpecifierDeclarationSpecifier(
   assert(typeSpecifier.m_type);
   out.m_declSpecs->m_typeSpecs.push_back(*typeSpecifier.m_type);
   out.m_text = typeSpecifier.m_text + " " + out.m_text;
-  debugLn("Token Output of parseTypeSpecifierDeclarationSpecifier\n%s",
-          toString(out).c_str());
+  VLOG(2) << "Token Output of parseTypeSpecifierDeclarationSpecifier\n"
+          << toString(out);
   // TODO(ptc) still need to pass through some information here regard to text
   // span and whatnot
 }
@@ -774,23 +772,23 @@ void Parser::parseEnumSpecifierNoEnums(Token &out, const Token &enumId) {
 
 void Parser::parseParameterDeclarator(Token &out, const Token &declSpecifiers,
                                       const Token &declarator) {
-  debugLn("Entering parseParameterDeclarator");
+  VLOG(2) << "Entering parseParameterDeclarator";
   ParameterDecl paramDecl;
   paramDecl.m_declSpecs = declSpecifiers.m_declSpecs;
   if (declSpecifiers.m_declSpecs) {
-    debugLn("parseParameterDeclarator: declSpecifiers has m_declSpecs");
+    VLOG(2) << "parseParameterDeclarator: declSpecifiers has m_declSpecs";
   } else {
-    debugLn(
-        "parseParameterDeclarator: declSpecifiers DOESN'T have m_declSpecs");
+    VLOG(2)
+        << "parseParameterDeclarator: declSpecifiers DOESN'T have m_declSpecs";
   }
   paramDecl.m_id = declarator.m_id;
-  debugLn("parseParameterDeclarator: id=%s", declarator.m_id.c_str());
+  VLOG(2) << "parseParameterDeclarator: id=" << declarator.m_id;
   if (declSpecifiers.m_type) {
-    debugLn("parseParameterDeclarator: declSpecifiers has m_type of %s",
-            pointerTypeToString(*declSpecifiers.m_type).c_str());
+    VLOG(2) << "parseParameterDeclarator: declSpecifiers has m_type of "
+            << pointerTypeToString(*declSpecifiers.m_type);
     paramDecl.m_type = declSpecifiers.m_type;
   } else {
-    debugLn("parseParameterDeclarator: declSpecifiers DOESN'T HAVE m_type");
+    VLOG(2) << "parseParameterDeclarator: declSpecifiers DOESN'T HAVE m_type";
     // TODO(ptc) need to take the below code snippet and translate it to here,
     // basically we need to do the same merging we do in parseStructDeclaration
     // of the declarator.m_type (in case it's a pointer) and the specifier
@@ -817,12 +815,11 @@ void Parser::parseParameterDeclarator(Token &out, const Token &declSpecifiers,
 
     if (declSpecifiers.m_declSpecs) {
       if (declSpecifiers.m_declSpecs->m_typeSpecs.size() != 0) {
-        debugLn(
-            "parseParameterDeclarator: declSpecifiers's m_declSpecs has %d "
-            "m_typeSpecs",
-            declSpecifiers.m_declSpecs->m_typeSpecs.size());
+        VLOG(2) << "parseParameterDeclarator: declSpecifiers's m_declSpecs has "
+                << declSpecifiers.m_declSpecs->m_typeSpecs.size()
+                << " m_typeSpecs";
         if (declSpecifiers.m_declSpecs->m_typeSpecs.size() > 1) {
-          debugLn("More than one m_typeSpecs, not sure what to do...");
+          VLOG(2) << "More than one m_typeSpecs, not sure what to do...";
         } else {
           if (declarator.m_type) {
             paramDecl.m_type = declarator.m_type;
@@ -834,9 +831,8 @@ void Parser::parseParameterDeclarator(Token &out, const Token &declSpecifiers,
           }
         }
       } else {
-        debugLn(
-            "parseParameterDeclarator: declSpecifiers's m_declSpecs "
-            "DOESN'T HAVE m_typeSpecs");
+        VLOG(2) << "parseParameterDeclarator: declSpecifiers's m_declSpecs "
+                   "DOESN'T HAVE m_typeSpecs";
       }
     }
   }
@@ -848,32 +844,32 @@ void Parser::parseParameterDeclarator(Token &out, const Token &declSpecifiers,
 void Parser::parseParameterAbstractDeclarator(Token &out,
                                               const Token &declSpecifiers,
                                               const Token &abstractDeclarator) {
-  debugLn("Entering parseParameterAbstractDeclarator");
+  VLOG(2) << "Entering parseParameterAbstractDeclarator";
   // TODO(ptc)
   out.m_paramDecls = {};
   out.m_paramDecls.emplace_back();
 }
 
 void Parser::parseParameterDeclSpecs(Token &out, const Token &declSpecifiers) {
-  debugLn("Entering parseParameterDeclSpecs");
+  VLOG(2) << "Entering parseParameterDeclSpecs";
   // Pass an empty declarator to parseParameterDeclarator
   Token emptyDeclarator;
   return parseParameterDeclarator(out, declSpecifiers, emptyDeclarator);
 }
 
 void Parser::parseParameterListBase(Token &out, const Token &parameterDecl) {
-  debugLn("Entering parseParameterListBase");
-  debugLn("parameterDecl.m_paramDecls.size() == %d",
-          parameterDecl.m_paramDecls.size());
+  VLOG(2) << "Entering parseParameterListBase";
+  VLOG(2) << "parameterDecl.m_paramDecls.size() == "
+          << parameterDecl.m_paramDecls.size();
   assert(parameterDecl.m_paramDecls.size() == 1);
   out.m_paramDecls = parameterDecl.m_paramDecls;
 }
 
 void Parser::parseParameterList(Token &out, const Token &parameterList,
                                 const Token &parameterDecl) {
-  debugLn("Entering parseParameterList");
-  debugLn("parameterDecl.m_paramDecls.size() == %d",
-          parameterDecl.m_paramDecls.size());
+  VLOG(2) << "Entering parseParameterList";
+  VLOG(2) << "parameterDecl.m_paramDecls.size() == "
+          << parameterDecl.m_paramDecls.size();
   assert(parameterDecl.m_paramDecls.size() == 1);
   out.m_paramDecls = parameterList.m_paramDecls;
   out.m_text = parameterList.m_text + ", " + parameterDecl.m_text;
@@ -882,7 +878,7 @@ void Parser::parseParameterList(Token &out, const Token &parameterList,
 
 void Parser::parseParameterTypeList(Token &out, const Token &parameterList) {
   // TODO(ptc) handling ellipsis, but skip for now
-  debugLn("Entering parseParameterTypeList");
+  VLOG(2) << "Entering parseParameterTypeList";
   out.m_paramDecls = parameterList.m_paramDecls;
   out.m_text = parameterList.m_text;
 }
@@ -891,7 +887,7 @@ void Parser::parseFunctionDirectDeclarator(Token &out,
                                            const Token &directDeclarator,
                                            const Token &parameterTypeList) {
   // TODO(ptc)
-  debugLn("Entering parseFunctionDirectDeclarator");
+  VLOG(2) << "Entering parseFunctionDirectDeclarator";
   debugLn("Function named %s with parameters:", directDeclarator.m_id.c_str());
   for (auto paramDecl : parameterTypeList.m_paramDecls) {
     if (paramDecl.m_type) {
@@ -911,7 +907,7 @@ void Parser::parseFunctionDefinition(Token &out, const Token &declSpecifiers,
                                      const Token *optDeclList,
                                      const Token &compoundStmt) {
   // TODO(ptc)
-  debugLn("Entering parseFunctionDefinition");
+  VLOG(2) << "Entering parseFunctionDefinition";
   /* If optDeclList is not nullptr, then it's handling the unusual syntax:
 
      void foo(a, b)
@@ -922,36 +918,35 @@ void Parser::parseFunctionDefinition(Token &out, const Token &declSpecifiers,
     // TODO(ptc) Handle this craziness later
     return;
   }
-  debugLn(toString(declSpecifiers).c_str());
-  debugLn(toString(declarator).c_str());
-  debugLn(toString(compoundStmt).c_str());
+  VLOG(2) << toString(declSpecifiers);
+  VLOG(2) << toString(declarator);
+  VLOG(2) << toString(compoundStmt);
 }
 
 void Parser::parseInitDeclaratorListAdd(Token &out,
                                         const Token &initDeclaratorList,
                                         const Token &initDeclarator) {
   // TODO(ptc)
-  debugLn(
-      "Entering parseInitDeclaratorListAdd initDeclaratorList = %s, "
-      "initDeclarator = %s",
-      toString(initDeclaratorList).c_str(), toString(initDeclarator).c_str());
+  VLOG(2) << "Entering parseInitDeclaratorListAdd initDeclaratorList = "
+          << toString(initDeclaratorList)
+          << ", initDeclarator = " << toString(initDeclarator);
 }
 
 void Parser::parseInitDeclaratorListBase(Token &out,
                                          const Token &initDeclarator) {
   // TODO(ptc)
-  debugLn("Entering parseInitDeclaratorListBase initDeclarator = %s",
-          toString(initDeclarator).c_str());
+  VLOG(2) << "Entering parseInitDeclaratorListBase initDeclarator = "
+          << toString(initDeclarator);
   out = initDeclarator;
 }
 
 void Parser::parseInitDeclarator(Token &out, const Token &declarator,
                                  const Token *optInitializer) {
   // TODO(ptc)
-  debugLn("Entering parseInitDeclarator declarator = %s",
-          toString(declarator).c_str());
+  VLOG(2) << "Entering parseInitDeclarator declarator = "
+          << toString(declarator);
   if (optInitializer) {
-    debugLn("optInitializer = %s", toString(*optInitializer).c_str());
+    VLOG(2) << "optInitializer = " << toString(*optInitializer);
   }
   out = declarator;
 }
@@ -959,36 +954,36 @@ void Parser::parseInitDeclarator(Token &out, const Token &declarator,
 void Parser::parseExternalDeclarationFunc(Token &out,
                                           const Token &functionDefinition) {
   // TODO(ptc)
-  debugLn("Entering parseExternalDeclarationFunc functionDefinition = %s",
-          toString(functionDefinition).c_str());
+  VLOG(2) << "Entering parseExternalDeclarationFunc functionDefinition = "
+          << toString(functionDefinition);
   out = functionDefinition;
 }
 
 void Parser::parseExternalDeclarationDecl(Token &out,
                                           const Token &declaration) {
   // TODO(ptc)
-  debugLn("Entering parseExternalDeclarationDecl declaration = %s",
-          toString(declaration).c_str());
+  VLOG(2) << "Entering parseExternalDeclarationDecl declaration = "
+          << toString(declaration);
   out = declaration;
 }
 
 void Parser::parseTranslationUnitBase(Token &out, const Token &externalDecl) {
   // TODO(ptc)
-  debugLn("Entering parseTranslationUnitBase externalDecl = %s",
-          toString(externalDecl).c_str());
+  VLOG(2) << "Entering parseTranslationUnitBase externalDecl = "
+          << toString(externalDecl);
 }
 
 void Parser::parseTranslationUnitAdd(Token &out, const Token &externalDecl) {
   // TODO(ptc)
-  debugLn("Entering parseTranslationUnitAdd externalDecl = %s",
-          toString(externalDecl).c_str());
+  VLOG(2) << "Entering parseTranslationUnitAdd externalDecl = "
+          << toString(externalDecl);
 }
 
 void Parser::parseReturnStmt(Token &out, const int ret_token,
                              const Token &expr) {
   // TODO(ptc)
-  LOG(INFO) << "Return statement encountered";
-  debugLn("Return Statement: RETURN %s;", expr.m_text.c_str());
+  VLOG(2) << "Return statement encountered";
+  VLOG(2) << "Return Statement: RETURN " << expr.m_text << ";";
   out.m_text = "RETURN " + expr.m_text + ";";
 }
 }
