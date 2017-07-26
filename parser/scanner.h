@@ -161,9 +161,11 @@ std::string toString(const StorageClassSpecifier storageClassSpec);
 std::string toString(const TypeQual tyQual);
 std::string toString(const ParameterDecl paramDecl);
 
-template <typename T> std::string toString(const std::shared_ptr<T> token);
-template <typename T> std::string toString(const std::vector<T> vec);
+template <typename T>
+std::string toString(const std::shared_ptr<T> token);
+template <typename T>
+std::string toString(const std::vector<T> vec);
 
 std::string pointerTypeToString(const TypeSpec tSpec);
 }
-} // ptc::scanner
+}  // ptc::scanner

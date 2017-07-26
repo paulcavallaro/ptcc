@@ -19,15 +19,15 @@ int Parser::check_type(const char *symbol) {
   }
   auto entry = get(idx);
   switch (entry.m_token) {
-  case IDENTIFIER:
-    debugLn("Checking type of: %s, Found: IDENTIFIER", symbol);
-    return IDENTIFIER;
-  case TYPEDEF_NAME:
-    debugLn("Checking type of: %s, Found: TYPEDEF_NAME", symbol);
-    return TYPEDEF_NAME;
-  default:
-    debugLn("Checking type of: %s, Found: %d", symbol, entry.m_token);
-    return entry.m_token;
+    case IDENTIFIER:
+      debugLn("Checking type of: %s, Found: IDENTIFIER", symbol);
+      return IDENTIFIER;
+    case TYPEDEF_NAME:
+      debugLn("Checking type of: %s, Found: TYPEDEF_NAME", symbol);
+      return TYPEDEF_NAME;
+    default:
+      debugLn("Checking type of: %s, Found: %d", symbol, entry.m_token);
+      return entry.m_token;
   }
 }
 
@@ -73,21 +73,21 @@ void Parser::parseTypeQualifierList(Token &out, const Token &tQual) {
           out.m_typeQuals.size());
   out.m_typeQuals = {};
   switch (tQual.m_token) {
-  case CONST:
-    out.m_typeQuals.push_back(TypeQual::Const);
-    break;
-  case RESTRICT:
-    out.m_typeQuals.push_back(TypeQual::Restrict);
-    break;
-  case VOLATILE:
-    out.m_typeQuals.push_back(TypeQual::Volatile);
-    break;
-  case ATOMIC:
-    out.m_typeQuals.push_back(TypeQual::Atomic);
-    break;
-  default:
-    debugLn("ERROR - Unknown Type Qualifier");
-    break;
+    case CONST:
+      out.m_typeQuals.push_back(TypeQual::Const);
+      break;
+    case RESTRICT:
+      out.m_typeQuals.push_back(TypeQual::Restrict);
+      break;
+    case VOLATILE:
+      out.m_typeQuals.push_back(TypeQual::Volatile);
+      break;
+    case ATOMIC:
+      out.m_typeQuals.push_back(TypeQual::Atomic);
+      break;
+    default:
+      debugLn("ERROR - Unknown Type Qualifier");
+      break;
   }
   debugLn("Exiting parseTypeQualifierList out.m_typeQuals.size() = %lu",
           out.m_typeQuals.size());
@@ -136,31 +136,32 @@ TypeSpec Parser::mergeTypes(TypeSpec type, TypeSpec listType) {
    */
 
   switch (type.m_kind) {
-  case TypeKind::Struct:
-  case TypeKind::TypeDef:
-  case TypeKind::Pointer:
-  case TypeKind::Array:
-  case TypeKind::Union:
-  case TypeKind::Void:
-    // These are all errors
-    assert(false);
-    break;
-  case TypeKind::Int:
-  case TypeKind::Long:
-  case TypeKind::Char:
-  case TypeKind::Signed:
-  case TypeKind::Unsigned:
-    // TODO(ptc)
-    // Have to actually implement this, but just throw away one of the types for
-    // now to
-    // see how far we can get processing a file
-    return type;
-    assert(false);
-    break;
-  default:
-    // TODO(ptc)
-    assert(false);
-    break;
+    case TypeKind::Struct:
+    case TypeKind::TypeDef:
+    case TypeKind::Pointer:
+    case TypeKind::Array:
+    case TypeKind::Union:
+    case TypeKind::Void:
+      // These are all errors
+      assert(false);
+      break;
+    case TypeKind::Int:
+    case TypeKind::Long:
+    case TypeKind::Char:
+    case TypeKind::Signed:
+    case TypeKind::Unsigned:
+      // TODO(ptc)
+      // Have to actually implement this, but just throw away one of the types
+      // for
+      // now to
+      // see how far we can get processing a file
+      return type;
+      assert(false);
+      break;
+    default:
+      // TODO(ptc)
+      assert(false);
+      break;
   }
 }
 
@@ -183,8 +184,9 @@ void Parser::parseSpecifierQualifierListSpecifier(Token &out,
       // Just a bunch of type qualifiers, let's augment our type from the
       // specifier
       // then
-      debugLn("No list type, just a bunch of type qualifiers so augmenting our "
-              "specifier with them");
+      debugLn(
+          "No list type, just a bunch of type qualifiers so augmenting our "
+          "specifier with them");
       out = specifier;
       assert(!list->m_typeQuals.empty());
       out.m_type->m_quals = list->m_typeQuals;
@@ -209,8 +211,9 @@ void Parser::parseSpecifierQualifierListQualifier(Token &out,
       out.m_type->m_quals.push_back(qualifier.m_typeQuals[0]);
       debugLn("New type is: %s", pointerTypeToString(*out.m_type).c_str());
     } else {
-      debugLn("No list type, just a bunch of type qualifiers so augmenting our "
-              "m_tyQuals with them as well");
+      debugLn(
+          "No list type, just a bunch of type qualifiers so augmenting our "
+          "m_tyQuals with them as well");
       out.m_typeQuals = list->m_typeQuals;
       out.m_typeQuals.push_back(qualifier.m_typeQuals[0]);
     }
@@ -291,29 +294,29 @@ void Parser::parseTypeQualifier(Token &out, const int token) {
   debugLn("Entering parseTypeQualifier, out.m_typeQuals.size() = %lu",
           out.m_typeQuals.size());
   switch (token) {
-  case CONST:
-    out.m_token = CONST;
-    out.m_text = "const";
-    out.m_typeQuals.push_back(TypeQual::Const);
-    break;
-  case RESTRICT:
-    out.m_token = RESTRICT;
-    out.m_text = "restrict";
-    out.m_typeQuals.push_back(TypeQual::Restrict);
-    break;
-  case VOLATILE:
-    out.m_token = VOLATILE;
-    out.m_text = "volatile";
-    out.m_typeQuals.push_back(TypeQual::Volatile);
-    break;
-  case ATOMIC:
-    out.m_token = ATOMIC;
-    out.m_text = "_Atomic";
-    out.m_typeQuals.push_back(TypeQual::Atomic);
-    break;
-  default:
-    debugLn("ERROR - Unknown Type Qualifier");
-    break;
+    case CONST:
+      out.m_token = CONST;
+      out.m_text = "const";
+      out.m_typeQuals.push_back(TypeQual::Const);
+      break;
+    case RESTRICT:
+      out.m_token = RESTRICT;
+      out.m_text = "restrict";
+      out.m_typeQuals.push_back(TypeQual::Restrict);
+      break;
+    case VOLATILE:
+      out.m_token = VOLATILE;
+      out.m_text = "volatile";
+      out.m_typeQuals.push_back(TypeQual::Volatile);
+      break;
+    case ATOMIC:
+      out.m_token = ATOMIC;
+      out.m_text = "_Atomic";
+      out.m_typeQuals.push_back(TypeQual::Atomic);
+      break;
+    default:
+      debugLn("ERROR - Unknown Type Qualifier");
+      break;
   }
 }
 
@@ -321,69 +324,69 @@ void Parser::parseTypeSpecifier(Token &out, const int token) {
   debugLn("Entering parseTypeSpecifier, token = %i, out.m_text = %s", token,
           out.m_text.c_str());
   switch (token) {
-  case VOID:
-    out.m_token = token;
-    out.m_text = "void";
-    out.m_type = std::make_shared<TypeSpec>();
-    out.m_type->m_kind = TypeKind::Void;
-    break;
-  case CHAR:
-    out.m_token = token;
-    out.m_text = "char";
-    out.m_type = std::make_shared<TypeSpec>();
-    out.m_type->m_kind = TypeKind::Char;
-    break;
-  case SHORT:
-    out.m_token = token;
-    out.m_text = "short";
-    out.m_type = std::make_shared<TypeSpec>();
-    out.m_type->m_kind = TypeKind::Short;
-    break;
-  case INT:
-    out.m_token = token;
-    out.m_text = "int";
-    out.m_type = std::make_shared<TypeSpec>();
-    out.m_type->m_kind = TypeKind::Int;
-    break;
-  case LONG:
-    out.m_token = token;
-    out.m_text = "long";
-    out.m_type = std::make_shared<TypeSpec>();
-    out.m_type->m_kind = TypeKind::Long;
-    break;
-  case FLOAT:
-    out.m_token = token;
-    out.m_text = "float";
-    out.m_type = std::make_shared<TypeSpec>();
-    out.m_type->m_kind = TypeKind::Float;
-    break;
-  case DOUBLE:
-    out.m_token = token;
-    out.m_text = "double";
-    out.m_type = std::make_shared<TypeSpec>();
-    out.m_type->m_kind = TypeKind::Double;
-    break;
-  case BOOL:
-    out.m_token = token;
-    out.m_text = "bool";
-    out.m_type = std::make_shared<TypeSpec>();
-    out.m_type->m_kind = TypeKind::Bool;
-    break;
-  case UNSIGNED:
-    out.m_token = token;
-    out.m_text = "unsigned";
-    out.m_type = std::make_shared<TypeSpec>();
-    out.m_type->m_kind = TypeKind::Unsigned;
-    break;
-  case SIGNED:
-    out.m_token = token;
-    out.m_text = "unsigned";
-    out.m_type = std::make_shared<TypeSpec>();
-    out.m_type->m_kind = TypeKind::Unsigned;
-    break;
-  default:
-    // TODO(ptc) Handle rest of cases
-    assert(false);
+    case VOID:
+      out.m_token = token;
+      out.m_text = "void";
+      out.m_type = std::make_shared<TypeSpec>();
+      out.m_type->m_kind = TypeKind::Void;
+      break;
+    case CHAR:
+      out.m_token = token;
+      out.m_text = "char";
+      out.m_type = std::make_shared<TypeSpec>();
+      out.m_type->m_kind = TypeKind::Char;
+      break;
+    case SHORT:
+      out.m_token = token;
+      out.m_text = "short";
+      out.m_type = std::make_shared<TypeSpec>();
+      out.m_type->m_kind = TypeKind::Short;
+      break;
+    case INT:
+      out.m_token = token;
+      out.m_text = "int";
+      out.m_type = std::make_shared<TypeSpec>();
+      out.m_type->m_kind = TypeKind::Int;
+      break;
+    case LONG:
+      out.m_token = token;
+      out.m_text = "long";
+      out.m_type = std::make_shared<TypeSpec>();
+      out.m_type->m_kind = TypeKind::Long;
+      break;
+    case FLOAT:
+      out.m_token = token;
+      out.m_text = "float";
+      out.m_type = std::make_shared<TypeSpec>();
+      out.m_type->m_kind = TypeKind::Float;
+      break;
+    case DOUBLE:
+      out.m_token = token;
+      out.m_text = "double";
+      out.m_type = std::make_shared<TypeSpec>();
+      out.m_type->m_kind = TypeKind::Double;
+      break;
+    case BOOL:
+      out.m_token = token;
+      out.m_text = "bool";
+      out.m_type = std::make_shared<TypeSpec>();
+      out.m_type->m_kind = TypeKind::Bool;
+      break;
+    case UNSIGNED:
+      out.m_token = token;
+      out.m_text = "unsigned";
+      out.m_type = std::make_shared<TypeSpec>();
+      out.m_type->m_kind = TypeKind::Unsigned;
+      break;
+    case SIGNED:
+      out.m_token = token;
+      out.m_text = "unsigned";
+      out.m_type = std::make_shared<TypeSpec>();
+      out.m_type->m_kind = TypeKind::Unsigned;
+      break;
+    default:
+      // TODO(ptc) Handle rest of cases
+      assert(false);
   }
 }
 
@@ -432,10 +435,10 @@ void Parser::parseDirectDeclaratorArray(Token &out, const Token &declarator) {
 
 void Parser::parseStructDeclarator(Token &out, const Token &structDecl,
                                    const Token *optStructDeclList) {
-  debugLn("Struct Declarator List Item: type=%s, id=%s",
-          structDecl.m_type ? specToString(*structDecl.m_type).c_str()
-                            : "Unknown",
-          structDecl.m_id.c_str());
+  debugLn(
+      "Struct Declarator List Item: type=%s, id=%s",
+      structDecl.m_type ? specToString(*structDecl.m_type).c_str() : "Unknown",
+      structDecl.m_id.c_str());
 
   if (optStructDeclList) {
     out.m_structDeclList = std::move(optStructDeclList->m_structDeclList);
@@ -520,50 +523,51 @@ void Parser::parseStructUnionSpecifier(Token &out, const Token &structOrUnion,
 
 void Parser::parseStorageClassSpecifier(Token &out, const int token) {
   switch (token) {
-  case EXTERN:
-    out.m_token = EXTERN;
-    out.m_text = "extern";
-    out.m_declSpecs = std::make_shared<DeclarationSpecifiers>();
-    out.m_declSpecs->m_storageClassSpecs.push_back(
-        StorageClassSpecifier::Extern);
-    break;
-  case STATIC:
-    out.m_token = STATIC;
-    out.m_text = "static";
-    out.m_declSpecs = std::make_shared<DeclarationSpecifiers>();
-    out.m_declSpecs->m_storageClassSpecs.push_back(
-        StorageClassSpecifier::Static);
-    break;
-  case THREAD_LOCAL:
-    out.m_token = THREAD_LOCAL;
-    out.m_text = "_Thread_local";
-    out.m_declSpecs = std::make_shared<DeclarationSpecifiers>();
-    out.m_declSpecs->m_storageClassSpecs.push_back(
-        StorageClassSpecifier::ThreadLocal);
-    break;
-  case AUTO:
-    out.m_token = AUTO;
-    out.m_text = "auto";
-    out.m_declSpecs = std::make_shared<DeclarationSpecifiers>();
-    out.m_declSpecs->m_storageClassSpecs.push_back(StorageClassSpecifier::Auto);
-    break;
-  case REGISTER:
-    out.m_token = REGISTER;
-    out.m_text = "register";
-    out.m_declSpecs = std::make_shared<DeclarationSpecifiers>();
-    out.m_declSpecs->m_storageClassSpecs.push_back(
-        StorageClassSpecifier::Register);
-    break;
-  case TYPEDEF:
-    out.m_token = TYPEDEF;
-    out.m_text = "typedef";
-    out.m_declSpecs = std::make_shared<DeclarationSpecifiers>();
-    out.m_declSpecs->m_storageClassSpecs.push_back(
-        StorageClassSpecifier::Typedef);
-    break;
-  default:
-    debugLn("ERROR - Unknown Storage Class Specifier %d", token);
-    return;
+    case EXTERN:
+      out.m_token = EXTERN;
+      out.m_text = "extern";
+      out.m_declSpecs = std::make_shared<DeclarationSpecifiers>();
+      out.m_declSpecs->m_storageClassSpecs.push_back(
+          StorageClassSpecifier::Extern);
+      break;
+    case STATIC:
+      out.m_token = STATIC;
+      out.m_text = "static";
+      out.m_declSpecs = std::make_shared<DeclarationSpecifiers>();
+      out.m_declSpecs->m_storageClassSpecs.push_back(
+          StorageClassSpecifier::Static);
+      break;
+    case THREAD_LOCAL:
+      out.m_token = THREAD_LOCAL;
+      out.m_text = "_Thread_local";
+      out.m_declSpecs = std::make_shared<DeclarationSpecifiers>();
+      out.m_declSpecs->m_storageClassSpecs.push_back(
+          StorageClassSpecifier::ThreadLocal);
+      break;
+    case AUTO:
+      out.m_token = AUTO;
+      out.m_text = "auto";
+      out.m_declSpecs = std::make_shared<DeclarationSpecifiers>();
+      out.m_declSpecs->m_storageClassSpecs.push_back(
+          StorageClassSpecifier::Auto);
+      break;
+    case REGISTER:
+      out.m_token = REGISTER;
+      out.m_text = "register";
+      out.m_declSpecs = std::make_shared<DeclarationSpecifiers>();
+      out.m_declSpecs->m_storageClassSpecs.push_back(
+          StorageClassSpecifier::Register);
+      break;
+    case TYPEDEF:
+      out.m_token = TYPEDEF;
+      out.m_text = "typedef";
+      out.m_declSpecs = std::make_shared<DeclarationSpecifiers>();
+      out.m_declSpecs->m_storageClassSpecs.push_back(
+          StorageClassSpecifier::Typedef);
+      break;
+    default:
+      debugLn("ERROR - Unknown Storage Class Specifier %d", token);
+      return;
   }
   debugLn("Storage Class Specifier: %s", out.m_text.c_str());
 }
@@ -583,15 +587,17 @@ void Parser::parseStorageClassDeclarationSpecifiers(
   debugLn("Entering parseStorageClassDeclarationSpecifiers");
   out = declarationSpecifiers;
   // TODO(ptc) handle other declaration_specifiers
-  debugLn("Entering parseStorageClassDeclarationSpecifiers "
-          "storageClassSpecifier.m_declSpecs: %p, out.m_declSpecs: %p",
-          storageClassSpecifier.m_declSpecs.get(), out.m_declSpecs.get());
+  debugLn(
+      "Entering parseStorageClassDeclarationSpecifiers "
+      "storageClassSpecifier.m_declSpecs: %p, out.m_declSpecs: %p",
+      storageClassSpecifier.m_declSpecs.get(), out.m_declSpecs.get());
   if (!out.m_declSpecs) {
     out.m_declSpecs = std::make_shared<DeclarationSpecifiers>();
   }
   if (storageClassSpecifier.m_declSpecs) {
-    debugLn("Entering parseStorageClassDeclarationSpecifiers -- Modifying "
-            "m_declSpecs");
+    debugLn(
+        "Entering parseStorageClassDeclarationSpecifiers -- Modifying "
+        "m_declSpecs");
     for (auto &storageClassSpec :
          storageClassSpecifier.m_declSpecs->m_storageClassSpecs) {
       out.m_declSpecs->m_storageClassSpecs.push_back(storageClassSpec);
@@ -625,8 +631,9 @@ void Parser::parseTypeQualifierDeclarationSpecifier(Token &out,
     } else {
       // This shouldn't happen, but we haven't finished implementing all of
       // declaration_specifiers so it could happen in theory
-      debugLn("parseTypeQualifierDeclarationSpecifier: "
-              "declSpecs.m_declSpecs->m_typeSpecs is EMPTY!");
+      debugLn(
+          "parseTypeQualifierDeclarationSpecifier: "
+          "declSpecs.m_declSpecs->m_typeSpecs is EMPTY!");
     }
   } else {
     TypeSpec tySpec{.m_kind = TypeKind::Undecided,
@@ -679,9 +686,9 @@ void Parser::parseDeclarationFromDeclarationSpecifiers(
   debugLn(
       "parseTypeSpecifierDeclarationSpecifier: declarationSpecifiers = \n%s",
       toString(declarationSpecifiers).c_str());
-  debugLn("parseTypeSpecifierDeclarationSpecifier: initDeclaratorList = \n%s",
-          initDeclaratorList ? toString(*initDeclaratorList).c_str()
-                             : "nullptr");
+  debugLn(
+      "parseTypeSpecifierDeclarationSpecifier: initDeclaratorList = \n%s",
+      initDeclaratorList ? toString(*initDeclaratorList).c_str() : "nullptr");
   // TODO(ptc) Have to keep this if (declarationSpecifiers.m_declSpecs) check
   // because we do not handle all the declaration_specifier constructions,
   // namely: alignment_specifier and function_specifier
@@ -703,8 +710,9 @@ void Parser::parseDeclarationFromDeclarationSpecifiers(
       if (initDeclaratorList) {
         // Have a typedef of some type, add the typedef name to the symbol
         // table with the corresponding type
-        debugLn("parseDeclarationFromDeclarationSpecifiers: is "
-                "initDeclaratorList");
+        debugLn(
+            "parseDeclarationFromDeclarationSpecifiers: is "
+            "initDeclaratorList");
         debugLn("Adding typedef name of %s", initDeclaratorList->m_id.c_str());
         assert(!declarationSpecifiers.m_declSpecs->m_typeSpecs.empty());
         auto type =
@@ -812,9 +820,10 @@ void Parser::parseParameterDeclarator(Token &out, const Token &declSpecifiers,
 
     if (declSpecifiers.m_declSpecs) {
       if (declSpecifiers.m_declSpecs->m_typeSpecs.size() != 0) {
-        debugLn("parseParameterDeclarator: declSpecifiers's m_declSpecs has %d "
-                "m_typeSpecs",
-                declSpecifiers.m_declSpecs->m_typeSpecs.size());
+        debugLn(
+            "parseParameterDeclarator: declSpecifiers's m_declSpecs has %d "
+            "m_typeSpecs",
+            declSpecifiers.m_declSpecs->m_typeSpecs.size());
         if (declSpecifiers.m_declSpecs->m_typeSpecs.size() > 1) {
           debugLn("More than one m_typeSpecs, not sure what to do...");
         } else {
@@ -828,8 +837,9 @@ void Parser::parseParameterDeclarator(Token &out, const Token &declSpecifiers,
           }
         }
       } else {
-        debugLn("parseParameterDeclarator: declSpecifiers's m_declSpecs "
-                "DOESN'T HAVE m_typeSpecs");
+        debugLn(
+            "parseParameterDeclarator: declSpecifiers's m_declSpecs "
+            "DOESN'T HAVE m_typeSpecs");
       }
     }
   }
@@ -924,10 +934,10 @@ void Parser::parseInitDeclaratorListAdd(Token &out,
                                         const Token &initDeclaratorList,
                                         const Token &initDeclarator) {
   // TODO(ptc)
-  debugLn("Entering parseInitDeclaratorListAdd initDeclaratorList = %s, "
-          "initDeclarator = %s",
-          toString(initDeclaratorList).c_str(),
-          toString(initDeclarator).c_str());
+  debugLn(
+      "Entering parseInitDeclaratorListAdd initDeclaratorList = %s, "
+      "initDeclarator = %s",
+      toString(initDeclaratorList).c_str(), toString(initDeclarator).c_str());
 }
 
 void Parser::parseInitDeclaratorListBase(Token &out,
@@ -985,4 +995,4 @@ void Parser::parseReturnStmt(Token &out, const int ret_token,
   out.m_text = "RETURN " + expr.m_text + ";";
 }
 }
-} // ptcc::parser
+}  // ptcc::parser

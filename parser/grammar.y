@@ -23,11 +23,14 @@ typedef void *yyscan_t;
 
 #define YYSTYPE ptcc::parser::Token
 
-extern int yylex (YYSTYPE * yylval_param, YYLTYPE * yylloc_param, yyscan_t scanner);
-int yylex (YYSTYPE * yylval_param, YYLTYPE * yylloc_param, ptcc::parser::Parser * _p, yyscan_t scanner) {
-    return yylex(yylval_param, yylloc_param, scanner);
+extern int yylex (YYSTYPE * yylval_param, YYLTYPE * yylloc_param,
+                  yyscan_t scanner);
+int yylex(YYSTYPE * yylval_param, YYLTYPE * yylloc_param,
+          ptcc::parser::Parser * _p, yyscan_t scanner) {
+  return yylex(yylval_param, yylloc_param, scanner);
 }
-void yyerror(YYLTYPE * yylloc, ptcc::parser::Parser *_p, yyscan_t scanner, const char* str) {
+void yyerror(YYLTYPE * yylloc, ptcc::parser::Parser *_p, yyscan_t scanner,
+             const char* str) {
     fprintf(stderr, "error: %s at line %d column %d\n", str,
             yylloc->first_line, yylloc->first_column);
 }

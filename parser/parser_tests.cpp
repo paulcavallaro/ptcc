@@ -1,6 +1,6 @@
-#include "parser/scanner.h"
 #include "parser/parser.h"
 #include "gtest/gtest.h"
+#include "parser/scanner.h"
 
 namespace ptcc {
 namespace parser {

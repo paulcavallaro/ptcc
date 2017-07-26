@@ -7,54 +7,54 @@ namespace parser {
 
 std::string kindToString(const TypeKind kind) {
   switch (kind) {
-  case TypeKind::Void:
-    return "void";
-  case TypeKind::Int:
-    return "int";
-  case TypeKind::Short:
-    return "long";
-  case TypeKind::Long:
-    return "long";
-  case TypeKind::Signed:
-    return "signed";
-  case TypeKind::Undecided:
-    return "<undecided>";
-  case TypeKind::Unsigned:
-    return "unsigned";
-  case TypeKind::Double:
-    return "double";
-  case TypeKind::Float:
-    return "float";
-  case TypeKind::Enum:
-    return "enum";
-  case TypeKind::Char:
-    return "char";
-  case TypeKind::Bool:
-    return "bool";
-  case TypeKind::Struct:
-    return "struct";
-  case TypeKind::Union:
-    return "union";
-  case TypeKind::Array:
-    return "array";
-  case TypeKind::Pointer:
-    return "*";
-  case TypeKind::TypeDef:
-    return "typedef";
+    case TypeKind::Void:
+      return "void";
+    case TypeKind::Int:
+      return "int";
+    case TypeKind::Short:
+      return "long";
+    case TypeKind::Long:
+      return "long";
+    case TypeKind::Signed:
+      return "signed";
+    case TypeKind::Undecided:
+      return "<undecided>";
+    case TypeKind::Unsigned:
+      return "unsigned";
+    case TypeKind::Double:
+      return "double";
+    case TypeKind::Float:
+      return "float";
+    case TypeKind::Enum:
+      return "enum";
+    case TypeKind::Char:
+      return "char";
+    case TypeKind::Bool:
+      return "bool";
+    case TypeKind::Struct:
+      return "struct";
+    case TypeKind::Union:
+      return "union";
+    case TypeKind::Array:
+      return "array";
+    case TypeKind::Pointer:
+      return "*";
+    case TypeKind::TypeDef:
+      return "typedef";
   }
   return "<UNKNOWN>";
 }
 
 std::string typeQualToString(const TypeQual qual) {
   switch (qual) {
-  case TypeQual::Const:
-    return "const";
-  case TypeQual::Restrict:
-    return "restrict";
-  case TypeQual::Volatile:
-    return "volatile";
-  case TypeQual::Atomic:
-    return "_Atomic";
+    case TypeQual::Const:
+      return "const";
+    case TypeQual::Restrict:
+      return "restrict";
+    case TypeQual::Volatile:
+      return "volatile";
+    case TypeQual::Atomic:
+      return "_Atomic";
   }
   return "<UNKNOWN>";
 }
@@ -70,22 +70,22 @@ std::string pointerTypeToString(const TypeSpec tSpec) {
       typeQ.push(*type.m_otype);
     }
     switch (type.m_kind) {
-    case TypeKind::Pointer:
-      for (auto &tQual : type.m_quals) {
-        ret = " " + typeQualToString(tQual) + ret;
-      }
-      ret = "*" + ret;
-      break;
-    case TypeKind::Array:
-      ret = ret + "[]";
-      break;
-    default:
-      std::string tyQuals;
-      for (auto &tQual : type.m_quals) {
-        tyQuals = typeQualToString(tQual) + " " + tyQuals;
-      }
-      ret = tyQuals + kindToString(type.m_kind) + ret;
-      break;
+      case TypeKind::Pointer:
+        for (auto &tQual : type.m_quals) {
+          ret = " " + typeQualToString(tQual) + ret;
+        }
+        ret = "*" + ret;
+        break;
+      case TypeKind::Array:
+        ret = ret + "[]";
+        break;
+      default:
+        std::string tyQuals;
+        for (auto &tQual : type.m_quals) {
+          tyQuals = typeQualToString(tQual) + " " + tyQuals;
+        }
+        ret = tyQuals + kindToString(type.m_kind) + ret;
+        break;
     }
     typeQ.pop();
   }
@@ -94,18 +94,19 @@ std::string pointerTypeToString(const TypeSpec tSpec) {
 
 std::string specToString(const TypeSpec typeSpec) {
   switch (typeSpec.m_kind) {
-  case TypeKind::Pointer:
-    return pointerTypeToString(typeSpec);
-  case TypeKind::Array:
-    return pointerTypeToString(typeSpec);
-  case TypeKind::Struct:
-    return structTypeToString(typeSpec);
-  case TypeKind::Union:
-    return unionTypeToString(typeSpec);
-  case TypeKind::TypeDef:
-    return "typedef " + typeSpec.m_typedefName + " aka " + specToString(*typeSpec.m_otype);
-  default:
-    return kindToString(typeSpec.m_kind);
+    case TypeKind::Pointer:
+      return pointerTypeToString(typeSpec);
+    case TypeKind::Array:
+      return pointerTypeToString(typeSpec);
+    case TypeKind::Struct:
+      return structTypeToString(typeSpec);
+    case TypeKind::Union:
+      return unionTypeToString(typeSpec);
+    case TypeKind::TypeDef:
+      return "typedef " + typeSpec.m_typedefName + " aka " +
+             specToString(*typeSpec.m_otype);
+    default:
+      return kindToString(typeSpec.m_kind);
   }
 }
 
@@ -119,14 +120,14 @@ std::string unionTypeToString(const TypeSpec typeSpec) {
 
 std::string tyQualToString(const TypeQual tyQual) {
   switch (tyQual) {
-  case TypeQual::Const:
-    return "const";
-  case TypeQual::Restrict:
-    return "restrict";
-  case TypeQual::Volatile:
-    return "volatile";
-  case TypeQual::Atomic:
-    return "_Atomic";
+    case TypeQual::Const:
+      return "const";
+    case TypeQual::Restrict:
+      return "restrict";
+    case TypeQual::Volatile:
+      return "volatile";
+    case TypeQual::Atomic:
+      return "_Atomic";
   }
   return "<UNKNOWN>";
 }
@@ -160,14 +161,14 @@ std::string toString(const ParameterDecl paramDecl) {
 
 std::string toString(const TypeQual tyQual) {
   switch (tyQual) {
-  case TypeQual::Const:
-    return "TypeQual::Const";
-  case TypeQual::Restrict:
-    return "TypeQual::Restrict";
-  case TypeQual::Volatile:
-    return "TypeQual::Volatile";
-  case TypeQual::Atomic:
-    return "TypeQual::Atomic";
+    case TypeQual::Const:
+      return "TypeQual::Const";
+    case TypeQual::Restrict:
+      return "TypeQual::Restrict";
+    case TypeQual::Volatile:
+      return "TypeQual::Volatile";
+    case TypeQual::Atomic:
+      return "TypeQual::Atomic";
   }
   return "<UNKNOWN TypeQual>";
 }
@@ -183,18 +184,18 @@ std::string toString(const DeclarationSpecifiers declSpecs) {
 
 std::string toString(const StorageClassSpecifier storageClassSpec) {
   switch (storageClassSpec) {
-  case StorageClassSpecifier::Typedef:
-    return "StorageClassSpecifier::Typedef";
-  case StorageClassSpecifier::Extern:
-    return "StorageClassSpecifier::Extern";
-  case StorageClassSpecifier::Static:
-    return "StorageClassSpecifier::Static";
-  case StorageClassSpecifier::ThreadLocal:
-    return "StorageClassSpecifier::ThreadLocal";
-  case StorageClassSpecifier::Auto:
-    return "StorageClassSpecifier::Auto";
-  case StorageClassSpecifier::Register:
-    return "StorageClassSpecifier::Register";
+    case StorageClassSpecifier::Typedef:
+      return "StorageClassSpecifier::Typedef";
+    case StorageClassSpecifier::Extern:
+      return "StorageClassSpecifier::Extern";
+    case StorageClassSpecifier::Static:
+      return "StorageClassSpecifier::Static";
+    case StorageClassSpecifier::ThreadLocal:
+      return "StorageClassSpecifier::ThreadLocal";
+    case StorageClassSpecifier::Auto:
+      return "StorageClassSpecifier::Auto";
+    case StorageClassSpecifier::Register:
+      return "StorageClassSpecifier::Register";
   }
   return "<UNKNOWN StorageClassSpecifier>";
 }
@@ -219,20 +220,20 @@ std::string toString(const TypeSpec typeSpec) { return specToString(typeSpec); }
 
 std::string toString(const ConstantType constType) {
   switch (constType) {
-  case ConstantType::Int32:
-    return "ConstantType::Int32";
-  case ConstantType::Int64:
-    return "ConstantType::Int64";
-  case ConstantType::Uint32:
-    return "ConstantType::Uint32";
-  case ConstantType::Uint64:
-    return "ConstantType::Uint64";
-  case ConstantType::Float:
-    return "ConstantType::Float";
-  case ConstantType::Double:
-    return "ConstantType::Double";
-  case ConstantType::Enum:
-    return "ConstantType::Enum";
+    case ConstantType::Int32:
+      return "ConstantType::Int32";
+    case ConstantType::Int64:
+      return "ConstantType::Int64";
+    case ConstantType::Uint32:
+      return "ConstantType::Uint32";
+    case ConstantType::Uint64:
+      return "ConstantType::Uint64";
+    case ConstantType::Float:
+      return "ConstantType::Float";
+    case ConstantType::Double:
+      return "ConstantType::Double";
+    case ConstantType::Enum:
+      return "ConstantType::Enum";
   }
   return "<UNKOWN ConstantType>";
 }
@@ -249,14 +250,14 @@ std::string toString(const Constant constant) {
 
 std::string toString(const ExprType exprType) {
   switch (exprType) {
-  case ExprType::Constant:
-    return "ExprType::Constant";
-  case ExprType::Identifier:
-    return "ExprType::Identifier";
-  case ExprType::String:
-    return "ExprType::String";
-  case ExprType::BinaryExpr:
-    return "ExprType::BinaryExpr";
+    case ExprType::Constant:
+      return "ExprType::Constant";
+    case ExprType::Identifier:
+      return "ExprType::Identifier";
+    case ExprType::String:
+      return "ExprType::String";
+    case ExprType::BinaryExpr:
+      return "ExprType::BinaryExpr";
   }
   return "<UNKNOWN ExprType>";
 }
@@ -270,14 +271,16 @@ std::string toString(const Expression expr) {
   return ret;
 }
 
-template <typename T> std::string toString(const std::shared_ptr<T> token) {
+template <typename T>
+std::string toString(const std::shared_ptr<T> token) {
   if (token) {
     return toString(*token);
   }
   return "std::shared_ptr { nullptr }";
 }
 
-template <typename T> std::string toString(const std::vector<T> vec) {
+template <typename T>
+std::string toString(const std::vector<T> vec) {
   if (vec.size() == 0) {
     return "std::vector { }";
   }
@@ -289,4 +292,4 @@ template <typename T> std::string toString(const std::vector<T> vec) {
   return ret;
 }
 }
-} // ptc::scanner
+}  // ptc::scanner

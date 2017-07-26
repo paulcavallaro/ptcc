@@ -64,15 +64,14 @@ struct Parser {
   void parseDeclarationFromDeclarationSpecifiers(
       Token &out, const Token &declarationSpecifiers,
       const Token *initDeclaratorList = nullptr);
-  void
-  parseStorageClassDeclarationSpecifiers(Token &out,
-                                         const Token &storageClassSpecifiers,
-                                         const Token &declarationSpecifiers);
+  void parseStorageClassDeclarationSpecifiers(
+      Token &out, const Token &storageClassSpecifiers,
+      const Token &declarationSpecifiers);
   void parseTypeSpecifierBaseDeclarationSpecifier(Token &out,
                                                   const Token &typeSpecifier);
-  void
-  parseTypeSpecifierDeclarationSpecifier(Token &out, const Token &typeSpecifier,
-                                         const Token &declarationSpecifiers);
+  void parseTypeSpecifierDeclarationSpecifier(
+      Token &out, const Token &typeSpecifier,
+      const Token &declarationSpecifiers);
 
   void createNewEnumConstant(Token &out, const Token &id);
   void parseEnumeratorListBase(Token &out, const Token &enumerator);
@@ -115,7 +114,7 @@ struct Parser {
   void setDebug(bool debug) { m_debug = debug; }
   void debugLn(const char *format, ...);
 
-private:
+ private:
   bool m_debug{0};
   std::unordered_map<std::string, size_t> m_symtable;
   std::vector<SymTableEntry> m_symbols;
@@ -128,4 +127,4 @@ private:
 // or other indirect TypeKinds
 void setPtrTo(TypeSpec *ptrType, TypeSpec oType);
 }
-} // ptcc::parser
+}  // ptcc::parser
