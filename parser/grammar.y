@@ -655,7 +655,6 @@ type_qualifier_list
         }
 	| type_qualifier_list type_qualifier    {
           // TODO(ptc) this is wrong we need to handle multiple type qualifiers
-          _p->debugLn("type_qualifier_list with a type_qualifier_list as WELL!");
           assert(false);
         }
 	;

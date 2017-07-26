@@ -14,19 +14,20 @@ namespace parser {
 int Parser::check_type(const char *symbol) {
   auto idx = find(symbol);
   if (idx == -1) {
-    debugLn("Checking type of: %s, Not Found, Default To IDENTIFIER", symbol);
+    VLOG(2) << "Checking type of: " << symbol
+            << ", Not Found, Default To IDENTIFIER";
     return IDENTIFIER;
   }
   auto entry = get(idx);
   switch (entry.m_token) {
     case IDENTIFIER:
-      debugLn("Checking type of: %s, Found: IDENTIFIER", symbol);
+      VLOG(2) << "Checking type of: " << symbol << ", Found: IDENTIFIER";
       return IDENTIFIER;
     case TYPEDEF_NAME:
-      debugLn("Checking type of: %s, Found: TYPEDEF_NAME", symbol);
+      VLOG(2) << "Checking type of: " << symbol << ", Found: TYPEDEF_NAME";
       return TYPEDEF_NAME;
     default:
-      debugLn("Checking type of: %s, Found: %d", symbol, entry.m_token);
+      VLOG(2) << "Checking type of: " << symbol << ", Found: " << entry.m_token;
       return entry.m_token;
   }
 }
@@ -69,8 +70,8 @@ ssize_t Parser::overwrite(const SymTableEntry entry) {
 }
 
 void Parser::parseTypeQualifierList(Token &out, const Token &tQual) {
-  debugLn("Entering parseTypeQualifierList out.m_typeQuals.size() = %lu",
-          out.m_typeQuals.size());
+  VLOG(2) << "Entering parseTypeQualifierList out.m_typeQuals.size() = "
+          << out.m_typeQuals.size();
   out.m_typeQuals = {};
   switch (tQual.m_token) {
     case CONST:
@@ -86,11 +87,11 @@ void Parser::parseTypeQualifierList(Token &out, const Token &tQual) {
       out.m_typeQuals.push_back(TypeQual::Atomic);
       break;
     default:
-      debugLn("ERROR - Unknown Type Qualifier");
+      VLOG(2) << "ERROR - Unknown Type Qualifier";
       break;
   }
-  debugLn("Exiting parseTypeQualifierList out.m_typeQuals.size() = %lu",
-          out.m_typeQuals.size());
+  VLOG(2) << "Exiting parseTypeQualifierList out.m_typeQuals.size() = "
+          << out.m_typeQuals.size();
 }
 
 TypeSpec Parser::mergeTypes(TypeSpec type, TypeSpec listType) {
@@ -168,25 +169,23 @@ TypeSpec Parser::mergeTypes(TypeSpec type, TypeSpec listType) {
 void Parser::parseSpecifierQualifierListSpecifier(Token &out,
                                                   const Token &specifier,
                                                   const Token *list) {
-  debugLn("Entering parseSpecifierQualifierListSpecifier");
+  VLOG(2) << "Entering parseSpecifierQualifierListSpecifier";
   assert(specifier.m_type);
   if (!list) {
-    debugLn("No list, setting out = specifier");
+    VLOG(2) << "No list, setting out = specifier";
     out = specifier;
   } else {
-    debugLn("List exists");
+    VLOG(2) << "List exists";
     if (list->m_type) {
-      debugLn("List TYPE exists");
+      VLOG(2) << "List TYPE exists";
       // These are types like `long long` or `long int`
       out.m_type = std::make_shared<TypeSpec>(
           mergeTypes(*specifier.m_type, *list->m_type));
     } else {
       // Just a bunch of type qualifiers, let's augment our type from the
-      // specifier
-      // then
-      debugLn(
-          "No list type, just a bunch of type qualifiers so augmenting our "
-          "specifier with them");
+      // specifier then
+      VLOG(2) << "No list type, just a bunch of type qualifiers so augmenting "
+                 "our specifier with them";
       out = specifier;
       assert(!list->m_typeQuals.empty());
       out.m_type->m_quals = list->m_typeQuals;
@@ -197,23 +196,22 @@ void Parser::parseSpecifierQualifierListSpecifier(Token &out,
 void Parser::parseSpecifierQualifierListQualifier(Token &out,
                                                   const Token &qualifier,
                                                   const Token *list) {
-  debugLn("Entering parseSpecifierQualifierListQualifier");
+  VLOG(2) << "Entering parseSpecifierQualifierListQualifier";
   assert(qualifier.m_typeQuals.size() == 1);
   if (!list) {
-    debugLn("No list, just setting out = qualifier");
+    VLOG(2) << "No list, just setting out = qualifier";
     out = qualifier;
   } else {
-    debugLn("List exists");
+    VLOG(2) << "List exists";
     if (list->m_type) {
-      debugLn(
-          "List TYPE exists, just adding our qualifier to the list type then");
+      VLOG(2) << "List TYPE exists, just adding our qualifier to the list type "
+                 "then";
       out = *list;
       out.m_type->m_quals.push_back(qualifier.m_typeQuals[0]);
-      debugLn("New type is: %s", pointerTypeToString(*out.m_type).c_str());
+      VLOG(2) << "New type is: " << pointerTypeToString(*out.m_type);
     } else {
-      debugLn(
-          "No list type, just a bunch of type qualifiers so augmenting our "
-          "m_tyQuals with them as well");
+      VLOG(2) << "No list type, just a bunch of type qualifiers so augmenting "
+                 "our m_tyQuals with them as well";
       out.m_typeQuals = list->m_typeQuals;
       out.m_typeQuals.push_back(qualifier.m_typeQuals[0]);
     }
@@ -237,31 +235,31 @@ void setPtrTo(TypeSpec *ptrType, TypeSpec oType) {
 void Parser::parsePointerTyQual(Token &out, const Token &tyQualList,
                                 const Token *pointer) {
   out = Token{};
-  debugLn("Entering parsePointerTyQual, pointer=%lu", pointer);
+  VLOG(2) << "Entering parsePointerTyQual, pointer=" << pointer;
   out.m_token = '*';
   out.m_text = "*";
-  debugLn("tyQualList.m_typeQuals.size() = %lu", tyQualList.m_typeQuals.size());
+  VLOG(2) << "tyQualList.m_typeQuals.size() = "
+          << tyQualList.m_typeQuals.size();
   if (!pointer) {
     out.m_type =
         std::make_shared<TypeSpec>(TypeSpec{.m_kind = TypeKind::Pointer});
     out.m_type->m_quals = tyQualList.m_typeQuals;
   } else {
-    debugLn("Pointer exists as well! Calling setPtrTo to set to pointer");
+    VLOG(2) << "Pointer exists as well! Calling setPtrTo to set to pointer";
     out.m_type = pointer->m_type;
     setPtrTo(out.m_type.get(), TypeSpec{.m_kind = TypeKind::Pointer,
                                         .m_quals = tyQualList.m_typeQuals});
   }
-  debugLn("Pointer Type Qualifier of %s",
-          pointerTypeToString(*out.m_type).c_str());
+  VLOG(2) << "Pointer Type Qualifier of " << pointerTypeToString(*out.m_type);
 }
 
 void Parser::parsePointer(Token &out, const Token *pointer) {
   out = Token{};
-  debugLn("Entering parsePointer, pointer=%lu", pointer);
+  VLOG(2) << "Entering parsePointer, pointer" << pointer;
   out.m_token = '*';
   out.m_text = "*";
   if (pointer) {
-    debugLn("Calling setPtrTo");
+    VLOG(2) << "Calling setPtrTo";
     out.m_type = pointer->m_type;
     setPtrTo(out.m_type.get(), TypeSpec{.m_kind = TypeKind::Pointer});
     out.m_text = out.m_text + pointer->m_text;
@@ -269,30 +267,30 @@ void Parser::parsePointer(Token &out, const Token *pointer) {
     out.m_type =
         std::make_shared<TypeSpec>(TypeSpec{.m_kind = TypeKind::Pointer});
   }
-  debugLn("Pointer of %s", pointerTypeToString(*out.m_type).c_str());
+  VLOG(2) << "Pointer of " << pointerTypeToString(*out.m_type);
 }
 
 void Parser::parsePointerDeclarator(Token &out, const Token &pointer,
                                     const Token &directDecl) {
   // TODO(ptc) flesh out pointer + direct delcarator
-  debugLn("Entering parsePointerDeclarator");
+  VLOG(2) << "Entering parsePointerDeclarator";
   out.m_text = pointer.m_text + directDecl.m_text;
   out.m_id = directDecl.m_id;
   out.m_type = pointer.m_type;
   out.m_declSpecs = pointer.m_declSpecs;
-  debugLn("Pointer Declarator Id=%s Type Of %s", out.m_id.c_str(),
-          pointerTypeToString(*out.m_type).c_str());
+  VLOG(2) << "Pointer Declarator Id=" << out.m_id << " Type Of "
+          << pointerTypeToString(*out.m_type);
 }
 
 void Parser::parseDirectDeclarator(Token &out, const Token &directDecl) {
   // TODO(ptc) flesh out pointer + direct delcarator
-  debugLn("Entering parseDirectDeclarator id=%s", directDecl.m_id.c_str());
+  VLOG(2) << "Entering parseDirectDeclarator id=%s" << directDecl.m_id;
   out = directDecl;
 }
 
 void Parser::parseTypeQualifier(Token &out, const int token) {
-  debugLn("Entering parseTypeQualifier, out.m_typeQuals.size() = %lu",
-          out.m_typeQuals.size());
+  VLOG(2) << "Entering parseTypeQualifier, out.m_typeQuals.size() = "
+          << out.m_typeQuals.size();
   switch (token) {
     case CONST:
       out.m_token = CONST;
@@ -315,14 +313,14 @@ void Parser::parseTypeQualifier(Token &out, const int token) {
       out.m_typeQuals.push_back(TypeQual::Atomic);
       break;
     default:
-      debugLn("ERROR - Unknown Type Qualifier");
+      VLOG(2) << "ERROR - Unknown Type Qualifier";
       break;
   }
 }
 
 void Parser::parseTypeSpecifier(Token &out, const int token) {
-  debugLn("Entering parseTypeSpecifier, token = %i, out.m_text = %s", token,
-          out.m_text.c_str());
+  VLOG(2) << "Entering parseTypeSpecifier, token = " << token
+          << ", out.m_text = " << out.m_text;
   switch (token) {
     case VOID:
       out.m_token = token;
@@ -411,19 +409,19 @@ void Parser::debugLn(const char *format, ...) {
 }
 
 void Parser::parseExprStmt(Token &out, const Token &expr) {
-  debugLn("Expression Statement of Expression: %s", expr.m_text.c_str());
+  VLOG(2) << "Expression Statement of Expression: " << expr.m_text;
   out = expr;
 }
 
 void Parser::parseDirectDeclaratorId(Token &out, const Token &id) {
-  debugLn("Direct Declarator of IDENTIFIER: %s", id.m_text.c_str());
+  VLOG(2) << "Direct Declarator of IDENTIFIER: " << id.m_text;
   out = id;
   out.m_id = id.m_text;
 }
 
 void Parser::parseDirectDeclaratorArray(Token &out, const Token &declarator) {
-  debugLn("Direct Declarator of Direct Declarator Array []: %s",
-          declarator.m_text.c_str());
+  VLOG(2) << "Direct Declarator of Direct Declarator Array []: "
+          << declarator.m_text;
   // TODO(ptc) implement this
   out.m_id = declarator.m_id;
   out.m_text = declarator.m_text + "[]";
@@ -435,10 +433,9 @@ void Parser::parseDirectDeclaratorArray(Token &out, const Token &declarator) {
 
 void Parser::parseStructDeclarator(Token &out, const Token &structDecl,
                                    const Token *optStructDeclList) {
-  debugLn(
-      "Struct Declarator List Item: type=%s, id=%s",
-      structDecl.m_type ? specToString(*structDecl.m_type).c_str() : "Unknown",
-      structDecl.m_id.c_str());
+  VLOG(2) << "Struct Declarator List Item: type="
+          << (structDecl.m_type ? specToString(*structDecl.m_type) : "Unknown")
+          << ", id=" << structDecl.m_id;
 
   if (optStructDeclList) {
     out.m_structDeclList = std::move(optStructDeclList->m_structDeclList);
@@ -448,7 +445,7 @@ void Parser::parseStructDeclarator(Token &out, const Token &structDecl,
 
 void Parser::parseStructDeclaration(Token &out, const Token &specQualList,
                                     const Token &structDeclList) {
-  debugLn("Entering parseStructDeclaration");
+  VLOG(2) << "Entering parseStructDeclaration";
   // Type specifiers and qualifiers should be in the specQualList m_typeQuals
   // and m_type variables
   assert(!(specQualList.m_typeQuals.empty() && !specQualList.m_type));
@@ -457,7 +454,7 @@ void Parser::parseStructDeclaration(Token &out, const Token &specQualList,
   // "long long" or "long int" or "unsigned int", but for now just take the
   // first type specifier as the type
   if (!specQualList.m_type) {
-    debugLn("Can't handle empty type in specifier qualifier list!");
+    VLOG(2) << "Can't handle empty type in specifier qualifier list!";
     assert(false);
   }
 
@@ -477,14 +474,14 @@ void Parser::parseStructDeclaration(Token &out, const Token &specQualList,
       decl.m_type = *specQualList.m_type;
     }
     out.m_fieldDecls.push_back(decl);
-    debugLn("Struct Declaration of type = %s, name = %s",
-            specToString(decl.m_type).c_str(), decl.m_name.c_str());
+    VLOG(2) << "Struct Declaration of type = " << specToString(decl.m_type)
+            << ", name = " << decl.m_name;
   }
 }
 
 void Parser::parseStructDeclarationList(Token &out, const Token &structDecl,
                                         const Token *optStructDeclList) {
-  debugLn("Struct Declaration List Item: %s", structDecl.m_text.c_str());
+  VLOG(2) << "Struct Declaration List Item: " << structDecl.m_text;
   if (optStructDeclList) {
     out.m_fieldDecls = optStructDeclList->m_fieldDecls;
     for (auto &fieldDecl : structDecl.m_fieldDecls) {
