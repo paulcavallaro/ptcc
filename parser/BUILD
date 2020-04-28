@@ -1,0 +1,14 @@
+cc_library(
+    name='parser',
+    srcs=[
+        'parser.cpp',
+        'scanner.cpp',
+    ],
+    hdrs=[
+        'parser.h',
+        'scanner.h',
+    ],
+    deps=[
+        '@com_github_google_glog//:glog',
+    ],
+)

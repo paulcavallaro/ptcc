@@ -1,5 +1,4 @@
 #include "parser.h"
-#include "parser/grammar.tab.hpp"
 
 #include <assert.h>
 #include <cstdarg>
@@ -8,6 +7,34 @@
 
 namespace ptcc {
 namespace parser {
+
+enum Hack {
+  IDENTIFIER,
+  VOLATILE,
+  ATOMIC,
+  CONST,
+  RESTRICT,
+  VOID,
+  UNION,
+  EXTERN,
+  STRUCT,
+  STATIC,
+  THREAD_LOCAL,
+  AUTO,
+  REGISTER,
+  TYPEDEF,
+  TYPEDEF_NAME,
+  CHAR,
+  SHORT,
+  INT,
+  LONG,
+  FLOAT,
+  DOUBLE,
+  BOOL,
+  UNSIGNED,
+  SIGNED,
+  ENUMERATION_CONSTANT,
+};
 
 // Parser::check_type will search m_symbols for a TYPEDEF_NAME and if not found
 // will return IDENTIFIER
