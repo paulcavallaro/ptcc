@@ -10,3 +10,17 @@ cc_library(
         '@com_github_google_glog//:glog',
     ],
 )
+
+
+cc_library(
+    name='token',
+    srcs=[
+        'token.cc',
+    ],
+    hdrs=[
+        'token.h',
+    ],
+    deps=[
+        '@com_github_google_glog//:glog',
+    ],
+)
