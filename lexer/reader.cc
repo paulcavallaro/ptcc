@@ -6,6 +6,7 @@
 #include "absl/strings/cord.h"
 #include "absl/strings/str_cat.h"
 #include "absl/strings/string_view.h"
+#include "util/fd-closer.h"
 
 namespace ptcc {
 
@@ -14,6 +15,7 @@ Reader::Reader(absl::string_view fname) : fname_(fname) {}
 // TODO(paulcavallaro): Error handling w/ StatusOr
 absl::Cord Reader::Read() {
   FILE* file = fopen(fname_.c_str(), "r");
+  FDCloser closer(file);
   if (file == nullptr) {
     perror(absl::StrCat("Failed to open file: ", fname_).c_str());
     // TODO(paulcavallaro): Error handling w/ StatusOr
@@ -30,7 +32,6 @@ absl::Cord Reader::Read() {
     // TODO(paulcavallaro): Error handling w/ StatusOr
     return absl::Cord{};
   }
-  fclose(file);
   return data;
 }
 
