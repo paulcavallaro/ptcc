@@ -1,5 +1,4 @@
-#ifndef __PTCC_LEXER_LEXER_H__
-#define __PTCC_LEXER_LEXER_H__
+#pragma once
 
 namespace ptcc {
 
@@ -60,5 +59,3 @@ class Token {
 };
 
 }  // namespace ptcc
-
-#endif

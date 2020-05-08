@@ -7,7 +7,8 @@ cc_library(
     'lexer.h',
   ],
   deps=[
-    '@com_github_google_glog//:glog',
+    ':token',
+    '@com_google_absl//absl/strings:cord',
   ],
 )
 

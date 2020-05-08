@@ -1,5 +1,4 @@
-#ifndef __PTCC_UTIL_FD_CLOSER_H__
-#define __PTCC_UTIL_FD_CLOSER_H__
+#pragma once
 
 #include <stdio.h>
 
@@ -16,5 +15,3 @@ class FDCloser {
 };
 
 }  // namespace ptcc
-
-#endif

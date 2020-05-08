@@ -1,5 +1,4 @@
-#ifndef __PTCC_LEXER_READER_H__
-#define __PTCC_LEXER_READER_H__
+#pragma once
 
 #include "absl/strings/cord.h"
 #include "absl/strings/string_view.h"
@@ -17,5 +16,3 @@ class Reader {
 };
 
 }  // namespace ptcc
-
-#endif
