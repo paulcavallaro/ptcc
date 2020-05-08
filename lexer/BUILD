@@ -36,9 +36,9 @@ cc_library(
     'reader.h',
   ],
   deps=[
+    '//util:fd-closer',
     '@com_google_absl//absl/status:status',
     '@com_google_absl//absl/strings:cord',
     '@com_google_absl//absl/strings:strings',
-    '//util:fd-closer',
   ],
 )
