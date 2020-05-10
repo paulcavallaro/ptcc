@@ -12,7 +12,6 @@ cc_library(
   ],
 )
 
-
 cc_library(
   name='token',
   srcs=[
@@ -25,7 +24,6 @@ cc_library(
     '@com_github_google_glog//:glog',
   ],
 )
-
 
 cc_library(
   name='reader',
