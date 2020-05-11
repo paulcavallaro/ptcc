@@ -15,6 +15,7 @@ enum class TokenType {
   DOUBLE,
   ELSE,
   ENUM,
+  EOF_SENTINEL,
   EXTERN,
   FLOAT,
   FOR,
@@ -53,6 +54,8 @@ class Token {
   Token(TokenType type) : type_(type) {}
 
   TokenType Type();
+
+  static Token EOFToken();
 
  private:
   TokenType type_;

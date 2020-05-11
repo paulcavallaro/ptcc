@@ -7,12 +7,14 @@ namespace ptcc {
 
 class Lexer {
  public:
-  explicit Lexer(absl::Cord text);
+  explicit Lexer(absl::string_view text);
 
   Token NextToken();
 
  private:
-  absl::Cord text_;
+  absl::string_view text_;
+  int cur_pos_;
+  const char* cur_ptr_;
 };
 
 }  // namespace ptcc

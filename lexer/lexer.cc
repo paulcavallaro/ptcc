@@ -3,8 +3,12 @@
 
 namespace ptcc {
 
-Lexer::Lexer(absl::Cord text) : text_(text) {}
+Lexer::Lexer(absl::string_view text)
+    : text_(text), cur_pos_(0), cur_ptr_(text_.data()) {}
 
-Token Lexer::NextToken() { return Token(TokenType::AUTO); }
+Token Lexer::NextToken() {
+  if (cur_pos_ >= text_.length()) return Token::EOFToken();
+  return Token::EOFToken();
+}
 
 }  // namespace ptcc
