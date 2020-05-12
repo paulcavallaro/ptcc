@@ -12,8 +12,7 @@ class Lexer {
   Token NextToken();
 
  private:
-  absl::string_view text_;
-  int cur_pos_;
+  absl::string_view text_; // Must be null-terminated
   const char* cur_ptr_;
 };
 

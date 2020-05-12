@@ -3,11 +3,18 @@
 
 namespace ptcc {
 
-Lexer::Lexer(absl::string_view text)
-    : text_(text), cur_pos_(0), cur_ptr_(text_.data()) {}
+Lexer::Lexer(absl::string_view text) : text_(text), cur_ptr_(text_.data()) {}
 
 Token Lexer::NextToken() {
-  if (cur_pos_ >= text_.length()) return Token::EOFToken();
+  switch (*cur_ptr_) {
+    case 0:
+      return Token::EOFToken();
+    case ' ':
+    case '\t':
+    case '\v':
+      // Horizontal whitespace
+      cur_ptr_ += 1;
+  }
   return Token::EOFToken();
 }
 
