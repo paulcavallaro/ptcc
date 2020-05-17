@@ -2,6 +2,8 @@
 
 namespace ptcc {
 
+class Identifier;
+
 enum class TokenType {
   ALIGN_OF,
   AUTO,
@@ -20,6 +22,7 @@ enum class TokenType {
   FLOAT,
   FOR,
   GOTO,
+  IDENTIFIER,
   IF,
   INLINE,
   INT,
@@ -58,6 +61,10 @@ class Token {
   static Token EOFToken();
 
  private:
+  union data_ptr_ {
+    Identifier* ident_;
+  };
+
   TokenType type_;
 };
 
