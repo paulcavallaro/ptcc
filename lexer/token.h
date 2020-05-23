@@ -1,8 +1,9 @@
 #pragma once
 
-namespace ptcc {
+#include "absl/strings/string_view.h"
+#include "lexer/identifier-database.h"
 
-class Identifier;
+namespace ptcc {
 
 enum class TokenType {
   ALIGN_OF,
@@ -58,12 +59,15 @@ class Token {
 
   TokenType Type();
 
-  static Token EOFToken();
+  void SetIdentifierInfo(IdentifierInfo* info);
+
+  static Token NewEOF();
+  static Token NewIdentifier(absl::string_view);
 
  private:
-  union data_ptr_ {
-    Identifier* ident_;
-  };
+  union DataPointer {
+    IdentifierInfo* ident_;
+  } data_ptr_;
 
   TokenType type_;
 };

@@ -21,6 +21,8 @@ cc_library(
     'token.h',
   ],
   deps=[
+    ':identifier-database',
+    '@com_google_absl//absl/strings:strings',
     '@com_github_google_glog//:glog',
   ],
 )
@@ -37,6 +39,20 @@ cc_library(
     '//util:fd-closer',
     '@com_google_absl//absl/status:status',
     '@com_google_absl//absl/strings:cord',
+    '@com_google_absl//absl/strings:strings',
+  ],
+)
+
+cc_library(
+  name='identifier-database',
+  srcs=[
+    'identifier-database.cc',
+  ],
+  hdrs=[
+    'identifier-database.h',
+  ],
+  deps=[
+    '@com_google_absl//absl/container:node_hash_map',
     '@com_google_absl//absl/strings:strings',
   ],
 )

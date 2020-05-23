@@ -11,7 +11,7 @@ LexNextToken:
   const char cur = *(cur_ptr_++);
   switch (cur) {
     case 0:
-      return Token::EOFToken();
+      return Token::NewEOF();
     case ' ':
     case '\t':
     case '\v':
@@ -35,12 +35,32 @@ LexNextToken:
       // 6.4.2 Identifiers
       return LexIdentifier();
   }
-  return Token::EOFToken();
+  return Token::NewEOF();
 }
 
 Token Lexer::LexIdentifier() {
   // Already parsed first character of identifier, need to parse the rest
-  return Token::EOFToken();
+  const char* start = cur_ptr_ - 1;
+  switch (*cur_ptr_) {
+    // clang-format off
+    case 'A': case 'B': case 'C': case 'D': case 'E': case 'F': case 'G':
+    case 'H': case 'I': case 'J': case 'K': case 'L': case 'M': case 'N':
+    case 'O': case 'P': case 'Q': case 'R': case 'S': case 'T': case 'U':
+    case 'V': case 'W': case 'X': case 'Y': case 'Z':
+    case 'a': case 'b': case 'c': case 'd': case 'e': case 'f': case 'g':
+    case 'h': case 'i': case 'j': case 'k': case 'l': case 'm': case 'n':
+    case 'o': case 'p': case 'q': case 'r': case 's': case 't': case 'u':
+    case 'v': case 'w': case 'x': case 'y': case 'z':
+    case '_':
+    case '0': case '1': case '2': case '3': case '4': case '5': case '6':
+    case '7': case '8': case '9':
+      // clang-format on
+      cur_ptr_++;
+      break;
+    default:
+      return Token::NewIdentifier(absl::string_view(start, cur_ptr_ - start));
+  }
+  return Token::NewEOF();
 }
 
 }  // namespace ptcc
