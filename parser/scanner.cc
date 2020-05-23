@@ -291,5 +291,5 @@ std::string toString(const std::vector<T> vec) {
   ret += "}";
   return ret;
 }
-}
-}  // ptc::scanner
+}  // namespace parser
+}  // namespace ptcc

@@ -767,7 +767,9 @@ void Parser::createNewEnumConstant(Token &out, const Token &id) {
   out.m_id = id.m_text;
   out.m_token = ENUMERATION_CONSTANT;
   SymTableEntry entry{
-      .m_symbol = id.m_text, .m_token = ENUMERATION_CONSTANT, .m_type = nullptr,
+      .m_symbol = id.m_text,
+      .m_token = ENUMERATION_CONSTANT,
+      .m_type = nullptr,
   };
   overwrite(entry);
 }
@@ -1013,5 +1015,5 @@ void Parser::parseReturnStmt(Token &out, const int ret_token,
   VLOG(2) << "Return Statement: RETURN " << expr.m_text << ";";
   out.m_text = "RETURN " + expr.m_text + ";";
 }
-}
-}  // ptcc::parser
+}  // namespace parser
+}  // namespace ptcc

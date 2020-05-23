@@ -126,5 +126,5 @@ struct Parser {
 // TODO(ptc) rename to something clearer since can also be used for arrays
 // or other indirect TypeKinds
 void setPtrTo(TypeSpec *ptrType, TypeSpec oType);
-}
-}  // ptcc::parser
+}  // namespace parser
+}  // namespace ptcc

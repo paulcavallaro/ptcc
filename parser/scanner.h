@@ -167,5 +167,5 @@ template <typename T>
 std::string toString(const std::vector<T> vec);
 
 std::string pointerTypeToString(const TypeSpec tSpec);
-}
-}  // ptc::scanner
+}  // namespace parser
+}  // namespace ptcc
