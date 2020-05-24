@@ -43,6 +43,19 @@ cc_library(
   ],
 )
 
+cc_binary(
+  name='tokenizer',
+  srcs=[
+    'tokenizer.cc',
+  ],
+  deps=[
+    '//lexer:lexer',
+    '//util:file-utils',
+    '@com_google_absl//absl/flags:parse',
+    '@com_google_absl//absl/strings:strings',
+  ],
+)
+
 cc_library(
   name='identifier-database',
   srcs=[

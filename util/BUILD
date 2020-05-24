@@ -12,3 +12,17 @@ cc_library(
     '@com_github_google_glog//:glog',
   ],
 )
+
+cc_library(
+  name='file-utils',
+  srcs=[
+    'file-utils.cc',
+  ],
+  hdrs=[
+    'file-utils.h'
+  ],
+  deps=[
+    ':fd-closer',
+    '@com_google_absl//absl/strings:strings',
+  ],
+)

@@ -58,7 +58,9 @@ Token Lexer::LexIdentifier() {
       cur_ptr_++;
       break;
     default:
-      return Token::NewIdentifier(absl::string_view(start, cur_ptr_ - start));
+      absl::string_view src(start, cur_ptr_ - start);
+      IdentifierInfo* info = idents_.MakeIdentifier(src);
+      return Token::NewIdentifier(src, info);
   }
   return Token::NewEOF();
 }
