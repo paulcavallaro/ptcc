@@ -15,4 +15,3 @@ before_install:
 
 script:
   - bazel build //lexer:tokenizer
-  - bazel test //...
