@@ -14,4 +14,4 @@ before_install:
   - sudo dpkg -i bazel_3.1.0-linux-x86_64.deb
 
 script:
-  - bazel build //lexer:tokenizer
+  - bazel build --sandbox_debug //lexer:tokenizer
