@@ -10,7 +10,7 @@ LexNextToken:
   // Read current character and advance
   const char cur = *(cur_ptr_++);
   switch (cur) {
-    case 0:
+    case '\0':
       return Token::NewEOF();
     case ' ':
     case '\t':
@@ -41,8 +41,9 @@ LexNextToken:
 Token Lexer::LexIdentifier() {
   // Already parsed first character of identifier, need to parse the rest
   const char* start = cur_ptr_ - 1;
-  switch (*cur_ptr_) {
-    // clang-format off
+  while (true) {
+    switch (*cur_ptr_) {
+      // clang-format off
     case 'A': case 'B': case 'C': case 'D': case 'E': case 'F': case 'G':
     case 'H': case 'I': case 'J': case 'K': case 'L': case 'M': case 'N':
     case 'O': case 'P': case 'Q': case 'R': case 'S': case 'T': case 'U':
@@ -54,13 +55,14 @@ Token Lexer::LexIdentifier() {
     case '_':
     case '0': case '1': case '2': case '3': case '4': case '5': case '6':
     case '7': case '8': case '9':
-      // clang-format on
-      cur_ptr_++;
-      break;
-    default:
-      absl::string_view src(start, cur_ptr_ - start);
-      IdentifierInfo* info = idents_.MakeIdentifier(src);
-      return Token::NewIdentifier(src, info);
+        // clang-format on
+        cur_ptr_++;
+        break;
+      default:
+        absl::string_view src(start, cur_ptr_ - start);
+        IdentifierInfo* info = idents_.MakeIdentifier(src);
+        return Token::NewIdentifier(src, info);
+    }
   }
   return Token::NewEOF();
 }
