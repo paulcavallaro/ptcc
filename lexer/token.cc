@@ -19,12 +19,27 @@ Token Token::NewIdentifier(absl::string_view src, IdentifierInfo* info) {
 }
 
 std::ostream& operator<<(std::ostream& os, const Token& tok) {
-  if (tok.type_ == TokenType::EOF_SENTINEL) {
-    os << "<EOF>";
-  } else if (tok.type_ == TokenType::IDENTIFIER) {
-    os << absl::StrCat("<IDENTIFIER: '", tok.src_, "'>");
-  } else {
-    os << absl::StrCat("<UNKNOWN: '", tok.src_, "'>");
+  switch (tok.type_) {
+    case TokenType::EOF_SENTINEL:
+      return os << "<EOF>";
+    case TokenType::IDENTIFIER:
+      return os << absl::StrCat("<IDENTIFIER: '", tok.src_, "'>");
+    case TokenType::COMMA:
+      return os << absl::StrCat("<COMMA: '", tok.src_, "'>");
+    case TokenType::SEMICOLON:
+      return os << absl::StrCat("<SEMICOLON: '", tok.src_, "'>");
+    case TokenType::PLUS:
+      return os << absl::StrCat("<PLUS: '", tok.src_, "'>");
+    case TokenType::L_PAREN:
+      return os << absl::StrCat("<L_PAREN: '", tok.src_, "'>");
+    case TokenType::R_PAREN:
+      return os << absl::StrCat("<R_PAREN: '", tok.src_, "'>");
+    case TokenType::L_CURLY_BRACE:
+      return os << absl::StrCat("<L_CURLY_BRACE: '", tok.src_, "'>");
+    case TokenType::R_CURLY_BRACE:
+      return os << absl::StrCat("<R_CURLY_BRACE: '", tok.src_, "'>");
+    default:
+      os << absl::StrCat("<UNKNOWN: '", tok.src_, "'>");
   }
   return os;
 }

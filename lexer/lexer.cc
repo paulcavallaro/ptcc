@@ -12,6 +12,10 @@ LexNextToken:
   switch (cur) {
     case '\0':
       return Token::NewEOF();
+    case '\n':
+      // Vertical whitespace
+      // TODO(line numbering and continuation)
+      goto LexNextToken;
     case ' ':
     case '\t':
     case '\v':
@@ -21,6 +25,22 @@ LexNextToken:
         ++cur_ptr_;
       }
       goto LexNextToken;
+    case ';':
+      return Token(TokenType::SEMICOLON, absl::string_view(cur_ptr_ - 1, 1));
+    case '+':
+      return Token(TokenType::PLUS, absl::string_view(cur_ptr_ - 1, 1));
+    case ',':
+      return Token(TokenType::COMMA, absl::string_view(cur_ptr_ - 1, 1));
+    case '(':
+      return Token(TokenType::L_PAREN, absl::string_view(cur_ptr_ - 1, 1));
+    case ')':
+      return Token(TokenType::R_PAREN, absl::string_view(cur_ptr_ - 1, 1));
+    case '{':
+      return Token(TokenType::L_CURLY_BRACE,
+                   absl::string_view(cur_ptr_ - 1, 1));
+    case '}':
+      return Token(TokenType::R_CURLY_BRACE,
+                   absl::string_view(cur_ptr_ - 1, 1));
       // clang-format off
     case 'A': case 'B': case 'C': case 'D': case 'E': case 'F': case 'G':
     case 'H': case 'I': case 'J': case 'K':    /*'L'*/case 'M': case 'N':
@@ -43,18 +63,18 @@ Token Lexer::LexIdentifier() {
   const char* start = cur_ptr_ - 1;
   while (true) {
     switch (*cur_ptr_) {
-      // clang-format off
-    case 'A': case 'B': case 'C': case 'D': case 'E': case 'F': case 'G':
-    case 'H': case 'I': case 'J': case 'K': case 'L': case 'M': case 'N':
-    case 'O': case 'P': case 'Q': case 'R': case 'S': case 'T': case 'U':
-    case 'V': case 'W': case 'X': case 'Y': case 'Z':
-    case 'a': case 'b': case 'c': case 'd': case 'e': case 'f': case 'g':
-    case 'h': case 'i': case 'j': case 'k': case 'l': case 'm': case 'n':
-    case 'o': case 'p': case 'q': case 'r': case 's': case 't': case 'u':
-    case 'v': case 'w': case 'x': case 'y': case 'z':
-    case '_':
-    case '0': case '1': case '2': case '3': case '4': case '5': case '6':
-    case '7': case '8': case '9':
+        // clang-format off
+      case 'A': case 'B': case 'C': case 'D': case 'E': case 'F': case 'G':
+      case 'H': case 'I': case 'J': case 'K': case 'L': case 'M': case 'N':
+      case 'O': case 'P': case 'Q': case 'R': case 'S': case 'T': case 'U':
+      case 'V': case 'W': case 'X': case 'Y': case 'Z':
+      case 'a': case 'b': case 'c': case 'd': case 'e': case 'f': case 'g':
+      case 'h': case 'i': case 'j': case 'k': case 'l': case 'm': case 'n':
+      case 'o': case 'p': case 'q': case 'r': case 's': case 't': case 'u':
+      case 'v': case 'w': case 'x': case 'y': case 'z':
+      case '_':
+      case '0': case '1': case '2': case '3': case '4': case '5': case '6':
+      case '7': case '8': case '9':
         // clang-format on
         cur_ptr_++;
         break;
