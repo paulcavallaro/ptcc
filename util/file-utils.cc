@@ -21,7 +21,7 @@ std::string ReadFileToStringWithSentinel(absl::string_view fname,
   char* buf = ret;
   size_t to_read = info.st_size;
   while (true) {
-    const size_t read = fread(buf, 1, to_read, file);
+    const ssize_t read = fread(buf, 1, to_read, file);
     if (read == info.st_size) break;
     if (feof(file)) break;
     // Read less than size
