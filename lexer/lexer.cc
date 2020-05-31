@@ -90,6 +90,9 @@ Token Lexer::LexIdentifier() {
       default:
         absl::string_view src(start, cur_ptr_ - start);
         IdentifierInfo* info = idents_.MakeIdentifier(src);
+        if (info->is_keyword()) {
+          return Token(info->type(), src);
+        }
         return Token::NewIdentifier(src, info);
     }
   }

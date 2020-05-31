@@ -22,8 +22,19 @@ cc_library(
   ],
   deps=[
     ':identifier-database',
+    ':token-type',
     '@com_google_absl//absl/strings:strings',
     '@com_github_google_glog//:glog',
+  ],
+)
+
+cc_library(
+  name='token-type',
+  srcs=[],
+  hdrs=[
+    'token-type.h',
+  ],
+  deps=[
   ],
 )
 
@@ -65,6 +76,7 @@ cc_library(
     'identifier-database.h',
   ],
   deps=[
+    ':token-type',
     '@com_google_absl//absl/container:node_hash_map',
     '@com_google_absl//absl/strings:strings',
   ],

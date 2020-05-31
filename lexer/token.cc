@@ -42,6 +42,20 @@ std::ostream& operator<<(std::ostream& os, const Token& tok) {
       return os << absl::StrCat("<NUMERIC_CONSTANT: '", tok.src_, "'>");
     case TokenType::STAR:
       return os << absl::StrCat("<STAR: '", tok.src_, "'>");
+    case TokenType::CONST:
+      return os << absl::StrCat("<CONST: '", tok.src_, "'>");
+    case TokenType::CHAR:
+      return os << absl::StrCat("<CHAR: '", tok.src_, "'>");
+    case TokenType::VOID:
+      return os << absl::StrCat("<VOID: '", tok.src_, "'>");
+    case TokenType::IF:
+      return os << absl::StrCat("<IF: '", tok.src_, "'>");
+    case TokenType::ELSE:
+      return os << absl::StrCat("<ELSE: '", tok.src_, "'>");
+    case TokenType::INT:
+      return os << absl::StrCat("<INT: '", tok.src_, "'>");
+    case TokenType::RETURN:
+      return os << absl::StrCat("<RETURN: '", tok.src_, "'>");
     default:
       os << absl::StrCat("<UNKNOWN: '", tok.src_, "'>");
   }
