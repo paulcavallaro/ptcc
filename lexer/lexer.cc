@@ -56,9 +56,9 @@ LexNextToken:
     case '&':
       if (*cur_ptr_ == '&') {
         cur_ptr_++;
-        return Token(TokenType::AND, absl::string_view(cur_ptr_ - 2, 2));
+        return Token(TokenType::ANDAND, absl::string_view(cur_ptr_ - 2, 2));
       }
-      return Token(TokenType::BITWISE_AND, absl::string_view(cur_ptr_ - 1, 1));
+      return Token(TokenType::AND, absl::string_view(cur_ptr_ - 1, 1));
     case '+':
       if (*cur_ptr_ == '+') {
         cur_ptr_++;

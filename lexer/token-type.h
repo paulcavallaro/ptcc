@@ -2,9 +2,9 @@
 
 enum class TokenType {
   ALIGN_OF,
+  ANDAND,
   AND,
   AUTO,
-  BITWISE_AND,
   BREAK,
   CASE,
   CHAR,

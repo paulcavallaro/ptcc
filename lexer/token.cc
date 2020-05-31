@@ -50,8 +50,8 @@ std::ostream& operator<<(std::ostream& os, const Token& tok) {
       return os << absl::StrCat("<CHAR: '", tok.src_, "'>");
     case TokenType::AND:
       return os << absl::StrCat("<AND: '", tok.src_, "'>");
-    case TokenType::BITWISE_AND:
-      return os << absl::StrCat("<BITWISE_AND: '", tok.src_, "'>");
+    case TokenType::ANDAND:
+      return os << absl::StrCat("<ANDAND: '", tok.src_, "'>");
     case TokenType::EQ:
       return os << absl::StrCat("<EQ: '", tok.src_, "'>");
     case TokenType::EQEQ:
