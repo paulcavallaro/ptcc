@@ -17,7 +17,7 @@ std::string ReadFileToStringWithSentinel(absl::string_view fname,
   const int err = fstat(fileno(file), &info);
   if (err != 0) return "";
   char* ret = static_cast<char*>(::operator new(info.st_size + 1));
-  ret[info.st_size + 1] = sentinel;
+  ret[info.st_size] = sentinel;
   char* buf = ret;
   size_t to_read = info.st_size;
   while (true) {

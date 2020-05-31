@@ -34,6 +34,7 @@ enum class TokenType {
   LONG,
   L_PAREN,
   L_CURLY_BRACE,
+  NUMERIC_CONSTANT,
   PLUS,
   R_CURLY_BRACE,
   R_PAREN,

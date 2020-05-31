@@ -54,6 +54,13 @@ LexNextToken:
       // clang-format on
       // 6.4.2 Identifiers
       return LexIdentifier();
+      // clang-format off
+    case '0': case '1': case '2': case '3': case '4':
+    case '5': case '6': case '7': case '8': case '9':
+      // clang-format on
+      // 6.4.4.1 Integer Constants
+      // 6.4.4.2 Floating Constants
+      return LexNumericConstant();
   }
   return Token::NewEOF();
 }
@@ -85,6 +92,25 @@ Token Lexer::LexIdentifier() {
     }
   }
   return Token::NewEOF();
+}
+
+Token Lexer::LexNumericConstant() {
+  // Already parsed first character of numeric constant, need to parse the rest
+  const char* start = cur_ptr_ - 1;
+  while (true) {
+    // TODO: Handle floating point
+    switch (*cur_ptr_) {
+        // clang-format off
+      case '0': case '1': case '2': case '3': case '4': case '5': case '6':
+      case '7': case '8': case '9':
+        // clang-format on
+        cur_ptr_++;
+        break;
+      default:
+        return Token(TokenType::NUMERIC_CONSTANT,
+                     absl::string_view(start, cur_ptr_ - start));
+    }
+  }
 }
 
 }  // namespace ptcc

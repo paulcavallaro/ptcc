@@ -13,6 +13,7 @@ class Lexer {
   Token NextToken();
 
   Token LexIdentifier();
+  Token LexNumericConstant();
 
  private:
   IdentifierDatabase idents_;

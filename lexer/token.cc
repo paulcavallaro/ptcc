@@ -38,6 +38,8 @@ std::ostream& operator<<(std::ostream& os, const Token& tok) {
       return os << absl::StrCat("<L_CURLY_BRACE: '", tok.src_, "'>");
     case TokenType::R_CURLY_BRACE:
       return os << absl::StrCat("<R_CURLY_BRACE: '", tok.src_, "'>");
+    case TokenType::NUMERIC_CONSTANT:
+      return os << absl::StrCat("<NUMERIC_CONSTANT: '", tok.src_, "'>");
     default:
       os << absl::StrCat("<UNKNOWN: '", tok.src_, "'>");
   }
