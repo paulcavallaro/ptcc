@@ -25,6 +25,8 @@ LexNextToken:
         ++cur_ptr_;
       }
       goto LexNextToken;
+    case '*':
+      return Token(TokenType::STAR, absl::string_view(cur_ptr_ - 1, 1));
     case ';':
       return Token(TokenType::SEMICOLON, absl::string_view(cur_ptr_ - 1, 1));
     case '+':

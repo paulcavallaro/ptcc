@@ -45,6 +45,7 @@ enum class TokenType {
   SHORT,
   SIGNED,
   SIZEOF,
+  STAR,
   STATIC,
   STRUCT,
   SWITCH,
