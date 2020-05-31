@@ -25,11 +25,45 @@ LexNextToken:
         ++cur_ptr_;
       }
       goto LexNextToken;
+    case '=':
+      if (*cur_ptr_ == '=') {
+        cur_ptr_++;
+        return Token(TokenType::EQEQ, absl::string_view(cur_ptr_ - 2, 2));
+      }
+      return Token(TokenType::EQ, absl::string_view(cur_ptr_ - 1, 1));
     case '*':
       return Token(TokenType::STAR, absl::string_view(cur_ptr_ - 1, 1));
     case ';':
       return Token(TokenType::SEMICOLON, absl::string_view(cur_ptr_ - 1, 1));
+    case '!':
+      if (*cur_ptr_ == '=') {
+        cur_ptr_++;
+        return Token(TokenType::NOT_EQ, absl::string_view(cur_ptr_ - 2, 2));
+      }
+      return Token(TokenType::NOT, absl::string_view(cur_ptr_ - 1, 1));
+    case '<':
+      if (*cur_ptr_ == '=') {
+        cur_ptr_++;
+        return Token(TokenType::LTEQ, absl::string_view(cur_ptr_ - 2, 2));
+      }
+      return Token(TokenType::LT, absl::string_view(cur_ptr_ - 1, 1));
+    case '>':
+      if (*cur_ptr_ == '=') {
+        cur_ptr_++;
+        return Token(TokenType::GTEQ, absl::string_view(cur_ptr_ - 2, 2));
+      }
+      return Token(TokenType::GT, absl::string_view(cur_ptr_ - 1, 1));
+    case '&':
+      if (*cur_ptr_ == '&') {
+        cur_ptr_++;
+        return Token(TokenType::AND, absl::string_view(cur_ptr_ - 2, 2));
+      }
+      return Token(TokenType::BITWISE_AND, absl::string_view(cur_ptr_ - 1, 1));
     case '+':
+      if (*cur_ptr_ == '+') {
+        cur_ptr_++;
+        return Token(TokenType::PLUSPLUS, absl::string_view(cur_ptr_ - 2, 2));
+      }
       return Token(TokenType::PLUS, absl::string_view(cur_ptr_ - 1, 1));
     case ',':
       return Token(TokenType::COMMA, absl::string_view(cur_ptr_ - 1, 1));

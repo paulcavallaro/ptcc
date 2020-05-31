@@ -30,6 +30,8 @@ std::ostream& operator<<(std::ostream& os, const Token& tok) {
       return os << absl::StrCat("<SEMICOLON: '", tok.src_, "'>");
     case TokenType::PLUS:
       return os << absl::StrCat("<PLUS: '", tok.src_, "'>");
+    case TokenType::PLUSPLUS:
+      return os << absl::StrCat("<PLUSPLUS: '", tok.src_, "'>");
     case TokenType::L_PAREN:
       return os << absl::StrCat("<L_PAREN: '", tok.src_, "'>");
     case TokenType::R_PAREN:
@@ -46,6 +48,22 @@ std::ostream& operator<<(std::ostream& os, const Token& tok) {
       return os << absl::StrCat("<CONST: '", tok.src_, "'>");
     case TokenType::CHAR:
       return os << absl::StrCat("<CHAR: '", tok.src_, "'>");
+    case TokenType::AND:
+      return os << absl::StrCat("<AND: '", tok.src_, "'>");
+    case TokenType::BITWISE_AND:
+      return os << absl::StrCat("<BITWISE_AND: '", tok.src_, "'>");
+    case TokenType::EQ:
+      return os << absl::StrCat("<EQ: '", tok.src_, "'>");
+    case TokenType::EQEQ:
+      return os << absl::StrCat("<EQEQ: '", tok.src_, "'>");
+    case TokenType::LT:
+      return os << absl::StrCat("<LT: '", tok.src_, "'>");
+    case TokenType::LTEQ:
+      return os << absl::StrCat("<LTEQ: '", tok.src_, "'>");
+    case TokenType::GT:
+      return os << absl::StrCat("<GT: '", tok.src_, "'>");
+    case TokenType::GTEQ:
+      return os << absl::StrCat("<GTEQ: '", tok.src_, "'>");
     case TokenType::VOID:
       return os << absl::StrCat("<VOID: '", tok.src_, "'>");
     case TokenType::IF:
