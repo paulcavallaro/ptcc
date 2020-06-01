@@ -108,8 +108,40 @@ LexNextToken:
     case '\'':
       // 6.4.4.4 Character Contants
       return LexCharacterConstant();
+    case '/':
+      // 6.4.6 Punctuators
+      // Handle single-line comments
+      if (*cur_ptr_ == '/') {
+        cur_ptr_++;
+        LexSingleLineComment();
+        goto LexNextToken;
+      }
+      if (*cur_ptr_ == '*') {
+        cur_ptr_++;
+        LexMultiLineComment();
+        goto LexNextToken;
+      }
+      return Token(TokenType::DIV, absl::string_view(cur_ptr_ - 1, 1));
   }
   return Token::NewEOF();
+}
+
+void Lexer::LexSingleLineComment() {
+  // TODO: Handle other newline schemes.
+  while (*cur_ptr_ != '\0' && *cur_ptr_ != '\n') cur_ptr_++;
+}
+
+void Lexer::LexMultiLineComment() {
+  // TODO: Handle multi-line comments
+  while (true) {
+    while (*cur_ptr_ != '\0' && *cur_ptr_ != '*') cur_ptr_++;
+    if (*cur_ptr_ == '\0') return;
+    cur_ptr_++;  // Skip over '*'
+    if (*cur_ptr_ == '/') {
+      cur_ptr_++;
+      return;
+    }
+  }
 }
 
 Token Lexer::LexCharacterConstant() {

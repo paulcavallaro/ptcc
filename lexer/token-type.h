@@ -13,6 +13,7 @@ enum class TokenType {
   CONST,
   CONTINUE,
   DEFAULT,
+  DIV,
   DO,
   DOUBLE,
   ELSE,

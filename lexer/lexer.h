@@ -16,6 +16,9 @@ class Lexer {
   Token LexNumericConstant();
   Token LexCharacterConstant();
 
+  void LexSingleLineComment();
+  void LexMultiLineComment();
+
  private:
   IdentifierDatabase idents_;
   absl::string_view text_;  // Must be null-terminated
