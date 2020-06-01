@@ -1,0 +1,3 @@
+char letter() {
+  return 'a';
+}

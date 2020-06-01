@@ -14,6 +14,7 @@ class Lexer {
 
   Token LexIdentifier();
   Token LexNumericConstant();
+  Token LexCharacterConstant();
 
  private:
   IdentifierDatabase idents_;

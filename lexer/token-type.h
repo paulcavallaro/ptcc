@@ -8,6 +8,7 @@ enum class TokenType {
   BREAK,
   CASE,
   CHAR,
+  CHARACTER_CONSTANT,
   COMMA,
   CONST,
   CONTINUE,

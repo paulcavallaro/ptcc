@@ -91,14 +91,37 @@ LexNextToken:
       // 6.4.2 Identifiers
       return LexIdentifier();
       // clang-format off
+    case 'u': case 'U':
+      // clang-format on
+      if (*cur_ptr_ == '\'') {
+        // TODO: Signal that this is a multi-byte character constant
+        return LexCharacterConstant();
+      }
+      return LexIdentifier();
+      // clang-format off
     case '0': case '1': case '2': case '3': case '4':
     case '5': case '6': case '7': case '8': case '9':
       // clang-format on
       // 6.4.4.1 Integer Constants
       // 6.4.4.2 Floating Constants
       return LexNumericConstant();
+    case '\'':
+      // 6.4.4.4 Character Contants
+      return LexCharacterConstant();
   }
   return Token::NewEOF();
+}
+
+Token Lexer::LexCharacterConstant() {
+  // Already parsed at least one character of the constant already
+  const char* start = cur_ptr_ - 1;
+  // TODO: Actually write up proper character constant parsing
+  while (*cur_ptr_ != '\'' && *cur_ptr_ != '\0') {
+    cur_ptr_++;
+  }
+  cur_ptr_++;
+  return Token(TokenType::CHARACTER_CONSTANT,
+               absl::string_view(start, cur_ptr_ - start));
 }
 
 Token Lexer::LexIdentifier() {
