@@ -22,6 +22,8 @@ std::ostream& operator<<(std::ostream& os, const Token& tok) {
   switch (tok.type_) {
     case TokenType::EOF_SENTINEL:
       return os << "<EOF>";
+    case TokenType::ARROW:
+      return os << absl::StrCat("<ARROW: '", tok.src_, "'>");
     case TokenType::IDENTIFIER:
       return os << absl::StrCat("<IDENTIFIER: '", tok.src_, "'>");
     case TokenType::DOT:
@@ -40,6 +42,10 @@ std::ostream& operator<<(std::ostream& os, const Token& tok) {
       return os << absl::StrCat("<TILDE: '", tok.src_, "'>");
     case TokenType::SEMICOLON:
       return os << absl::StrCat("<SEMICOLON: '", tok.src_, "'>");
+    case TokenType::MINUS:
+      return os << absl::StrCat("<MINUS: '", tok.src_, "'>");
+    case TokenType::MINUSMINUS:
+      return os << absl::StrCat("<MINUSMINUS: '", tok.src_, "'>");
     case TokenType::PLUS:
       return os << absl::StrCat("<PLUS: '", tok.src_, "'>");
     case TokenType::PLUSPLUS:

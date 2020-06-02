@@ -65,6 +65,16 @@ LexNextToken:
         return Token(TokenType::PLUSPLUS, absl::string_view(cur_ptr_ - 2, 2));
       }
       return Token(TokenType::PLUS, absl::string_view(cur_ptr_ - 1, 1));
+    case '-':
+      if (*cur_ptr_ == '-') {
+        cur_ptr_++;
+        return Token(TokenType::MINUSMINUS, absl::string_view(cur_ptr_ - 2, 2));
+      }
+      if (*cur_ptr_ == '>') {
+        cur_ptr_++;
+        return Token(TokenType::ARROW, absl::string_view(cur_ptr_ - 2, 2));
+      }
+      return Token(TokenType::MINUS, absl::string_view(cur_ptr_ - 1, 1));
     case ',':
       return Token(TokenType::COMMA, absl::string_view(cur_ptr_ - 1, 1));
     case '(':
