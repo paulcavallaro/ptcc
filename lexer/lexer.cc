@@ -81,6 +81,13 @@ LexNextToken:
         return Token(TokenType::R_SHIFT, absl::string_view(cur_ptr_ - 2, 2));
       }
       return Token(TokenType::GT, absl::string_view(cur_ptr_ - 1, 1));
+    case '#':
+      // 6.4.6 Punctuators
+      if (*cur_ptr_ == '#') {
+        cur_ptr_++;
+        return Token(TokenType::HASH_HASH, absl::string_view(cur_ptr_ - 2, 2));
+      }
+      return Token(TokenType::HASH, absl::string_view(cur_ptr_ - 1, 1));
     case '|':
       // 6.4.6 Punctuators
       if (*cur_ptr_ == '=') {

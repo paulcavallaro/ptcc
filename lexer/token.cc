@@ -120,6 +120,10 @@ std::ostream& operator<<(std::ostream& os, const Token& tok) {
       return os << absl::StrCat("<GT: '", tok.src_, "'>");
     case TokenType::GTEQ:
       return os << absl::StrCat("<GTEQ: '", tok.src_, "'>");
+    case TokenType::HASH:
+      return os << absl::StrCat("<HASH: '", tok.src_, "'>");
+    case TokenType::HASH_HASH:
+      return os << absl::StrCat("<HASH_HASH: '", tok.src_, "'>");
     case TokenType::VOID:
       return os << absl::StrCat("<VOID: '", tok.src_, "'>");
     case TokenType::Q_MARK:

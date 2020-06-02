@@ -36,6 +36,8 @@ enum class TokenType {
   GOTO,
   GT,
   GTEQ,
+  HASH,
+  HASH_HASH,
   IDENTIFIER,
   IF,
   INLINE,
