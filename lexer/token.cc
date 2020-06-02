@@ -22,8 +22,16 @@ std::ostream& operator<<(std::ostream& os, const Token& tok) {
   switch (tok.type_) {
     case TokenType::EOF_SENTINEL:
       return os << "<EOF>";
+    case TokenType::LOGICAL_AND:
+      return os << absl::StrCat("<LOGICAL_AND: '", tok.src_, "'>");
+    case TokenType::BITWISE_AND:
+      return os << absl::StrCat("<BITWISE_AND: '", tok.src_, "'>");
+    case TokenType::BITWISE_AND_EQ:
+      return os << absl::StrCat("<BITWISE_AND_EQ: '", tok.src_, "'>");
     case TokenType::ARROW:
       return os << absl::StrCat("<ARROW: '", tok.src_, "'>");
+    case TokenType::COLON:
+      return os << absl::StrCat("<COLON: '", tok.src_, "'>");
     case TokenType::CARET:
       return os << absl::StrCat("<CARET: '", tok.src_, "'>");
     case TokenType::CARET_EQ:
@@ -46,6 +54,8 @@ std::ostream& operator<<(std::ostream& os, const Token& tok) {
       return os << absl::StrCat("<TILDE: '", tok.src_, "'>");
     case TokenType::SEMICOLON:
       return os << absl::StrCat("<SEMICOLON: '", tok.src_, "'>");
+    case TokenType::LOGICAL_OR:
+      return os << absl::StrCat("<LOGICAL_OR: '", tok.src_, "'>");
     case TokenType::MOD:
       return os << absl::StrCat("<MOD: '", tok.src_, "'>");
     case TokenType::MOD_EQ:
@@ -56,10 +66,10 @@ std::ostream& operator<<(std::ostream& os, const Token& tok) {
       return os << absl::StrCat("<MINUS_EQ: '", tok.src_, "'>");
     case TokenType::MINUSMINUS:
       return os << absl::StrCat("<MINUSMINUS: '", tok.src_, "'>");
-    case TokenType::PIPE:
-      return os << absl::StrCat("<PIPE: '", tok.src_, "'>");
-    case TokenType::PIPE_EQ:
-      return os << absl::StrCat("<PIPE_EQ: '", tok.src_, "'>");
+    case TokenType::BITWISE_OR:
+      return os << absl::StrCat("<BITWISE_OR: '", tok.src_, "'>");
+    case TokenType::BITWISE_OR_EQ:
+      return os << absl::StrCat("<BITWISE_OR_EQ: '", tok.src_, "'>");
     case TokenType::PLUS:
       return os << absl::StrCat("<PLUS: '", tok.src_, "'>");
     case TokenType::PLUSPLUS:
@@ -68,8 +78,14 @@ std::ostream& operator<<(std::ostream& os, const Token& tok) {
       return os << absl::StrCat("<PLUS_EQ: '", tok.src_, "'>");
     case TokenType::L_SHIFT:
       return os << absl::StrCat("<L_SHIFT: '", tok.src_, "'>");
+    case TokenType::L_SHIFT_EQ:
+      return os << absl::StrCat("<L_SHIFT_EQ: '", tok.src_, "'>");
     case TokenType::L_PAREN:
       return os << absl::StrCat("<L_PAREN: '", tok.src_, "'>");
+    case TokenType::R_SHIFT:
+      return os << absl::StrCat("<R_SHIFT: '", tok.src_, "'>");
+    case TokenType::R_SHIFT_EQ:
+      return os << absl::StrCat("<R_SHIFT_EQ: '", tok.src_, "'>");
     case TokenType::R_PAREN:
       return os << absl::StrCat("<R_PAREN: '", tok.src_, "'>");
     case TokenType::L_CURLY_BRACE:
@@ -90,12 +106,6 @@ std::ostream& operator<<(std::ostream& os, const Token& tok) {
       return os << absl::StrCat("<CONST: '", tok.src_, "'>");
     case TokenType::CHAR:
       return os << absl::StrCat("<CHAR: '", tok.src_, "'>");
-    case TokenType::AND:
-      return os << absl::StrCat("<AND: '", tok.src_, "'>");
-    case TokenType::ANDAND:
-      return os << absl::StrCat("<ANDAND: '", tok.src_, "'>");
-    case TokenType::AND_EQ:
-      return os << absl::StrCat("<AND_EQ: '", tok.src_, "'>");
     case TokenType::CHARACTER_CONSTANT:
       return os << absl::StrCat("<CHARACTER_CONSTANT: ", tok.src_, " >");
     case TokenType::EQ:
@@ -112,6 +122,8 @@ std::ostream& operator<<(std::ostream& os, const Token& tok) {
       return os << absl::StrCat("<GTEQ: '", tok.src_, "'>");
     case TokenType::VOID:
       return os << absl::StrCat("<VOID: '", tok.src_, "'>");
+    case TokenType::Q_MARK:
+      return os << absl::StrCat("<Q_MARK: '", tok.src_, "'>");
     case TokenType::IF:
       return os << absl::StrCat("<IF: '", tok.src_, "'>");
     case TokenType::ELSE:

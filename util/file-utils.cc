@@ -12,6 +12,7 @@ namespace file {
 std::string ReadFileToStringWithSentinel(absl::string_view fname,
                                          const char sentinel) {
   FILE* file = fopen(std::string(fname).c_str(), "r");
+  if (file == nullptr) return "";
   FDCloser closer(file);
   struct stat info;
   const int err = fstat(fileno(file), &info);

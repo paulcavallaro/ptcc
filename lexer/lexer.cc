@@ -57,6 +57,11 @@ LexNextToken:
       }
       if (*cur_ptr_ == '<') {
         cur_ptr_++;
+        if (*cur_ptr_ == '=') {
+          cur_ptr_++;
+          return Token(TokenType::L_SHIFT_EQ,
+                       absl::string_view(cur_ptr_ - 3, 3));
+        }
         return Token(TokenType::L_SHIFT, absl::string_view(cur_ptr_ - 2, 2));
       }
       return Token(TokenType::LT, absl::string_view(cur_ptr_ - 1, 1));
@@ -68,6 +73,11 @@ LexNextToken:
       }
       if (*cur_ptr_ == '>') {
         cur_ptr_++;
+        if (*cur_ptr_ == '=') {
+          cur_ptr_++;
+          return Token(TokenType::R_SHIFT_EQ,
+                       absl::string_view(cur_ptr_ - 3, 3));
+        }
         return Token(TokenType::R_SHIFT, absl::string_view(cur_ptr_ - 2, 2));
       }
       return Token(TokenType::GT, absl::string_view(cur_ptr_ - 1, 1));
@@ -75,9 +85,20 @@ LexNextToken:
       // 6.4.6 Punctuators
       if (*cur_ptr_ == '=') {
         cur_ptr_++;
-        return Token(TokenType::PIPE_EQ, absl::string_view(cur_ptr_ - 2, 2));
+        return Token(TokenType::BITWISE_OR_EQ,
+                     absl::string_view(cur_ptr_ - 2, 2));
       }
-      return Token(TokenType::PIPE, absl::string_view(cur_ptr_ - 1, 1));
+      if (*cur_ptr_ == '|') {
+        cur_ptr_++;
+        return Token(TokenType::LOGICAL_OR, absl::string_view(cur_ptr_ - 2, 2));
+      }
+      return Token(TokenType::BITWISE_OR, absl::string_view(cur_ptr_ - 1, 1));
+    case '?':
+      // 6.4.6 Punctuators
+      return Token(TokenType::Q_MARK, absl::string_view(cur_ptr_ - 1, 1));
+    case ':':
+      // 6.4.6 Punctuators
+      return Token(TokenType::COLON, absl::string_view(cur_ptr_ - 1, 1));
     case '^':
       // 6.4.6 Punctuators
       if (*cur_ptr_ == '=') {
@@ -96,13 +117,15 @@ LexNextToken:
       // 6.4.6 Punctuators
       if (*cur_ptr_ == '&') {
         cur_ptr_++;
-        return Token(TokenType::ANDAND, absl::string_view(cur_ptr_ - 2, 2));
+        return Token(TokenType::LOGICAL_AND,
+                     absl::string_view(cur_ptr_ - 2, 2));
       }
       if (*cur_ptr_ == '=') {
         cur_ptr_++;
-        return Token(TokenType::AND_EQ, absl::string_view(cur_ptr_ - 2, 2));
+        return Token(TokenType::BITWISE_AND_EQ,
+                     absl::string_view(cur_ptr_ - 2, 2));
       }
-      return Token(TokenType::AND, absl::string_view(cur_ptr_ - 1, 1));
+      return Token(TokenType::BITWISE_AND, absl::string_view(cur_ptr_ - 1, 1));
     case '+':
       // 6.4.6 Punctuators
       if (*cur_ptr_ == '+') {

@@ -12,6 +12,10 @@ int main(int argc, char** argv) {
   if (pos_args.size() < 2) return 1;
 
   const std::string buf = ReadFileToStringWithSentinel(pos_args[1], '\0');
+  if (buf.empty()) {
+    std::cerr << "Failed to open file: " << pos_args[1] << std::endl;
+    return 1;
+  }
   Lexer lexer(buf);
   Token tok = Token::NewEOF();
   while (!(tok = lexer.NextToken()).isEOF()) {
