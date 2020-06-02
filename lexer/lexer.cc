@@ -97,6 +97,10 @@ LexNextToken:
         // TODO: Signal that this is a multi-byte character constant
         return LexCharacterConstant();
       }
+      if (*cur_ptr_ == '"') {
+        // TODO: Signal that this is a multi-byte string literal
+        return LexStringLiteral();
+      }
       return LexIdentifier();
       // clang-format off
     case '0': case '1': case '2': case '3': case '4':
@@ -108,6 +112,9 @@ LexNextToken:
     case '\'':
       // 6.4.4.4 Character Contants
       return LexCharacterConstant();
+    case '"':
+      // 6.4.5 String Literals
+      return LexStringLiteral();
     case '/':
       // 6.4.6 Punctuators
       // Handle single-line comments
@@ -124,6 +131,26 @@ LexNextToken:
       return Token(TokenType::DIV, absl::string_view(cur_ptr_ - 1, 1));
   }
   return Token::NewEOF();
+}
+
+Token Lexer::LexStringLiteral() {
+  // TODO: Handle escape sequences
+  const char* start = cur_ptr_ - 1;
+  while (*cur_ptr_ != '\0' && *cur_ptr_ != '\n' && *cur_ptr_ != '"') {
+    cur_ptr_++;
+  }
+  if (*cur_ptr_ == '\0') {
+    return Token(TokenType::STRING_LITERAL,
+                 absl::string_view(start, cur_ptr_ - start));
+  }
+  if (*cur_ptr_ == '\n') {
+    absl::string_view src(start, cur_ptr_ - start);
+    cur_ptr_++;
+    return Token(TokenType::STRING_LITERAL, src);
+  }
+  cur_ptr_++;
+  absl::string_view src(start, cur_ptr_ - start);
+  return Token(TokenType::STRING_LITERAL, src);
 }
 
 void Lexer::LexSingleLineComment() {
@@ -189,7 +216,8 @@ Token Lexer::LexIdentifier() {
 }
 
 Token Lexer::LexNumericConstant() {
-  // Already parsed first character of numeric constant, need to parse the rest
+  // Already parsed first character of numeric constant, need to parse the
+  // rest
   const char* start = cur_ptr_ - 1;
   while (true) {
     // TODO: Handle floating point

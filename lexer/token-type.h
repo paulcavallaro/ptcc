@@ -52,6 +52,7 @@ enum class TokenType {
   SIZEOF,
   STAR,
   STATIC,
+  STRING_LITERAL,
   STRUCT,
   SWITCH,
   TYPEDEF,

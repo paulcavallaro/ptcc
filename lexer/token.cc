@@ -24,6 +24,8 @@ std::ostream& operator<<(std::ostream& os, const Token& tok) {
       return os << "<EOF>";
     case TokenType::IDENTIFIER:
       return os << absl::StrCat("<IDENTIFIER: '", tok.src_, "'>");
+    case TokenType::STRING_LITERAL:
+      return os << absl::StrCat("<STRING_LITERAL: ", tok.src_, " >");
     case TokenType::COMMA:
       return os << absl::StrCat("<COMMA: '", tok.src_, "'>");
     case TokenType::SEMICOLON:

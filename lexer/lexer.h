@@ -15,6 +15,7 @@ class Lexer {
   Token LexIdentifier();
   Token LexNumericConstant();
   Token LexCharacterConstant();
+  Token LexStringLiteral();
 
   void LexSingleLineComment();
   void LexMultiLineComment();
