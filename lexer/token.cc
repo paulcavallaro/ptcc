@@ -26,6 +26,10 @@ std::ostream& operator<<(std::ostream& os, const Token& tok) {
       return os << absl::StrCat("<IDENTIFIER: '", tok.src_, "'>");
     case TokenType::STRING_LITERAL:
       return os << absl::StrCat("<STRING_LITERAL: ", tok.src_, " >");
+    case TokenType::L_BRACKET:
+      return os << absl::StrCat("<L_BRACKET: '", tok.src_, "'>");
+    case TokenType::R_BRACKET:
+      return os << absl::StrCat("<R_BRACKET: '", tok.src_, "'>");
     case TokenType::COMMA:
       return os << absl::StrCat("<COMMA: '", tok.src_, "'>");
     case TokenType::SEMICOLON:
