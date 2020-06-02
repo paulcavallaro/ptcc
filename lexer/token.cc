@@ -24,6 +24,10 @@ std::ostream& operator<<(std::ostream& os, const Token& tok) {
       return os << "<EOF>";
     case TokenType::ARROW:
       return os << absl::StrCat("<ARROW: '", tok.src_, "'>");
+    case TokenType::CARET:
+      return os << absl::StrCat("<CARET: '", tok.src_, "'>");
+    case TokenType::CARET_EQ:
+      return os << absl::StrCat("<CARET_EQ: '", tok.src_, "'>");
     case TokenType::IDENTIFIER:
       return os << absl::StrCat("<IDENTIFIER: '", tok.src_, "'>");
     case TokenType::DOT:
@@ -42,18 +46,28 @@ std::ostream& operator<<(std::ostream& os, const Token& tok) {
       return os << absl::StrCat("<TILDE: '", tok.src_, "'>");
     case TokenType::SEMICOLON:
       return os << absl::StrCat("<SEMICOLON: '", tok.src_, "'>");
+    case TokenType::MOD:
+      return os << absl::StrCat("<MOD: '", tok.src_, "'>");
+    case TokenType::MOD_EQ:
+      return os << absl::StrCat("<MOD_EQ: '", tok.src_, "'>");
     case TokenType::MINUS:
       return os << absl::StrCat("<MINUS: '", tok.src_, "'>");
     case TokenType::MINUS_EQ:
       return os << absl::StrCat("<MINUS_EQ: '", tok.src_, "'>");
     case TokenType::MINUSMINUS:
       return os << absl::StrCat("<MINUSMINUS: '", tok.src_, "'>");
+    case TokenType::PIPE:
+      return os << absl::StrCat("<PIPE: '", tok.src_, "'>");
+    case TokenType::PIPE_EQ:
+      return os << absl::StrCat("<PIPE_EQ: '", tok.src_, "'>");
     case TokenType::PLUS:
       return os << absl::StrCat("<PLUS: '", tok.src_, "'>");
     case TokenType::PLUSPLUS:
       return os << absl::StrCat("<PLUSPLUS: '", tok.src_, "'>");
     case TokenType::PLUS_EQ:
       return os << absl::StrCat("<PLUS_EQ: '", tok.src_, "'>");
+    case TokenType::L_SHIFT:
+      return os << absl::StrCat("<L_SHIFT: '", tok.src_, "'>");
     case TokenType::L_PAREN:
       return os << absl::StrCat("<L_PAREN: '", tok.src_, "'>");
     case TokenType::R_PAREN:
@@ -80,6 +94,8 @@ std::ostream& operator<<(std::ostream& os, const Token& tok) {
       return os << absl::StrCat("<AND: '", tok.src_, "'>");
     case TokenType::ANDAND:
       return os << absl::StrCat("<ANDAND: '", tok.src_, "'>");
+    case TokenType::AND_EQ:
+      return os << absl::StrCat("<AND_EQ: '", tok.src_, "'>");
     case TokenType::CHARACTER_CONSTANT:
       return os << absl::StrCat("<CHARACTER_CONSTANT: ", tok.src_, " >");
     case TokenType::EQ:

@@ -26,44 +26,85 @@ LexNextToken:
       }
       goto LexNextToken;
     case '=':
+      // 6.4.6 Punctuators
       if (*cur_ptr_ == '=') {
         cur_ptr_++;
         return Token(TokenType::EQEQ, absl::string_view(cur_ptr_ - 2, 2));
       }
       return Token(TokenType::EQ, absl::string_view(cur_ptr_ - 1, 1));
     case '*':
+      // 6.4.6 Punctuators
       if (*cur_ptr_ == '=') {
         cur_ptr_++;
         return Token(TokenType::STAR_EQ, absl::string_view(cur_ptr_ - 2, 2));
       }
       return Token(TokenType::STAR, absl::string_view(cur_ptr_ - 1, 1));
     case ';':
+      // 6.4.6 Punctuators
       return Token(TokenType::SEMICOLON, absl::string_view(cur_ptr_ - 1, 1));
     case '!':
+      // 6.4.6 Punctuators
       if (*cur_ptr_ == '=') {
         cur_ptr_++;
         return Token(TokenType::NOT_EQ, absl::string_view(cur_ptr_ - 2, 2));
       }
       return Token(TokenType::NOT, absl::string_view(cur_ptr_ - 1, 1));
     case '<':
+      // 6.4.6 Punctuators
       if (*cur_ptr_ == '=') {
         cur_ptr_++;
         return Token(TokenType::LTEQ, absl::string_view(cur_ptr_ - 2, 2));
       }
+      if (*cur_ptr_ == '<') {
+        cur_ptr_++;
+        return Token(TokenType::L_SHIFT, absl::string_view(cur_ptr_ - 2, 2));
+      }
       return Token(TokenType::LT, absl::string_view(cur_ptr_ - 1, 1));
     case '>':
+      // 6.4.6 Punctuators
       if (*cur_ptr_ == '=') {
         cur_ptr_++;
         return Token(TokenType::GTEQ, absl::string_view(cur_ptr_ - 2, 2));
       }
+      if (*cur_ptr_ == '>') {
+        cur_ptr_++;
+        return Token(TokenType::R_SHIFT, absl::string_view(cur_ptr_ - 2, 2));
+      }
       return Token(TokenType::GT, absl::string_view(cur_ptr_ - 1, 1));
+    case '|':
+      // 6.4.6 Punctuators
+      if (*cur_ptr_ == '=') {
+        cur_ptr_++;
+        return Token(TokenType::PIPE_EQ, absl::string_view(cur_ptr_ - 2, 2));
+      }
+      return Token(TokenType::PIPE, absl::string_view(cur_ptr_ - 1, 1));
+    case '^':
+      // 6.4.6 Punctuators
+      if (*cur_ptr_ == '=') {
+        cur_ptr_++;
+        return Token(TokenType::CARET_EQ, absl::string_view(cur_ptr_ - 2, 2));
+      }
+      return Token(TokenType::CARET, absl::string_view(cur_ptr_ - 1, 1));
+    case '%':
+      // 6.4.6 Punctuators
+      if (*cur_ptr_ == '=') {
+        cur_ptr_++;
+        return Token(TokenType::MOD_EQ, absl::string_view(cur_ptr_ - 2, 2));
+      }
+      return Token(TokenType::MOD, absl::string_view(cur_ptr_ - 1, 1));
     case '&':
+      // 6.4.6 Punctuators
       if (*cur_ptr_ == '&') {
         cur_ptr_++;
         return Token(TokenType::ANDAND, absl::string_view(cur_ptr_ - 2, 2));
       }
+      if (*cur_ptr_ == '=') {
+        cur_ptr_++;
+        return Token(TokenType::AND_EQ, absl::string_view(cur_ptr_ - 2, 2));
+      }
       return Token(TokenType::AND, absl::string_view(cur_ptr_ - 1, 1));
     case '+':
+      // 6.4.6 Punctuators
       if (*cur_ptr_ == '+') {
         cur_ptr_++;
         return Token(TokenType::PLUSPLUS, absl::string_view(cur_ptr_ - 2, 2));
@@ -74,6 +115,7 @@ LexNextToken:
       }
       return Token(TokenType::PLUS, absl::string_view(cur_ptr_ - 1, 1));
     case '-':
+      // 6.4.6 Punctuators
       switch (*cur_ptr_) {
         case '-':
           cur_ptr_++;
@@ -89,15 +131,20 @@ LexNextToken:
           return Token(TokenType::MINUS, absl::string_view(cur_ptr_ - 1, 1));
       }
     case ',':
+      // 6.4.6 Punctuators
       return Token(TokenType::COMMA, absl::string_view(cur_ptr_ - 1, 1));
     case '(':
+      // 6.4.6 Punctuators
       return Token(TokenType::L_PAREN, absl::string_view(cur_ptr_ - 1, 1));
     case ')':
+      // 6.4.6 Punctuators
       return Token(TokenType::R_PAREN, absl::string_view(cur_ptr_ - 1, 1));
     case '{':
+      // 6.4.6 Punctuators
       return Token(TokenType::L_CURLY_BRACE,
                    absl::string_view(cur_ptr_ - 1, 1));
     case '}':
+      // 6.4.6 Punctuators
       return Token(TokenType::R_CURLY_BRACE,
                    absl::string_view(cur_ptr_ - 1, 1));
       // clang-format off
