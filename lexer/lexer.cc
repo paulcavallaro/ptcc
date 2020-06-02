@@ -121,6 +121,9 @@ LexNextToken:
     case ']':
       // 6.4.6 Punctuators
       return Token(TokenType::R_BRACKET, absl::string_view(cur_ptr_ - 1, 1));
+    case '~':
+      // 6.4.6 Punctuators
+      return Token(TokenType::TILDE, absl::string_view(cur_ptr_ - 1, 1));
     case '/':
       // 6.4.6 Punctuators
       // Handle single-line comments

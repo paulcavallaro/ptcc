@@ -32,6 +32,8 @@ std::ostream& operator<<(std::ostream& os, const Token& tok) {
       return os << absl::StrCat("<R_BRACKET: '", tok.src_, "'>");
     case TokenType::COMMA:
       return os << absl::StrCat("<COMMA: '", tok.src_, "'>");
+    case TokenType::TILDE:
+      return os << absl::StrCat("<TILDE: '", tok.src_, "'>");
     case TokenType::SEMICOLON:
       return os << absl::StrCat("<SEMICOLON: '", tok.src_, "'>");
     case TokenType::PLUS:

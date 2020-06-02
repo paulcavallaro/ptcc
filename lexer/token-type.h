@@ -57,6 +57,7 @@ enum class TokenType {
   STRING_LITERAL,
   STRUCT,
   SWITCH,
+  TILDE,
   TYPEDEF,
   UNION,
   UNSIGNED,
