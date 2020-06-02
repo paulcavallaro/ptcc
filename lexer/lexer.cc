@@ -32,6 +32,10 @@ LexNextToken:
       }
       return Token(TokenType::EQ, absl::string_view(cur_ptr_ - 1, 1));
     case '*':
+      if (*cur_ptr_ == '=') {
+        cur_ptr_++;
+        return Token(TokenType::STAR_EQ, absl::string_view(cur_ptr_ - 2, 2));
+      }
       return Token(TokenType::STAR, absl::string_view(cur_ptr_ - 1, 1));
     case ';':
       return Token(TokenType::SEMICOLON, absl::string_view(cur_ptr_ - 1, 1));
@@ -64,17 +68,26 @@ LexNextToken:
         cur_ptr_++;
         return Token(TokenType::PLUSPLUS, absl::string_view(cur_ptr_ - 2, 2));
       }
+      if (*cur_ptr_ == '=') {
+        cur_ptr_++;
+        return Token(TokenType::PLUS_EQ, absl::string_view(cur_ptr_ - 2, 2));
+      }
       return Token(TokenType::PLUS, absl::string_view(cur_ptr_ - 1, 1));
     case '-':
-      if (*cur_ptr_ == '-') {
-        cur_ptr_++;
-        return Token(TokenType::MINUSMINUS, absl::string_view(cur_ptr_ - 2, 2));
+      switch (*cur_ptr_) {
+        case '-':
+          cur_ptr_++;
+          return Token(TokenType::MINUSMINUS,
+                       absl::string_view(cur_ptr_ - 2, 2));
+        case '>':
+          cur_ptr_++;
+          return Token(TokenType::ARROW, absl::string_view(cur_ptr_ - 2, 2));
+        case '=':
+          cur_ptr_++;
+          return Token(TokenType::MINUS_EQ, absl::string_view(cur_ptr_ - 2, 2));
+        default:
+          return Token(TokenType::MINUS, absl::string_view(cur_ptr_ - 1, 1));
       }
-      if (*cur_ptr_ == '>') {
-        cur_ptr_++;
-        return Token(TokenType::ARROW, absl::string_view(cur_ptr_ - 2, 2));
-      }
-      return Token(TokenType::MINUS, absl::string_view(cur_ptr_ - 1, 1));
     case ',':
       return Token(TokenType::COMMA, absl::string_view(cur_ptr_ - 1, 1));
     case '(':
@@ -153,6 +166,10 @@ LexNextToken:
         cur_ptr_++;
         LexMultiLineComment();
         goto LexNextToken;
+      }
+      if (*cur_ptr_ == '=') {
+        cur_ptr_++;
+        return Token(TokenType::DIV_EQ, absl::string_view(cur_ptr_ - 2, 2));
       }
       return Token(TokenType::DIV, absl::string_view(cur_ptr_ - 1, 1));
   }
