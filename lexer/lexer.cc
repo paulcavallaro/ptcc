@@ -124,6 +124,13 @@ LexNextToken:
     case '~':
       // 6.4.6 Punctuators
       return Token(TokenType::TILDE, absl::string_view(cur_ptr_ - 1, 1));
+    case '.':
+      // 6.4.6 Punctuators
+      if (*cur_ptr_ == '.' && *(cur_ptr_ + 1) == '.') {
+        cur_ptr_ += 2;
+        return Token(TokenType::ELLIPSIS, absl::string_view(cur_ptr_ - 3, 3));
+      }
+      return Token(TokenType::DOT, absl::string_view(cur_ptr_ - 1, 1));
     case '/':
       // 6.4.6 Punctuators
       // Handle single-line comments

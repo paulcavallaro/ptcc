@@ -24,6 +24,10 @@ std::ostream& operator<<(std::ostream& os, const Token& tok) {
       return os << "<EOF>";
     case TokenType::IDENTIFIER:
       return os << absl::StrCat("<IDENTIFIER: '", tok.src_, "'>");
+    case TokenType::DOT:
+      return os << absl::StrCat("<DOT: '", tok.src_, "'>");
+    case TokenType::ELLIPSIS:
+      return os << absl::StrCat("<ELLIPSIS: '", tok.src_, "'>");
     case TokenType::STRING_LITERAL:
       return os << absl::StrCat("<STRING_LITERAL: ", tok.src_, " >");
     case TokenType::L_BRACKET:
