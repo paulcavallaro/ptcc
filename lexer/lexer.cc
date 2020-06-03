@@ -367,19 +367,64 @@ Token Lexer::LexNumericConstant() {
   // Already parsed first character of numeric constant, need to parse the
   // rest
   const char* start = cur_ptr_ - 1;
-  while (true) {
-    // TODO: Handle floating point
-    switch (*cur_ptr_) {
-        // clang-format off
-      case '0': case '1': case '2': case '3': case '4': case '5': case '6':
-      case '7': case '8': case '9':
-        // clang-format on
+  const char start_char = *start;
+  switch (start_char) {
+    case '0':
+      // Hex
+      if (*cur_ptr_ == 'x' || *cur_ptr_ == 'X') {
+        // Hex
         cur_ptr_++;
-        break;
-      default:
-        return Token(TokenType::NUMERIC_CONSTANT,
-                     absl::string_view(start, cur_ptr_ - start));
-    }
+        while (true) {
+          switch (*cur_ptr_) {
+            // clang-format off
+            case '0': case '1': case '2': case '3': case '4':
+            case '5': case '6': case '7': case '8': case '9':
+            case 'a': case 'b': case 'c': case 'd': case 'e': case 'f':
+            case 'A': case 'B': case 'C': case 'D': case 'E': case 'F':
+              // clang-format on
+              cur_ptr_++;
+              break;
+            default:
+              return Token(TokenType::NUMERIC_CONSTANT,
+                           absl::string_view(start, cur_ptr_ - start));
+          }
+        }
+      }
+      // Octal
+      while (true) {
+        switch (*cur_ptr_) {
+          // clang-format off
+          case '0': case '1': case '2': case '3': case '4':
+          case '5': case '6': case '7':
+            // clang-format on
+            cur_ptr_++;
+            break;
+          default:
+            return Token(TokenType::NUMERIC_CONSTANT,
+                         absl::string_view(start, cur_ptr_ - start));
+        }
+      }
+      // clang-format off
+    case '1': case '2': case '3': case '4': case '5': case '6':
+    case '7': case '8': case '9':
+      // clang-format on
+      // TODO: Handle floating point
+      while (true) {
+        switch (*cur_ptr_) {
+            // clang-format off
+          case '0': case '1': case '2': case '3': case '4':
+          case '5': case '6': case '7': case '8': case '9':
+            // clang-format on
+            cur_ptr_++;
+            break;
+          default:
+            return Token(TokenType::NUMERIC_CONSTANT,
+                         absl::string_view(start, cur_ptr_ - start));
+        }
+      }
+    default:
+      // TODO: This is unreachable based on contract of function
+      return Token::NewEOF();
   }
 }
 
