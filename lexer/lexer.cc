@@ -258,6 +258,9 @@ LexNextToken:
         cur_ptr_ += 2;
         return Token(TokenType::ELLIPSIS, absl::string_view(cur_ptr_ - 3, 3));
       }
+      if (*cur_ptr_ >= '0' && *cur_ptr_ <= '9') {
+        return LexNumericConstant();
+      }
       return Token(TokenType::DOT, absl::string_view(cur_ptr_ - 1, 1));
     case '/':
       // 6.4.6 Punctuators
@@ -364,68 +367,81 @@ Token Lexer::LexIdentifier() {
 }
 
 Token Lexer::LexNumericConstant() {
-  // Already parsed first character of numeric constant, need to parse the
-  // rest
+  // Already parsed first character of numeric constant which is in [0-9.], need
+  // to parse the rest
   const char* start = cur_ptr_ - 1;
   const char start_char = *start;
-  switch (start_char) {
-    case '0':
-      // Hex
-      if (*cur_ptr_ == 'x' || *cur_ptr_ == 'X') {
-        // Hex
+  if (start_char == '0' && (*cur_ptr_ == 'x' || *cur_ptr_ == 'X')) {
+    // Hex
+    cur_ptr_++;
+    while ((*cur_ptr_ >= '0' && *cur_ptr_ <= '9') ||
+           (*cur_ptr_ >= 'a' && *cur_ptr_ <= 'f') ||
+           (*cur_ptr_ >= 'A' && *cur_ptr_ <= 'F')) {
+      cur_ptr_++;
+    }
+    // Need parse integer-suffix (ignore whether it's well-formed for now)
+    while (*cur_ptr_ == 'u' || *cur_ptr_ == 'U' || *cur_ptr_ == 'l' ||
+           *cur_ptr_ == 'L') {
+      cur_ptr_++;
+    }
+    return Token(TokenType::NUMERIC_CONSTANT,
+                 absl::string_view(start, cur_ptr_ - start));
+  } else {
+    // Non-Hex
+    cur_ptr_++;
+    while (*cur_ptr_ >= '0' && *cur_ptr_ <= '9') {
+      cur_ptr_++;
+    }
+    if (*cur_ptr_ != 'e' && *cur_ptr_ != 'E' && *cur_ptr_ != '.') {
+      // 6.4.4.1 Integer constants: decimal constant
+      while (*cur_ptr_ == 'u' || *cur_ptr_ == 'U' || *cur_ptr_ == 'l' ||
+             *cur_ptr_ == 'L') {
         cur_ptr_++;
-        while (true) {
-          switch (*cur_ptr_) {
-            // clang-format off
-            case '0': case '1': case '2': case '3': case '4':
-            case '5': case '6': case '7': case '8': case '9':
-            case 'a': case 'b': case 'c': case 'd': case 'e': case 'f':
-            case 'A': case 'B': case 'C': case 'D': case 'E': case 'F':
-              // clang-format on
-              cur_ptr_++;
-              break;
-            default:
-              return Token(TokenType::NUMERIC_CONSTANT,
-                           absl::string_view(start, cur_ptr_ - start));
-          }
+      }
+      return Token(TokenType::NUMERIC_CONSTANT,
+                   absl::string_view(start, cur_ptr_ - start));
+    }
+    if (*cur_ptr_ == '.') {
+      cur_ptr_++;
+      while (*cur_ptr_ >= '0' && *cur_ptr_ <= '9') {
+        cur_ptr_++;
+      }
+      if (*cur_ptr_ == 'e' || *cur_ptr_ == 'E') {
+        cur_ptr_++;
+        if (*cur_ptr_ == '+' || *cur_ptr_ == '-') {
+          cur_ptr_++;
+        }
+        // TODO: Technically these digits have to be there
+        while (*cur_ptr_ >= '0' && *cur_ptr_ <= '9') {
+          cur_ptr_++;
         }
       }
-      // Octal
-      while (true) {
-        switch (*cur_ptr_) {
-          // clang-format off
-          case '0': case '1': case '2': case '3': case '4':
-          case '5': case '6': case '7':
-            // clang-format on
-            cur_ptr_++;
-            break;
-          default:
-            return Token(TokenType::NUMERIC_CONSTANT,
-                         absl::string_view(start, cur_ptr_ - start));
-        }
+      if (*cur_ptr_ == 'f' || *cur_ptr_ == 'F' || *cur_ptr_ == 'l' ||
+          *cur_ptr_ == 'L') {
+        cur_ptr_++;
       }
-      // clang-format off
-    case '1': case '2': case '3': case '4': case '5': case '6':
-    case '7': case '8': case '9':
-      // clang-format on
-      // TODO: Handle floating point
-      while (true) {
-        switch (*cur_ptr_) {
-            // clang-format off
-          case '0': case '1': case '2': case '3': case '4':
-          case '5': case '6': case '7': case '8': case '9':
-            // clang-format on
-            cur_ptr_++;
-            break;
-          default:
-            return Token(TokenType::NUMERIC_CONSTANT,
-                         absl::string_view(start, cur_ptr_ - start));
-        }
+      return Token(TokenType::NUMERIC_CONSTANT,
+                   absl::string_view(start, cur_ptr_ - start));
+    } else {
+      cur_ptr_++;
+      // *cur_ptr_ == 'e' or 'E'
+      // 6.4.4.2 Floating constants: decimal floating constant
+      // Parse exponent part
+      if (*cur_ptr_ == '+' || *cur_ptr_ == '-') {
+        cur_ptr_++;
       }
-    default:
-      // TODO: This is unreachable based on contract of function
-      return Token::NewEOF();
+      // TODO: Technically these digits have to be there
+      while (*cur_ptr_ >= '0' && *cur_ptr_ <= '9') {
+        cur_ptr_++;
+      }
+      if (*cur_ptr_ == 'f' || *cur_ptr_ == 'F' || *cur_ptr_ == 'l' ||
+          *cur_ptr_ == 'L') {
+        cur_ptr_++;
+      }
+      return Token(TokenType::NUMERIC_CONSTANT,
+                   absl::string_view(start, cur_ptr_ - start));
+    }
   }
-}
+}  // namespace ptcc
 
 }  // namespace ptcc
