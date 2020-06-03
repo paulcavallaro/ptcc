@@ -190,14 +190,42 @@ LexNextToken:
       // clang-format on
       // 6.4.2 Identifiers
       return LexIdentifier();
-      // clang-format off
-    case 'u': case 'U':
-      // clang-format on
+    case 'u':
       if (*cur_ptr_ == '\'') {
+        cur_ptr_++;
         // TODO: Signal that this is a multi-byte character constant
         return LexCharacterConstant();
       }
       if (*cur_ptr_ == '"') {
+        cur_ptr_++;
+        // TODO: Signal that this is a multi-byte string literal
+        return LexStringLiteral();
+      }
+      if (*cur_ptr_ == '8') {
+        cur_ptr_++;
+        if (*cur_ptr_ == '"') {
+          // TODO: Signal that this is a UTF-8 string literal
+          cur_ptr_++;
+          return LexStringLiteral();
+        }
+        cur_ptr_--;
+      }
+      return LexIdentifier();
+    case 'U':
+      if (*cur_ptr_ == '\'') {
+        cur_ptr_++;
+        // TODO: Signal that this is a multi-byte character constant
+        return LexCharacterConstant();
+      }
+      if (*cur_ptr_ == '"') {
+        cur_ptr_++;
+        // TODO: Signal that this is a multi-byte string literal
+        return LexStringLiteral();
+      }
+      return LexIdentifier();
+    case 'L':
+      if (*cur_ptr_ == '"') {
+        cur_ptr_++;
         // TODO: Signal that this is a multi-byte string literal
         return LexStringLiteral();
       }
