@@ -329,7 +329,7 @@ Token Lexer::LexCharacterConstant() {
   while (*cur_ptr_ != '\'' && *cur_ptr_ != '\0') {
     cur_ptr_++;
   }
-  cur_ptr_++;
+  if (*cur_ptr_ == '\'') cur_ptr_++;
   return Token(TokenType::CHARACTER_CONSTANT,
                absl::string_view(start, cur_ptr_ - start));
 }
@@ -337,7 +337,8 @@ Token Lexer::LexCharacterConstant() {
 Token Lexer::LexIdentifier() {
   // Already parsed first character of identifier, need to parse the rest
   const char* start = cur_ptr_ - 1;
-  while (true) {
+  bool go = true;
+  while (go) {
     switch (*cur_ptr_) {
         // clang-format off
       case 'A': case 'B': case 'C': case 'D': case 'E': case 'F': case 'G':
@@ -355,15 +356,16 @@ Token Lexer::LexIdentifier() {
         cur_ptr_++;
         break;
       default:
-        absl::string_view src(start, cur_ptr_ - start);
-        IdentifierInfo* info = idents_.MakeIdentifier(src);
-        if (info->is_keyword()) {
-          return Token(info->type(), src);
-        }
-        return Token::NewIdentifier(src, info);
+        go = false;
+        break;
     }
   }
-  return Token::NewEOF();
+  absl::string_view src(start, cur_ptr_ - start);
+  IdentifierInfo* info = idents_.MakeIdentifier(src);
+  if (info->is_keyword()) {
+    return Token(info->type(), src);
+  }
+  return Token::NewIdentifier(src, info);
 }
 
 Token Lexer::LexNumericConstant() {
