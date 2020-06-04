@@ -3,6 +3,17 @@
 
 namespace ptcc {
 
+namespace {
+
+bool isHexChar(const char c) {
+  return (c >= '0' && c <= '9') || (c >= 'a' && c <= 'f') ||
+         (c >= 'A' && c <= 'F');
+}
+
+bool isOctalDigit(const char c) { return c >= '0' && c <= '7'; }
+
+}  // namespace
+
 Lexer::Lexer(absl::string_view text) : text_(text), cur_ptr_(text_.data()) {}
 
 Token Lexer::NextToken() {
@@ -326,10 +337,51 @@ Token Lexer::LexCharacterConstant() {
   // Already parsed at least one character of the constant already
   const char* start = cur_ptr_ - 1;
   // TODO: Actually write up proper character constant parsing
-  while (*cur_ptr_ != '\'' && *cur_ptr_ != '\0') {
-    cur_ptr_++;
+  while (true) {
+    while (*cur_ptr_ != '\'' && *cur_ptr_ != '\0' && *cur_ptr_ != '\\') {
+      cur_ptr_++;
+    }
+    if (*cur_ptr_ == '\'') {
+      cur_ptr_++;
+      break;
+    }
+    if (*cur_ptr_ == '0') {
+      break;
+    }
+    if (*cur_ptr_ == '\\') {
+      // Escape Sequence
+      cur_ptr_++;
+      if (*cur_ptr_ == '\'' || *cur_ptr_ == '"' || *cur_ptr_ == '?' ||
+          *cur_ptr_ == '\\' || *cur_ptr_ == 'a' || *cur_ptr_ == 'b' ||
+          *cur_ptr_ == 'f' || *cur_ptr_ == 'n' || *cur_ptr_ == 'r' ||
+          *cur_ptr_ == 't' || *cur_ptr_ == 'v') {
+        // Simple escape sequence
+        cur_ptr_++;
+        continue;
+      }
+      if (*cur_ptr_ == 'x') {
+        // Hexadecimal escape sequence
+        cur_ptr_++;
+        while (isHexChar(*cur_ptr_)) {
+          cur_ptr_++;
+        }
+        continue;
+      }
+      if (*cur_ptr_ == 'u' || *cur_ptr_ == 'U') {
+        // Universal character name
+        cur_ptr_++;
+        while (isHexChar(*cur_ptr_)) {
+          cur_ptr_++;
+        }
+        continue;
+      }
+      // Octal escape sequence
+      while (isOctalDigit(*cur_ptr_)) {
+        cur_ptr_++;
+      }
+      continue;
+    }
   }
-  if (*cur_ptr_ == '\'') cur_ptr_++;
   return Token(TokenType::CHARACTER_CONSTANT,
                absl::string_view(start, cur_ptr_ - start));
 }
@@ -369,16 +421,14 @@ Token Lexer::LexIdentifier() {
 }
 
 Token Lexer::LexNumericConstant() {
-  // Already parsed first character of numeric constant which is in [0-9.], need
-  // to parse the rest
+  // Already parsed first character of numeric constant which is in [0-9.],
+  // need to parse the rest
   const char* start = cur_ptr_ - 1;
   const char start_char = *start;
   if (start_char == '0' && (*cur_ptr_ == 'x' || *cur_ptr_ == 'X')) {
     // Hex
     cur_ptr_++;
-    while ((*cur_ptr_ >= '0' && *cur_ptr_ <= '9') ||
-           (*cur_ptr_ >= 'a' && *cur_ptr_ <= 'f') ||
-           (*cur_ptr_ >= 'A' && *cur_ptr_ <= 'F')) {
+    while (isHexChar(*cur_ptr_)) {
       cur_ptr_++;
     }
     if (*cur_ptr_ != 'p' && *cur_ptr_ != 'P' && *cur_ptr_ != '.') {
@@ -393,9 +443,7 @@ Token Lexer::LexNumericConstant() {
     if (*cur_ptr_ == '.') {
       cur_ptr_++;
     }
-    while ((*cur_ptr_ >= '0' && *cur_ptr_ <= '9') ||
-           (*cur_ptr_ >= 'a' && *cur_ptr_ <= 'f') ||
-           (*cur_ptr_ >= 'A' && *cur_ptr_ <= 'F')) {
+    while (isHexChar(*cur_ptr_)) {
       cur_ptr_++;
     }
     if (*cur_ptr_ == 'p' || *cur_ptr_ == 'P') {
