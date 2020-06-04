@@ -17,3 +17,7 @@ char* wilde_literal() {
 char* oscar_wilde_literal() {
   return L"Oscar Wilde";
 }
+
+char* escaped_string() {
+  return "\t\tA man\n\t\tA plan\n\t\tA canal\n\t\tPanama";
+}
