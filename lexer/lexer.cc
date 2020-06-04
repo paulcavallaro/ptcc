@@ -379,9 +379,34 @@ Token Lexer::LexNumericConstant() {
            (*cur_ptr_ >= 'A' && *cur_ptr_ <= 'F')) {
       cur_ptr_++;
     }
-    // Need parse integer-suffix (ignore whether it's well-formed for now)
-    while (*cur_ptr_ == 'u' || *cur_ptr_ == 'U' || *cur_ptr_ == 'l' ||
-           *cur_ptr_ == 'L') {
+    if (*cur_ptr_ != 'p' && *cur_ptr_ != 'P' && *cur_ptr_ != '.') {
+      // Need parse integer-suffix (ignore whether it's well-formed for now)
+      while (*cur_ptr_ == 'u' || *cur_ptr_ == 'U' || *cur_ptr_ == 'l' ||
+             *cur_ptr_ == 'L') {
+        cur_ptr_++;
+      }
+      return Token(TokenType::NUMERIC_CONSTANT,
+                   absl::string_view(start, cur_ptr_ - start));
+    }
+    if (*cur_ptr_ == '.') {
+      cur_ptr_++;
+    }
+    while ((*cur_ptr_ >= '0' && *cur_ptr_ <= '9') ||
+           (*cur_ptr_ >= 'a' && *cur_ptr_ <= 'f') ||
+           (*cur_ptr_ >= 'A' && *cur_ptr_ <= 'F')) {
+      cur_ptr_++;
+    }
+    if (*cur_ptr_ == 'p' || *cur_ptr_ == 'P') {
+      cur_ptr_++;
+    }
+    if (*cur_ptr_ == '+' || *cur_ptr_ == '-') {
+      cur_ptr_++;
+    }
+    while (*cur_ptr_ >= '0' && *cur_ptr_ <= '9') {
+      cur_ptr_++;
+    }
+    if (*cur_ptr_ == 'f' || *cur_ptr_ == 'F' || *cur_ptr_ == 'l' ||
+        *cur_ptr_ == 'L') {
       cur_ptr_++;
     }
     return Token(TokenType::NUMERIC_CONSTANT,
