@@ -10,3 +10,6 @@ build/*
 /.buckd
 /bazel-*
 scratch/bin/*bazel-*
+
+# Bazel lock file
+MODULE.bazel.lock

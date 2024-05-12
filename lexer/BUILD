@@ -8,7 +8,7 @@ cc_library(
   ],
   deps=[
     ':token',
-    '@com_google_absl//absl/strings:cord',
+    '@abseil-cpp//absl/strings:cord',
   ],
 )
 
@@ -23,8 +23,8 @@ cc_library(
   deps=[
     ':identifier-database',
     ':token-type',
-    '@com_google_absl//absl/strings:strings',
-    '@com_github_google_glog//:glog',
+    '@abseil-cpp//absl/strings:strings',
+    '@glog//:glog',
   ],
 )
 
@@ -48,9 +48,9 @@ cc_library(
   ],
   deps=[
     '//util:fd-closer',
-    '@com_google_absl//absl/status:status',
-    '@com_google_absl//absl/strings:cord',
-    '@com_google_absl//absl/strings:strings',
+    '@abseil-cpp//absl/status:status',
+    '@abseil-cpp//absl/strings:cord',
+    '@abseil-cpp//absl/strings:strings',
   ],
 )
 
@@ -62,8 +62,8 @@ cc_binary(
   deps=[
     '//lexer:lexer',
     '//util:file-utils',
-    '@com_google_absl//absl/flags:parse',
-    '@com_google_absl//absl/strings:strings',
+    '@abseil-cpp//absl/flags:parse',
+    '@abseil-cpp//absl/strings:strings',
   ],
 )
 
@@ -77,7 +77,7 @@ cc_library(
   ],
   deps=[
     ':token-type',
-    '@com_google_absl//absl/container:node_hash_map',
-    '@com_google_absl//absl/strings:strings',
+    '@abseil-cpp//absl/container:node_hash_map',
+    '@abseil-cpp//absl/strings:strings',
   ],
 )

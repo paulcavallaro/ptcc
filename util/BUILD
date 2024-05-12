@@ -9,7 +9,7 @@ cc_library(
     'fd-closer.h',
   ],
   deps=[
-    '@com_github_google_glog//:glog',
+    '@glog//:glog',
   ],
 )
 
@@ -23,6 +23,6 @@ cc_library(
   ],
   deps=[
     ':fd-closer',
-    '@com_google_absl//absl/strings:strings',
+    '@abseil-cpp//absl/strings:strings',
   ],
 )

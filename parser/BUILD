@@ -9,6 +9,6 @@ cc_library(
         'scanner.h',
     ],
     deps=[
-        '@com_github_google_glog//:glog',
+        '@glog//:glog',
     ],
 )
