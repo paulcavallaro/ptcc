@@ -12,3 +12,26 @@ cc_library(
         '@glog//:glog',
     ],
 )
+
+cc_library(
+    name='recursive_descent_parser',
+    hdrs=[
+        'recursive_descent_parser.h',
+    ],
+    srcs=[
+        'recursive_descent_parser.cc',
+    ],
+    deps=[
+        ':parse_tree',
+        '@abseil-cpp//absl/status:statusor',
+        '@abseil-cpp//absl/strings:cord',
+    ],
+)
+
+cc_library(
+    name='parse_tree',
+    hdrs=[
+        'parse_tree.h',
+    ],
+    deps=[],
+)
